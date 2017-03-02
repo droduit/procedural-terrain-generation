@@ -42,7 +42,7 @@ void Display() {
     moonMat = glm::rotate(moonMat, time_s * 4.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 
     // compute the transformation matrices
-    //space.Draw();
+    space.Draw();
     sun.Draw(sunMat);
     earth.Draw(earthMat);
     moon.Draw(moonMat);
