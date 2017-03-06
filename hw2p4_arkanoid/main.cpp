@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
     // attempt to open the window: fails if required version unavailable
     // note some Intel GPUs do not support OpenGL 3.2
     // note update the driver of your graphic card
-    GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "planets", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "funkynoid", NULL, NULL);
     if(!window) {
         glfwTerminate();
         return EXIT_FAILURE;

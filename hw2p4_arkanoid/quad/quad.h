@@ -15,6 +15,7 @@ class Quad {
         GLuint vertex_buffer_object_; // memory buffer
         GLuint texture_id_; // texture ID
         GLuint MVP_id_; // MVP matrix
+        GLuint time_id;
 
     public:
         float GetX() { return x; }
@@ -145,9 +146,10 @@ class Quad {
                 stbi_image_free(image);
             }
 
-            // Model View Project uniform
+            // Uniforms
             {
                 MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+                time_id = glGetUniformLocation(program_id_, "time");
             }
 
             // to avoid the current object being polluted
@@ -182,6 +184,8 @@ class Quad {
             // setup MVP
             glm::mat4 MVP = projection*view*model*PS;
             glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
+
+            glUniform1f(time_id, glfwGetTime());
 
             // glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
