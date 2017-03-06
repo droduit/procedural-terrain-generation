@@ -33,7 +33,9 @@ void Update(float dt) {
     paddle.Update(dt);
     ball.Update(dt);
 
-    if (ball.CollidesWith(paddle))
+    if (ball.GetY() <= -0.98f)
+        cout << "\e[31;1mOoops!\e[0m" << endl;
+    else if (ball.CollidesWith(paddle))
         ball.Bounce(ball.GetX() - paddle.GetX());
 }
 
