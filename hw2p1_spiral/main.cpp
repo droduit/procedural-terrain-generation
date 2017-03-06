@@ -11,10 +11,10 @@
 
 
 enum Spiral { SIMPLE, FERMAT };
-const Spiral SPIRAL_MODE = SIMPLE; // CHANGE MODE HERE
+const Spiral SPIRAL_MODE = FERMAT; // CHANGE MODE HERE
 
 const int N_TRIANGLES_SIMPLE_SPIRAL = 50;
-const int N_TRIANGLES_FERMAT_SPIRAL = 200;
+const int N_TRIANGLES_FERMAT_SPIRAL = 500.0f;
 
 Triangle triangle;
 
@@ -31,7 +31,7 @@ void Display() {
     // compute transformations here
     switch (SPIRAL_MODE) {
     case SIMPLE: {
-        const float SCALE_FACTOR = 0.08f;
+        const float SCALE_FACTOR = 0.05f;
         const float TRANSLATION_FACTOR = 0.6f;
         const float ROTATION_FACTOR = 6.0f;
         for (int i = 0; i < N_TRIANGLES_SIMPLE_SPIRAL; ++i) {
@@ -49,6 +49,20 @@ void Display() {
     }
     case FERMAT: {
         // fermat: r = c * sqrt(n); theta = n * 137.508º (to convert to rads)
+        const float SCALE_FACTOR = 0.02f;
+        const float FERMAT_FACTOR = 0.6f;
+        const float TRANSLATION_FACTOR = 0.06f;
+        const glm::mat4 SCALE = glm::scale(IDENTITY_MATRIX, glm::vec3(SCALE_FACTOR, SCALE_FACTOR, 0.0f));
+        for (int i = 0; i < N_TRIANGLES_FERMAT_SPIRAL; ++i) {
+            float r = FERMAT_FACTOR * sqrt(i);
+            float theta = i * (137.508f * M_PI / 180.0f);
+            glm::mat4 T = glm::translate(IDENTITY_MATRIX, glm::vec3(TRANSLATION_FACTOR*r, 0.0f, 0.0f));
+            glm::mat4 R = glm::rotate(IDENTITY_MATRIX, theta, glm::vec3(0.0f, 0.0f, 1.0f));
+
+            // Rotation done AFTER the translation to create the spiral effet
+            glm::mat4 model = R * T * SCALE;
+            triangle.Draw(model);
+        }
         break;
     }
     }
