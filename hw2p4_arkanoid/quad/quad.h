@@ -17,29 +17,29 @@ class Quad {
         GLuint MVP_id_; // MVP matrix
 
     public:
-        float getX() { return x; }
-        float getY() { return y; }
-        float getWidth() { return width; }
-        float getHeight() { return height; }
+        float GetX() { return x; }
+        float GetY() { return y; }
+        float GetWidth() { return width; }
+        float GetHeight() { return height; }
 
-        void setX(float x) { this->x = x; }
-        void setY(float y) { this->y = y; }
-        void setWidth(float w) { this->width = w; }
-        void setHeight(float h) { this->height = h; }
+        void SetX(float x) { this->x = x; }
+        void SetY(float y) { this->y = y; }
+        void SetWidth(float w) { this->width = w; }
+        void SetHeight(float h) { this->height = h; }
 
-        void setPosition(float x, float y) {
-            setX(x);
-            setY(y);
+        void SetPosition(float x, float y) {
+            SetX(x);
+            SetY(y);
         }
 
-        void setSize(float width, float height) {
-            setWidth(width);
-            setHeight(height);
+        void SetSize(float width, float height) {
+            SetWidth(width);
+            SetHeight(height);
         }
 
         void Update(float dt) {}
 
-        bool collidesWith(Quad &that) {
+        bool CollidesWith(Quad &that) {
             const float thisHW = this->width / 2.0f;
             const float thisHH = this->height / 2.0f;
             const float thatHW = that.width / 2.0f;

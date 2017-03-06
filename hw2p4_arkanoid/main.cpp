@@ -27,8 +27,8 @@ void Update(float dt) {
     paddle.Update(dt);
     ball.Update(dt);
 
-    if (ball.collidesWith(paddle))
-        ball.bounce(ball.getX() - paddle.getX());
+    if (ball.CollidesWith(paddle))
+        ball.Bounce(ball.GetX() - paddle.GetX());
 }
 
 void Display() {
@@ -73,7 +73,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
     }
 
-    paddle.setDirection(direction);
+    paddle.SetDirection(direction);
 }
 
 int main(int argc, char *argv[]) {

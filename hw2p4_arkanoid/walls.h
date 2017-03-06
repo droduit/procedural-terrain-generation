@@ -11,16 +11,16 @@ class Walls {
     public:
         void Init() {
             leftWall.Init(NULL);
-            leftWall.setPosition(-0.975f, 0.0f);
-            leftWall.setSize(THICKNESS, 2.0f);
+            leftWall.SetPosition(-0.975f, 0.0f);
+            leftWall.SetSize(THICKNESS, 2.0f);
 
             topWall.Init(NULL);
-            topWall.setPosition(0.0f, 0.975f);
-            topWall.setSize(2.0f, THICKNESS);
+            topWall.SetPosition(0.0f, 0.975f);
+            topWall.SetSize(2.0f, THICKNESS);
 
             rightWall.Init(NULL);
-            rightWall.setPosition(0.975f, 0.0f);
-            rightWall.setSize(THICKNESS, 2.0f);
+            rightWall.SetPosition(0.975f, 0.0f);
+            rightWall.SetSize(THICKNESS, 2.0f);
         }
 
         void Draw() {
