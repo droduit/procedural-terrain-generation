@@ -9,6 +9,12 @@
 #include "paddle.h"
 #include "ball.h"
 
+#define DIRECTION_NONE 0.0f
+#define DIRECTION_LEFT -1.0f
+#define DIRECTION_RIGHT 1.0f
+
+#define WINDOW_SIZE 512
+
 // Quad stuff1;
 Walls walls;
 Paddle paddle;
@@ -45,16 +51,16 @@ void ErrorCallback(int error, const char* description) {
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    static float direction = 0.0f;
+    static float direction = DIRECTION_NONE;
 
     if (action == GLFW_RELEASE) {
         switch (key) {
             case GLFW_KEY_LEFT:
-                direction += 1.0f;
+                direction -= DIRECTION_LEFT;
                 break;
 
             case GLFW_KEY_RIGHT:
-                direction -= 1.0f;
+                direction -= DIRECTION_RIGHT;
                 break;
         }
     } else if (action == GLFW_PRESS) {
@@ -64,11 +70,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                 break;
 
             case GLFW_KEY_LEFT:
-                direction -= 1.0f;
+                direction += DIRECTION_LEFT;
                 break;
 
             case GLFW_KEY_RIGHT:
-                direction += 1.0f;
+                direction += DIRECTION_RIGHT;
                 break;
         }
     }
@@ -95,7 +101,7 @@ int main(int argc, char *argv[]) {
     // attempt to open the window: fails if required version unavailable
     // note some Intel GPUs do not support OpenGL 3.2
     // note update the driver of your graphic card
-    GLFWwindow* window = glfwCreateWindow(512, 512, "planets", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "planets", NULL, NULL);
     if(!window) {
         glfwTerminate();
         return EXIT_FAILURE;

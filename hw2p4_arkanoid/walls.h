@@ -2,7 +2,9 @@
 
 #include "quad/quad.h"
 
-#define THICKNESS 0.05f
+#define WALL_THICKNESS 0.05f
+#define WALL_OFFSET 0.975f
+#define WALL_HEIGHT 2.0f
 
 class Walls {
     private:
@@ -11,16 +13,16 @@ class Walls {
     public:
         void Init() {
             leftWall.Init(NULL);
-            leftWall.SetPosition(-0.975f, 0.0f);
-            leftWall.SetSize(THICKNESS, 2.0f);
+            leftWall.SetPosition(-WALL_OFFSET, 0.0f);
+            leftWall.SetSize(WALL_THICKNESS, WALL_HEIGHT);
 
             topWall.Init(NULL);
-            topWall.SetPosition(0.0f, 0.975f);
-            topWall.SetSize(2.0f, THICKNESS);
+            topWall.SetPosition(0.0f, WALL_OFFSET);
+            topWall.SetSize(WALL_HEIGHT, WALL_THICKNESS);
 
             rightWall.Init(NULL);
-            rightWall.SetPosition(0.975f, 0.0f);
-            rightWall.SetSize(THICKNESS, 2.0f);
+            rightWall.SetPosition(WALL_OFFSET, 0.0f);
+            rightWall.SetSize(WALL_THICKNESS, WALL_HEIGHT);
         }
 
         void Draw() {
