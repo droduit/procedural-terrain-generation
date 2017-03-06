@@ -14,7 +14,7 @@ class Walls {
         void Init() {
             leftWall.Init(NULL);
             leftWall.SetPosition(-WALL_OFFSET, 0.0f);
-            leftWall.SetSize(WALL_THICKNESS, WALL_HEIGHT);
+            leftWall.SetSize(WALL_THICKNESS, WALL_HEIGHT - 0.05f);
 
             topWall.Init(NULL);
             topWall.SetPosition(0.0f, WALL_OFFSET);
@@ -22,7 +22,7 @@ class Walls {
 
             rightWall.Init(NULL);
             rightWall.SetPosition(WALL_OFFSET, 0.0f);
-            rightWall.SetSize(WALL_THICKNESS, WALL_HEIGHT);
+            rightWall.SetSize(WALL_THICKNESS, WALL_HEIGHT - 0.05f);
         }
 
         void Draw() {
