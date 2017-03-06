@@ -7,6 +7,8 @@
 
 #include "quad/quad.h"
 
+#define TIME_FACTOR 4.0f
+
 // Quad stuff1;
 // ...
 
@@ -24,7 +26,7 @@ void Init() {
 
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT);
-    float time_s = glfwGetTime();
+    float time_s = TIME_FACTOR * glfwGetTime();
 
     glm::mat4 sunMat = glm::mat4(1.0f);
     sunMat = glm::translate(sunMat, glm::vec3(0.2, 0.0, 0.0));
