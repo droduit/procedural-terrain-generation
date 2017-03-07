@@ -38,7 +38,7 @@ class Quad {
             SetHeight(height);
         }
 
-        void Update(float dt) {}
+        void Update(float dt);
 
         bool CollidesWith(Quad &that) {
             const float thisHW = this->width / 2.0f;

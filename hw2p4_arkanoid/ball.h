@@ -42,7 +42,7 @@ class Ball : public Quad {
             SetPosition(x, y);
         }
 
-        void Bounce(float vx) {
-            SetVx(this->vx + BOUNCE_FACTOR * vx);
+        void Bounce(float dx) {
+            SetVx(this->vx + BOUNCE_FACTOR * dx);
         }
 };
