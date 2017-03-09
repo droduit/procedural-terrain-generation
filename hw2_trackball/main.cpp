@@ -6,6 +6,7 @@
 #include "icg_helper.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 #include "cube/cube.h"
 #include "grid/grid.h"

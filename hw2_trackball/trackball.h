@@ -3,6 +3,8 @@
 
 using namespace glm;
 
+#define ANGLE_FACTOR 1.0f
+
 class Trackball {
     private:
         float radius;
@@ -46,7 +48,6 @@ class Trackball {
             vec3 current_pos = vec3(x, y, 0.0f);
             ProjectOntoSurface(current_pos);
 
-            mat4 rotation = IDENTITY_MATRIX;
             // TODO 3: Calculate the rotation given the projections of the anocher
             // point and the current position. The rotation axis is given by the cross
             // product of the two projected points, and the angle between them can be
@@ -54,6 +55,9 @@ class Trackball {
             // you might want to scale the rotation magnitude by a scalar factor.
             // p.s. No need for using complicated quaternions as suggested inthe wiki
             // article.
-            return rotation;
+            vec3 axis = normalize(cross(anchor_pos, current_pos));
+            float angle = orientedAngle(normalize(anchor_pos), normalize(current_pos), axis);
+
+            return rotate(IDENTITY_MATRIX, ANGLE_FACTOR * angle, axis);
         }
 };
