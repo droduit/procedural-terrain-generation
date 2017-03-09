@@ -8,8 +8,12 @@ include(common/icg_settings.cmake)
 #add_subdirectory(lab1_helloworld)
 
 # week 2
-add_subdirectory(hw1p1_spiral)
-add_subdirectory(hw1p2_checkerboard)
-add_subdirectory(hw1p3_planets)
-add_subdirectory(hw1p4_arkanoid)
+#add_subdirectory(lab2_intro_to_glsl)
+#add_subdirectory(hw1p1_spiral)
+#add_subdirectory(hw1p2_checkerboard)
+#add_subdirectory(hw1p3_planets)
+#add_subdirectory(hw1p4_arkanoid)
 
+# week 3
+#add_subdirectory(lab3_opengl3d)
+add_subdirectory(hw2_trackball)
