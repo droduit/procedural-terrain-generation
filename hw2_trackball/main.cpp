@@ -50,7 +50,33 @@ mat4 OrthographicProjection(float left, float right, float bottom,
 mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
     // TODO 1: Create a perspective projection matrix given the field of view,
     // aspect ratio, and near and far plane distances.
-    mat4 projection = IDENTITY_MATRIX;
+    assert(far > near);
+    mat4 projection = mat4(0.0f);
+
+    /*
+    float f = 1.0f / tan(fovy / 2.0f);
+    projection[0][0] = f / aspect;
+    projection[1][1] = f;
+    projection[2][2] = (far + near) / (near - far);
+    projection[2][3] = -1.0f;
+    projection[3][2] = (2.0f*far*near) / (near - far);
+    */
+
+    float top = near * tan(fovy / 2);
+    float bottom = -top;
+    float right = top * aspect;
+    float left = -right;
+
+    projection[0][0] = 2.0f*near / (right - left);
+    projection[1][1] = 2.0f*near / (top - bottom);
+    /*
+    projection[2][0] = (right + left) / (right - left);
+    projection[2][1] = (top + bottom) / (top - bottom);
+    */
+    projection[2][2] = -(far + near) / (far - near);
+    projection[2][3] = -1.0f;
+    projection[3][2] = -2.0f * far*near / (far - near);
+
     return projection;
 }
 
@@ -188,12 +214,14 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, window_width, window_height);
 
     // TODO 1: Use a perspective projection instead;
-    // projection_matrix = PerspectiveProjection(45.0f,
-    //                                           (GLfloat)window_width / window_height,
-    //                                           0.1f, 100.0f);
+    projection_matrix = PerspectiveProjection(45.0f,
+                                               (GLfloat)window_width / window_height,
+                                               0.1f, 100.0f);
+    /*
     GLfloat top = 1.0f;
     GLfloat right = (GLfloat)window_width / window_height * top;
     projection_matrix = OrthographicProjection(-right, right, -top, top, -10.0, 10.0f);
+    */
 }
 
 void ErrorCallback(int error, const char* description) {
