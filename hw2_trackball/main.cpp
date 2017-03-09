@@ -53,29 +53,12 @@ mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
     assert(far > near);
     mat4 projection = mat4(0.0f);
 
-    /*
     float f = 1.0f / tan(fovy / 2.0f);
     projection[0][0] = f / aspect;
     projection[1][1] = f;
     projection[2][2] = (far + near) / (near - far);
     projection[2][3] = -1.0f;
     projection[3][2] = (2.0f*far*near) / (near - far);
-    */
-
-    float top = near * tan(fovy / 2);
-    float bottom = -top;
-    float right = top * aspect;
-    float left = -right;
-
-    projection[0][0] = 2.0f*near / (right - left);
-    projection[1][1] = 2.0f*near / (top - bottom);
-    /*
-    projection[2][0] = (right + left) / (right - left);
-    projection[2][1] = (top + bottom) / (top - bottom);
-    */
-    projection[2][2] = -(far + near) / (far - near);
-    projection[2][3] = -1.0f;
-    projection[3][2] = -2.0f * far*near / (far - near);
 
     return projection;
 }
