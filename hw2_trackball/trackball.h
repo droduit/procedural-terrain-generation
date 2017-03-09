@@ -16,6 +16,14 @@ class Trackball {
         // The trackball radius is given by 'radius_'.
         void ProjectOntoSurface(vec3& p) const {
             // TODO 2: Implement this function. Read above link for details.
+
+            float sqr = radius * radius;
+            float sqxy = p.x * p.x + p.y * p.y;
+
+            if (sqxy <= sqr)
+                p.z = sqrt(sqr - sqxy);
+            else
+                p.z = sqr / (2.0f * sqrt(sqxy));
         }
 
     public:
