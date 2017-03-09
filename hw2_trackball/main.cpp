@@ -13,6 +13,8 @@
 
 #include "trackball.h"
 
+#define ZOOM_FACTOR 8.0f
+
 Cube cube;
 Grid grid;
 
@@ -180,7 +182,7 @@ void MousePos(GLFWwindow* window, double x, double y) {
         // should zoom out and it. For that you have to update the current
         // 'view_matrix' with a translation along the z axis.
         vec2 p = TransformScreenCoords(window, x, y);
-        float dy = 8.0f * (p.y - last_y);
+        float dy = ZOOM_FACTOR * (p.y - last_y);
         view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, dy));
         last_y = p.y;
     }
