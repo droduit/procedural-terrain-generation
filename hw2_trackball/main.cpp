@@ -18,6 +18,7 @@ Grid grid;
 
 int window_width = 800;
 int window_height = 600;
+double last_y = 0.0;
 
 using namespace glm;
 
@@ -115,7 +116,7 @@ void Display() {
     const float time = glfwGetTime();
 
     mat4 cube_transf = rotate(mat4(1.0f), 2.0f * time, vec3(0.0f, 1.0f, 0.0f));
-    cube_transf = translate(cube_transf, vec3(0.75f, 0.0f, 0.0f));
+    cube_transf = translate(cube_transf, vec3(0.75f, 0.00001f, 0.0f));
     cube_transf = rotate(cube_transf, 2.0f * time, vec3(0.0f, 1.0f, 0.0f));
 
     mat4 cube_model_matrix = cube_transf * cube_scale;
@@ -145,6 +146,11 @@ void MouseButton(GLFWwindow* window, int button, int action, int mod) {
         trackball.BeingDrag(p.x, p.y);
         old_trackball_matrix = trackball_matrix;
         // Store the current state of the model matrix.
+    } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        double x_i, y_i;
+        glfwGetCursorPos(window, &x_i, &y_i);
+        vec2 p = TransformScreenCoords(window, x_i, y_i);
+        last_y = p.y;
     }
 }
 
@@ -164,7 +170,10 @@ void MousePos(GLFWwindow* window, double x, double y) {
         // moving the mouse cursor up and down (along the screen's y axis)
         // should zoom out and it. For that you have to update the current
         // 'view_matrix' with a translation along the z axis.
-        // view_matrix = ...
+        vec2 p = TransformScreenCoords(window, x, y);
+        float dy = 8.0f * (p.y - last_y);
+        view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, dy));
+        last_y = p.y;
     }
 }
 
