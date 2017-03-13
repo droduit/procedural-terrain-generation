@@ -40,17 +40,46 @@ class Grid {
                 // your grid should have the same dimension as that quad, i.e.,
                 // reach from [-1, -1] to [1, 1].
 
-                // vertex position of the triangles.
-                vertices.push_back(-1.0f); vertices.push_back( 1.0f);
-                vertices.push_back( 1.0f); vertices.push_back( 1.0f);
-                vertices.push_back( 1.0f); vertices.push_back(-1.0f);
-                vertices.push_back(-1.0f); vertices.push_back(-1.0f);
+                // Add the vertices for the grid
+                // There are (n+1)^2 vertices for a n-by-n grid
+                float delta = 2.0f/grid_dim;
+                for (int y = 0; y <= grid_dim; ++y) {
+                    for (int x = 0; x <= grid_dim; ++x) {
+                        vertices.push_back(-1.0f + delta*x); // x coordinate
+                        vertices.push_back(-1.0f + delta*y); // y coordinate
+                    }
+                }
 
-                // and indices.
-                indices.push_back(0);
-                indices.push_back(1);
-                indices.push_back(3);
-                indices.push_back(2);
+                // helper function to convert x and y coordinate to an index
+                auto to_index = [grid_dim](int x, int y) {
+                    return x + y * (grid_dim + 1);
+                };
+
+                // There are 2*n^2 triangles, we create the two forming the
+                // square starting at coord (x,y)
+                // As we need to add triangle lines following an S-shape,
+                // we must have two modes for adding indices: one for adding
+                // triangles from left to right (forward) and one for adding
+                // triangles from right to left (backward).
+                for (int y = 0; y < grid_dim; ++y) {
+                    for (int x = 0; x < grid_dim; ++x) {
+                        if (y % 2 == 0) { // forward (normal)
+                            indices.push_back(to_index(x, y+1));
+                            indices.push_back(to_index(x+1, y+1));
+                            indices.push_back(to_index(x, y));
+                            indices.push_back(to_index(x+1, y));
+                        } else { // backward
+                            int x_ = grid_dim - x - 1;
+                            indices.push_back(to_index(x_+1, y+1));
+                            indices.push_back(to_index(x_, y+1));
+                            indices.push_back(to_index(x_+1, y));
+                            indices.push_back(to_index(x_, y));
+                        }
+                    }
+                    // We need to add the last vertex twice before getting
+                    // to the next line in order to get
+                    indices.push_back(indices.back());
+                }
 
                 num_indices_ = indices.size();
 
