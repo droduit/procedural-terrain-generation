@@ -64,21 +64,23 @@ class Grid {
                 for (int y = 0; y < grid_dim; ++y) {
                     for (int x = 0; x < grid_dim; ++x) {
                         if (y % 2 == 0) { // forward (normal)
-                            indices.push_back(to_index(x, y+1));
-                            indices.push_back(to_index(x+1, y+1));
-                            indices.push_back(to_index(x, y));
+                            if (x == 0) { // initial points at the beginning of the line
+                                indices.push_back(to_index(x, y));
+                                indices.push_back(to_index(x, y+1));
+                            }
                             indices.push_back(to_index(x+1, y));
+                            indices.push_back(to_index(x+1, y+1));
+
                         } else { // backward
                             int x_ = grid_dim - x - 1;
-                            indices.push_back(to_index(x_+1, y+1));
-                            indices.push_back(to_index(x_, y+1));
-                            indices.push_back(to_index(x_+1, y));
+                            if (x == 0) { // initial points at the beginning of the line
+                                indices.push_back(to_index(x_+1, y));
+                                indices.push_back(to_index(x_+1, y+1));
+                            }
                             indices.push_back(to_index(x_, y));
+                            indices.push_back(to_index(x_, y+1));
                         }
                     }
-                    // We need to add the last vertex twice before getting
-                    // to the next line in order to get
-                    indices.push_back(indices.back());
                 }
 
                 num_indices_ = indices.size();

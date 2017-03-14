@@ -112,11 +112,12 @@ void Init() {
     view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
     trackball_matrix = IDENTITY_MATRIX;
 
+    const float CUBE_SCALE = 0.15f;
     // scaling matrix to scale the cube down to a reasonable size.
-    cube_scale = mat4(0.25f, 0.0f,  0.0f,  0.0f,
-                      0.0f,  0.25f, 0.0f,  0.0f,
-                      0.0f,  0.0f,  0.25f, 0.0f,
-                      0.0f,  0.0f,  0.0f,  1.0f);
+    cube_scale = mat4(CUBE_SCALE,       0.0f,       0.0f,  0.0f,
+                            0.0f, CUBE_SCALE,       0.0f,  0.0f,
+                            0.0f,       0.0f, CUBE_SCALE,  0.0f,
+                            0.0f,       0.0f,       0.0f,  1.0f);
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
 }
 
@@ -132,10 +133,10 @@ void Display() {
 
     mat4 cube_model_matrix = cube_transf * cube_scale;
 
-    cube.Draw(trackball_matrix * cube_model_matrix, view_matrix, projection_matrix);
+    cube.Draw(cube_model_matrix, view_matrix * trackball_matrix, projection_matrix);
 
     // draw a quad on the ground.
-    grid.Draw(time, trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    grid.Draw(time, quad_model_matrix, view_matrix * trackball_matrix, projection_matrix);
 }
 
 // transforms glfw screen coordinates into normalized OpenGL coordinates.
