@@ -58,6 +58,9 @@ class Trackball {
             vec3 axis = normalize(cross(anchor_pos, current_pos));
             float angle = orientedAngle(normalize(anchor_pos), normalize(current_pos), axis);
 
-            return rotate(IDENTITY_MATRIX, ANGLE_FACTOR * angle, axis);
+            if (abs(angle) < 0.0001) // rotate doesn't like when the angle is 0.0
+                return IDENTITY_MATRIX;
+            else
+                return rotate(IDENTITY_MATRIX, ANGLE_FACTOR * angle, axis);
         }
 };
