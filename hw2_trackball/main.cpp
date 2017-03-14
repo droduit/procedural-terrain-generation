@@ -127,7 +127,7 @@ void Display() {
 
     const float time = glfwGetTime();
 
-    mat4 cube_transf = rotate(mat4(1.0f), 2.0f * time, vec3(0.0f, 1.0f, 0.0f));
+    mat4 cube_transf = rotate(mat4(1.0f), time, vec3(0.0f, 1.0f, 0.0f));
     cube_transf = translate(cube_transf, vec3(0.75f, 0.00001f, 0.0f));
     cube_transf = rotate(cube_transf, 2.0f * time, vec3(0.0f, 1.0f, 0.0f));
 
