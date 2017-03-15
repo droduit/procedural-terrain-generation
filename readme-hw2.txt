@@ -79,7 +79,7 @@ We also implement a more complex, but more realistic, way to simulate water usin
 You can enable this method by uncommenting the `ENABLE_GERSTNER_WAVES` define in `grid_vshader.glsl`.
 You may also extend the size of the grid for a better result.
 
-This method works by adding the effects of multiple waves together. A wave is defined by the following list of properties:
+This method works by adding the effects of multiple waves together. We won't paraphrase the GPU Gem, but we will describe the properties that define a wave:
 
   * direction: a normalized vector containing the wave movement's direction
   * frequency: the length of the wave
