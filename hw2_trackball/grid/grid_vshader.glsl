@@ -2,7 +2,7 @@
 #define M_PI 3.1415926535897932384626433832795
 
 // Source of the Gerstner Waves implementation: http://http.developer.nvidia.com/GPUGems/gpugems_ch01.html
-#define ENABLE_GERSTNER_WAVES
+//#define ENABLE_GERSTNER_WAVES
 
 in vec2 position;
 
