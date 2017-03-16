@@ -3,6 +3,9 @@
 in vec3 vpoint;
 in vec3 vnormal;
 
+out vec3 normal_mv;
+out vec3 light_dir;
+out vec3 view_dir;
 
 uniform mat4 projection;
 uniform mat4 model;
@@ -19,4 +22,9 @@ void main() {
     // 2) compute the light direction light_dir.
     // 3) compute the view direction view_dir.
     //<<<<<<<<<< TODO <<<<<<<<<<<
+
+    // Same as Phong
+    normal_mv = mat3(inverse(transpose(MV))) * vnormal;
+    light_dir = light_pos - vpoint_mv.xyz;
+    view_dir = -vpoint_mv.xyz;
 }
