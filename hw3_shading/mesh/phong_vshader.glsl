@@ -18,11 +18,15 @@ void main() {
     ///>>>>>>>>>> TODO >>>>>>>>>>>
     /// TODO 1.1: Phong shading.
     /// 1) compute normal_mv using the model_view matrix.
-    normal_mv = normalize(mat3(inverse(transpose(MV))) * vnormal);
     /// 2) compute the light direction light_dir.
-    light_dir = light_pos - vpoint_mv.xyz;
     /// 3) compute the view direction view_dir.
-    view_dir = -vpoint_mv.xyz;
     ///<<<<<<<<<< TODO <<<<<<<<<<<
 
+    normal_mv = normalize(mat3(inverse(transpose(MV))) * vnormal);
+
+    // We consider the coordinate of the light to be in camera coordinates
+    //vec4 light_pos_mv = view * vec4(light_pos, 1.0);
+    light_dir = light_pos - vpoint_mv.xyz;
+
+    view_dir = -vpoint_mv.xyz;
 }
