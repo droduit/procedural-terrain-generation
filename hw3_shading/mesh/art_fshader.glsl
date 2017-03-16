@@ -20,8 +20,8 @@ void main() {
     vec3 light_dir = normalize(light_dir);
     vec3 view_dir = normalize(view_dir);
 
-    float nl = dot(normal_mv, light_dir);
-    float rv = dot(reflect(-light_dir, normal_mv), view_dir);
+    float nl = clamp(dot(normal_mv, light_dir), 0.0, 1.0);
+    float rv = clamp(dot(reflect(-light_dir, normal_mv), view_dir), 0.0, 1.0);
 
     vec2 texcoord = vec2(nl, pow(rv, alpha));
 
