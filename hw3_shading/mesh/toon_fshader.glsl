@@ -31,11 +31,11 @@ void main() {
 
     vec3 ambient = La * ka;
 
-    vec3 diffuse, specular = vec3(0.0);
+    vec3 diffuse = vec3(0.0), specular = vec3(0.0);
     if(lambert > 0.0) {
         diffuse = Ld * kd * texture(tex1D, lambert).r;
-        specular = Ls * ks * texture(tex1D, pow(max(rv, 0.0), alpha)).r;
+        specular = Ls * ks * texture(tex1D, pow(clamp(rv, 0.0, 1.0), alpha)).r;
     }
 
-    color = ambient + diffuse + specular; //texture(tex1D, coord).rgb;
+    color = ambient + diffuse + specular;
 }
