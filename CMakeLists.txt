@@ -12,8 +12,10 @@ include(common/icg_settings.cmake)
 #add_subdirectory(hw1p1_spiral)
 #add_subdirectory(hw1p2_checkerboard)
 #add_subdirectory(hw1p3_planets)
-#add_subdirectory(hw1p4_arkanoid)
 
 # week 3
 #add_subdirectory(lab3_opengl3d)
-add_subdirectory(hw2_trackball)
+#add_subdirectory(hw2_trackball)
+
+# week 4
+add_subdirectory(hw3_shading)
