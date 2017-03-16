@@ -5,8 +5,15 @@ out vec3 color;
 
 uniform sampler1D tex1D;
 
+uniform vec3 La, Ld, Ls; // colors of the lights
+uniform vec3 ka, kd, ks; // materials of the mesh
+uniform float alpha;
+
+in vec3 normal_mv;
+in vec3 light_dir;
+in vec3 view_dir;
+
 void main() {
-    color = vec3(0.0,0.0,0.0);
 
     ///>>>>>>>>>> TODO >>>>>>>>>>>
     /// TODO 2.2: Toon shading.
@@ -14,4 +21,21 @@ void main() {
     /// 2) compute diffuse term using the texture sampler tex.
     /// 3) compute specular term using the texture sampler tex.
     ///<<<<<<<<<< TODO <<<<<<<<<<<
+
+    vec3 normal_mv = normalize(normal_mv);
+    vec3 light_dir = normalize(light_dir);
+    vec3 view_dir = normalize(view_dir);
+
+    float lambert =  dot(normal_mv, light_dir);
+    float rv = dot(reflect(-light_dir, normal_mv), view_dir);
+
+    vec3 ambient = La * ka;
+
+    vec3 diffuse, specular = vec3(0.0);
+    if(lambert > 0.0) {
+        diffuse = Ld * kd * texture(tex1D, lambert).r;
+        specular = Ls * ks * texture(tex1D, pow(max(rv, 0.0), alpha)).r;
+    }
+
+    color = ambient + diffuse + specular; //texture(tex1D, coord).rgb;
 }

@@ -26,6 +26,10 @@ void main() {
     //<<<<<<<<<< TODO <<<<<<<<<<<
 
     normal_mv = normalize(mat3(inverse(transpose(MV))) * vnormal);
+
+    // We consider the coordinate of the light to be in camera coordinates
+    //vec4 light_pos_mv = view * vec4(light_pos, 1.0);
     light_dir = light_pos - vpoint_mv.xyz;
+
     view_dir = -vpoint_mv.xyz;
 }
