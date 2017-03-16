@@ -3,6 +3,9 @@
 
 out vec3 color;
 
+in vec3 normal_mv;
+in vec3 light_dir;
+in vec3 view_dir;
 
 void main() {
     color = vec3(0.0,0.0,0.0);
