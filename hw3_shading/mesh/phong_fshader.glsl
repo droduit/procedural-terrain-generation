@@ -18,7 +18,6 @@ uniform vec3 light_pos;
 
 void main() {
 
-
     //>>>>>>>>>> TODO >>>>>>>>>>>
     // TODO 1.2: Phong shading.
     // 1) compute ambient term.
@@ -30,7 +29,6 @@ void main() {
     //<<<<<<<<<< TODO <<<<<<<<<<<
 
     color = vec3(0.0,0.0,0.0);
-
 
     color += La*ka;
     vec3 n = normalize(normal_mv);
