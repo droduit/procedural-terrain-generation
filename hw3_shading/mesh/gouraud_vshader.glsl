@@ -15,7 +15,6 @@ out vec3 vcolor;
 out vec3 light_dir;
 out vec3 view_dir;
 
-
 void main() {
     mat4 MV = view * model;
     vec4 vpoint_mv = MV * vec4(vpoint, 1.0);
