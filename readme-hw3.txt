@@ -24,6 +24,8 @@ We have to clamp the `nl` and `rv` values in the range [0.0, 1.0], otherwise som
 
 ## 4. Flat Shading
 
+In the vertex shader, we only compute `light_dir` and `view_dir` and pass it to the fragment shader. There, the only difference from the Phong shading is that we have to compute the `normal_mv` "ourself" and not have it interpolated by OpenGL. For this, we use the functions `dFdx` and `dFdy` on `vpoint_mv.xyz`, which give us two non-colinear vectors along the texture. As we want a normal vector, we just have to do a cross product of these vectors (and normalize of course) to obtain it. The rest of the flat fragment shader is the same as the Phong fragment shader.
+
 ## 5. Spot Light Shading
 
 We reuse the Phong vertex shader and fragment shader as a base.
