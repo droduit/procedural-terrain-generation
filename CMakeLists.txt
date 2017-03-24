@@ -23,7 +23,7 @@ include(common/icg_settings.cmake)
 # week 5
 #add_subdirectory(lab5_framebuffer)
 # TODO : copy the lab folder and call it hw4p1_fastsmooth, then uncomment line below
-#add_subdirectory(hw4p1_fastsmooth)
+add_subdirectory(hw4p1_fastsmooth)
 add_subdirectory(hw4p2_mirrorfloor)
 add_subdirectory(hw4p3_motionblur)
 
