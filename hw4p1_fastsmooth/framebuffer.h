@@ -9,13 +9,15 @@ class FrameBuffer {
         GLuint framebuffer_object_id_;
         GLuint depth_render_buffer_id_;
         GLuint color_texture_id_;
+        GLuint tmp_texture_id_;
 
     public:
         // warning: overrides viewport!!
         void Bind() {
             glViewport(0, 0, width_, height_);
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object_id_);
-            const GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+            const GLenum buffers[] = { GL_COLOR_ATTACHMENT0,
+                                       GL_COLOR_ATTACHMENT1 };
             glDrawBuffers(2 /*length of buffers[]*/, buffers);
         }
 
@@ -23,7 +25,7 @@ class FrameBuffer {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
-        int Init(int image_width, int image_height, bool use_interpolation = false) {
+        std::tuple<int, int> Init(int image_width, int image_height, bool use_interpolation = false) {
             this->width_ = image_width;
             this->height_ = image_height;
 
@@ -58,6 +60,26 @@ class FrameBuffer {
                 glBindRenderbuffer(GL_RENDERBUFFER, 0);
             }
 
+            // create second color attachement for temp texture
+            {
+                glGenTextures(1, &tmp_texture_id_);
+                glBindTexture(GL_TEXTURE_2D, tmp_texture_id_);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                if(use_interpolation){
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                } else {
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                }
+
+                // On some intel OpenGL drivers, GL_RGB32F isn't supported inside
+                // a framebuffer, but using GL_RGB16F is
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width_, height_, 0,
+                                     GL_RGB, GL_FLOAT, NULL);
+            }
+
             // tie it all together
             {
                 glGenFramebuffers(1, &framebuffer_object_id_);
@@ -66,6 +88,12 @@ class FrameBuffer {
                                        GL_COLOR_ATTACHMENT0 /*location = 0*/,
                                        GL_TEXTURE_2D, color_texture_id_,
                                        0 /*level*/);
+
+                glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                       GL_COLOR_ATTACHMENT1 /*location = 1*/,
+                                       GL_TEXTURE_2D, tmp_texture_id_,
+                                        0 /*level*/);
+
                 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                           GL_RENDERBUFFER, depth_render_buffer_id_);
 
@@ -76,7 +104,7 @@ class FrameBuffer {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0); // avoid pollution
             }
 
-            return color_texture_id_;
+            return std::make_tuple(color_texture_id_, tmp_texture_id_);
         }
 
         void Clear() {
@@ -93,6 +121,7 @@ class FrameBuffer {
 
         void Cleanup() {
             glDeleteTextures(1, &color_texture_id_);
+            glDeleteTextures(1, &tmp_texture_id_);
             glDeleteRenderbuffers(1, &depth_render_buffer_id_);
             glBindFramebuffer(GL_FRAMEBUFFER, 0 /*UNBIND*/);
             glDeleteFramebuffers(1, &framebuffer_object_id_);

@@ -51,8 +51,9 @@ void Init(GLFWwindow* window) {
     // this unsures that the framebuffer has the same size as the window
     // (see http://www.glfw.org/docs/latest/window.html#window_fbsize)
     glfwGetFramebufferSize(window, &window_width, &window_height);
-    GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
-    screenquad.Init(window_width, window_height, framebuffer_texture_id);
+    GLuint framebuffer_texture_id, framebuffer_tmp_texture_id;
+    std::tie(framebuffer_texture_id, framebuffer_tmp_texture_id) = framebuffer.Init(window_width, window_height, true);
+    screenquad.Init(window_width, window_height, framebuffer_texture_id, framebuffer_tmp_texture_id);
 }
 
 void Display() {
@@ -60,15 +61,16 @@ void Display() {
     framebuffer.Clear();
     framebuffer.Bind();
     {
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cube.Draw(cube_model_matrix, view_matrix, projection_matrix);
         quad.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     }
     framebuffer.Unbind();
 
     // render to Window
-    glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, window_width, window_height);
+
     screenquad.Draw();
 }
 

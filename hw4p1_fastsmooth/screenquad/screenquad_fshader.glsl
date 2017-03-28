@@ -4,37 +4,35 @@ in vec2 uv;
 
 out vec3 color;
 
-uniform sampler2D tex;
-uniform sampler2D tex2;
+uniform sampler2D tmp;
+uniform sampler2D tmp2;
 
 uniform float tex_width;
 uniform float tex_height;
 
-uniform float std;
-uniform vec3 G;
-
+uniform float kernel_size;
+uniform float kernel[800];
 
 void main() {
 
-    vec3 color_tot = vec3(0,0,0);
     float weight_tot = 0;
-    int SIZE = 1 + 2 * 3 * int(ceil(std));
+    vec3 color_tot = vec3(0,0,0);
 
-    float variance = std*std;
-
-    vec3 tmp = vec3(0.0);
-    for(int i=-SIZE; i<=SIZE; i++){
-        for(int j=-SIZE; j<=SIZE; j++){
-            float x_squared = i*i + j*j;
-            float weight = exp(-x_squared/(2.0*variance) );
-            vec3 neigh_color = texture(tex, uv+vec2(i/tex_width,j/tex_height)).rgb;
-            color_tot += weight * neigh_color;
-            weight_tot += weight;
-        }
+    for(int i = 0; i < kernel_size; i++) {
+        float weight = kernel[i];
+        vec2 pos = vec2((i - (kernel_size / 2.0)) / (tex_width) , 0.0);
+        color_tot += weight * texture(tmp, uv + pos).rgb;
+        weight_tot += weight;
     }
 
+    for(int i = 0; i < kernel_size; i++) {
+        float weight = kernel[i];
+        vec2 pos = vec2(0.0 , (i - (kernel_size / 2.0)) / (tex_height));
+        color_tot += weight * texture(tmp2, uv + pos).rgb;
+        weight_tot += weight;
+    }
 
-    color = color_tot / weight_tot;
+    color = color_tot/weight_tot;
 
 }
 

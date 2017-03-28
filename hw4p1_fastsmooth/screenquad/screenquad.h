@@ -8,7 +8,7 @@ class ScreenQuad {
         GLuint program_id_;             // GLSL shader program ID
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
-        GLuint texture2_id_;
+        GLuint tmp_texture_id_;
 
         float screenquad_width_;
         float screenquad_height_;
@@ -16,7 +16,7 @@ class ScreenQuad {
 
     public:
         void Init(float screenquad_width, float screenquad_height,
-                  GLuint texture) {
+                  GLuint texture, GLuint tmp_texture) {
 
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
@@ -80,14 +80,18 @@ class ScreenQuad {
             // load/Assign texture
             this->texture_id_ = texture;
             glBindTexture(GL_TEXTURE_2D, texture_id_);
-            GLuint tex_id = glGetUniformLocation(program_id_, "tex");
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+            GLuint tex_id = glGetUniformLocation(program_id_, "tmp");
             glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
 
 
-            this->texture2_id_ = texture;
-            glBindTexture(GL_TEXTURE_2D, texture2_id_);
-            GLuint tex2_id = glGetUniformLocation(program_id_, "tex2");
-            glUniform1i(tex2_id, 1);
+            this->tmp_texture_id_ = tmp_texture;
+            glBindTexture(GL_TEXTURE_2D, tmp_texture_id_);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+            GLuint tmp_tex_id = glGetUniformLocation(program_id_, "tmp2");
+            glUniform1i(tmp_tex_id, 1);
 
 
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -104,6 +108,7 @@ class ScreenQuad {
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
             glDeleteTextures(1, &texture_id_);
+            glDeleteTextures(1, &tmp_texture_id_);
         }
 
         void UpdateSize(int screenquad_width, int screenquad_height) {
@@ -115,6 +120,19 @@ class ScreenQuad {
             this->std_ = fmax(0.25, this->std_ + valToAdd);
             cout << "variance : " + std::to_string(this->std_)  << endl;
         }
+
+
+        void compute_kernel(float* kernel, int size, int max_size) {
+            if(size > max_size) {
+               size = max_size;
+            }
+
+            for(int i = 0; i < size; ++i) {
+               float x = i - (size/2.0);
+               kernel[i] = exp(-(x*x) / (2.0*this->std_*this->std_));
+            }
+        }
+
 
         void Draw() {
             glUseProgram(program_id_);
@@ -129,13 +147,22 @@ class ScreenQuad {
             glUniform1f(glGetUniformLocation(program_id_, "std"),
                         this->std_);
 
-            float kernel[3] = {0.25, 0.5, 0.25};
-            glUniform1fv(glGetUniformLocation(program_id_, "G"),
-                        1, kernel);
+            int kernel_size = 1 + 2*3*int(ceil(this->std_));
+            int max_kernel_size = min(this->screenquad_height_, this->screenquad_width_);
+            float* kernel = new float[max_kernel_size];
+            compute_kernel(kernel, kernel_size, max_kernel_size);
+
+            glUniform1fv(glGetUniformLocation(program_id_, "kernel"),
+                        max_kernel_size, kernel);
+
+            glUniform1i(glGetUniformLocation(program_id_, "kernel_size"), kernel_size);
 
             // bind texture
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture_id_);
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, tmp_texture_id_);
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
