@@ -4,10 +4,15 @@ uniform sampler2D colorTex;
 uniform sampler2D velocityTex;
 out vec4 color;
 
+#define N_SAMPLES (10)
+#define BLUR_FACTOR (0.5f)
+
 void main() {
-    /// TODO: use the velocity vector stored in velocityTex to compute the line integral
-    /// TODO: use a constant number of samples for integral (what happens if you take too few?)
-    /// HINT: you can scale the velocity vector to make the motion blur effect more prominent
-    /// HINT: to debug integration don't use the velocityTex, simply assume velocity is constant, e.g. vec2(1,0)
-    color = texture(colorTex, uv);
+    color = vec4(0.0f);
+    vec2 vel = BLUR_FACTOR*texture(velocityTex, uv).xy;
+
+    for (int i = 0; i < N_SAMPLES; ++i) {
+        color += texture(colorTex, uv + vel*(float(i)/N_SAMPLES));
+    }
+    color /= N_SAMPLES;
 }
