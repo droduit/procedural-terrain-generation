@@ -15,8 +15,8 @@ class FrameBuffer {
         void Bind() {
             glViewport(0, 0, width_, height_);
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object_id_);
-            const GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
-            glDrawBuffers(1 /*length of buffers[]*/, buffers);
+            const GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+            glDrawBuffers(2 /*length of buffers[]*/, buffers);
         }
 
         void Unbind() {
@@ -77,6 +77,18 @@ class FrameBuffer {
             }
 
             return color_texture_id_;
+        }
+
+        void Clear() {
+            glViewport(0, 0, width_, height_);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object_id_);
+                glDrawBuffer(GL_COLOR_ATTACHMENT0);
+                glClearColor(1.0, 1.0, 1.0, 1.0);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glDrawBuffer(GL_COLOR_ATTACHMENT1);
+                glClearColor(0.0, 0.0, 0.0, 1.0);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
         void Cleanup() {

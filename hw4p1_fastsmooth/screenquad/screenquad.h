@@ -8,9 +8,11 @@ class ScreenQuad {
         GLuint program_id_;             // GLSL shader program ID
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
+        GLuint texture2_id_;
 
         float screenquad_width_;
         float screenquad_height_;
+        float std_;
 
     public:
         void Init(float screenquad_width, float screenquad_height,
@@ -19,6 +21,7 @@ class ScreenQuad {
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
             this->screenquad_height_ = screenquad_height;
+            this->std_ = 2.0;
 
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("screenquad_vshader.glsl",
@@ -79,6 +82,14 @@ class ScreenQuad {
             glBindTexture(GL_TEXTURE_2D, texture_id_);
             GLuint tex_id = glGetUniformLocation(program_id_, "tex");
             glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
+
+
+            this->texture2_id_ = texture;
+            glBindTexture(GL_TEXTURE_2D, texture2_id_);
+            GLuint tex2_id = glGetUniformLocation(program_id_, "tex2");
+            glUniform1i(tex2_id, 1);
+
+
             glBindTexture(GL_TEXTURE_2D, 0);
 
             // to avoid the current object being polluted
@@ -100,6 +111,11 @@ class ScreenQuad {
             this->screenquad_height_ = screenquad_height;
         }
 
+        void UpdateVariance(float valToAdd) {
+            this->std_ = fmax(0.25, this->std_ + valToAdd);
+            cout << "variance : " + std::to_string(this->std_)  << endl;
+        }
+
         void Draw() {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
@@ -109,6 +125,13 @@ class ScreenQuad {
                         this->screenquad_width_);
             glUniform1f(glGetUniformLocation(program_id_, "tex_height"),
                         this->screenquad_height_);
+
+            glUniform1f(glGetUniformLocation(program_id_, "std"),
+                        this->std_);
+
+            float kernel[3] = {0.25, 0.5, 0.25};
+            glUniform1fv(glGetUniformLocation(program_id_, "G"),
+                        1, kernel);
 
             // bind texture
             glActiveTexture(GL_TEXTURE0);

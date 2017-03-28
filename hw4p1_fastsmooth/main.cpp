@@ -57,9 +57,10 @@ void Init(GLFWwindow* window) {
 
 void Display() {
     // render to framebuffer
+    framebuffer.Clear();
     framebuffer.Bind();
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cube.Draw(cube_model_matrix, view_matrix, projection_matrix);
         quad.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     }
@@ -95,6 +96,23 @@ void ErrorCallback(int error, const char* description) {
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+
+    if(action != GLFW_RELEASE) {
+        return;
+    }
+
+    switch(key) {
+        case 'Q':
+            screenquad.UpdateVariance(0.25);
+        break;
+
+        case 'W':
+            screenquad.UpdateVariance(-0.25);
+        break;
+
+        default:
+        break;
     }
 }
 
