@@ -128,13 +128,13 @@ class ScreenQuad {
             }
 
             for(int i = 0; i < size; ++i) {
-               float x = i - (size/2.0);
+               float x = i - (size/2);
                kernel[i] = exp(-(x*x) / (2.0*this->std_*this->std_));
             }
         }
 
 
-        void Draw() {
+        void Draw(int passNo) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
@@ -156,6 +156,8 @@ class ScreenQuad {
                         max_kernel_size, kernel);
 
             glUniform1i(glGetUniformLocation(program_id_, "kernel_size"), kernel_size);
+
+            glUniform1i(glGetUniformLocation(program_id_, "pass"), passNo);
 
             // bind texture
             glActiveTexture(GL_TEXTURE0);
