@@ -2,6 +2,8 @@
 
 ## Fast Gaussian Blur
 
+First, I started with the biding of the keyboard, because it was the simplest part and it allow to verify rapidely if the value is well passed to the shader.
+
 ## Screen Space Reflections
 
 During `Display()`, we first render the reflection by reflecting the position of the camera relatively to the shiny floor and keeping the point looked at and inverting the camera upward direction. We only render the cube.

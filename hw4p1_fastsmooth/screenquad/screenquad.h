@@ -158,11 +158,10 @@ class ScreenQuad {
 
             glUniform1i(glGetUniformLocation(program_id_, "kernel_size"), kernel_size);
 
-            glUniform1i(glGetUniformLocation(program_id_, "pass"), 1-passNo);
+            glUniform1i(glGetUniformLocation(program_id_, "axis"), 1-passNo);
 
 
             // bind texture
-            //if(passNo == 1) tmp_texture_id_ =
             GLuint text_id = (passNo == 1) ? texture_id_ : tmp_texture_id_;
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, text_id);
