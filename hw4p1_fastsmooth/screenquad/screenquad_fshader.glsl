@@ -10,7 +10,7 @@ uniform sampler2D tmp2;
 uniform float tex_width;
 uniform float tex_height;
 
-uniform float kernel_size;
+uniform int kernel_size;
 uniform float kernel[800];
 
 void main() {
@@ -18,6 +18,7 @@ void main() {
     float weight_tot = 0;
     vec3 color_tot = vec3(0,0,0);
 
+    /*
     for(int i = 0; i < kernel_size; i++) {
         float weight = kernel[i];
         vec2 pos = vec2((i - (kernel_size / 2.0)) / (tex_width) , 0.0);
@@ -33,6 +34,20 @@ void main() {
     }
 
     color = color_tot/weight_tot;
+    */
+
+
+       for(int i=-kernel_size; i<=kernel_size; i++){
+           for(int j=-kernel_size; j<=kernel_size; j++){
+               float weight = kernel[i];
+               vec3 neigh_color = texture(tmp, uv+vec2((i - (kernel_size / 2.0)) / (tex_width), (i - (kernel_size / 2.0)) / (tex_height))).rgb;
+               color_tot += weight * neigh_color;
+               weight_tot += weight;
+           }
+       }
+
+
+       color = color_tot / weight_tot;
 
 }
 
