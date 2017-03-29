@@ -64,6 +64,8 @@ void Display() {
         // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cube.Draw(cube_model_matrix, view_matrix, projection_matrix);
         quad.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+
+        //screenquad.Draw(0);
     }
     framebuffer.Unbind();
 

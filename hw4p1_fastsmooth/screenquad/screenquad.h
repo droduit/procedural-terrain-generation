@@ -144,8 +144,7 @@ class ScreenQuad {
             glUniform1f(glGetUniformLocation(program_id_, "tex_height"),
                         this->screenquad_height_);
 
-            glUniform1f(glGetUniformLocation(program_id_, "std"),
-                        this->std_);
+
 
             int kernel_size = 1 + 2*3*int(ceil(this->std_));
             int max_kernel_size = min(this->screenquad_height_, this->screenquad_width_);
@@ -160,16 +159,16 @@ class ScreenQuad {
             glUniform1i(glGetUniformLocation(program_id_, "pass"), passNo);
 
             // bind texture
+            GLuint texture_id = (passNo == 0) ? texture_id_ : tmp_texture_id_;
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture_id_);
+            glBindTexture(GL_TEXTURE_2D, texture_id);
 
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, tmp_texture_id_);
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
             glBindVertexArray(0);
             glUseProgram(0);
+            delete [] kernel;
         }
 };
