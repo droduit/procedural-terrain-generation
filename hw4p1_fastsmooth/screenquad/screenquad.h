@@ -12,7 +12,7 @@ class ScreenQuad {
 
         float screenquad_width_;
         float screenquad_height_;
-        float std_;
+        float std_ = 3.0;
 
     public:
         void Init(float screenquad_width, float screenquad_height,
@@ -21,8 +21,6 @@ class ScreenQuad {
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
             this->screenquad_height_ = screenquad_height;
-
-            this->std_ = 3.0;
 
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("screenquad_vshader.glsl",
@@ -119,7 +117,7 @@ class ScreenQuad {
         }
 
         void UpdateVariance(float valToAdd) {
-            this->std_ = fmax(0.5, this->std_ + valToAdd);
+            this->std_ = fmax(0.25, this->std_ + valToAdd);
             cout << "variance : " + std::to_string(this->std_)  << endl;
         }
 
