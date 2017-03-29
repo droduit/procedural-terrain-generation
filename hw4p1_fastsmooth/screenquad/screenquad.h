@@ -21,7 +21,8 @@ class ScreenQuad {
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
             this->screenquad_height_ = screenquad_height;
-            this->std_ = 2.0;
+
+            this->std_ = 3.0;
 
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("screenquad_vshader.glsl",
@@ -77,20 +78,21 @@ class ScreenQuad {
                                       ZERO_BUFFER_OFFSET);
             }
 
+
             // load/Assign texture
             this->texture_id_ = texture;
             glBindTexture(GL_TEXTURE_2D, texture_id_);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-            GLuint tex_id = glGetUniformLocation(program_id_, "tmp");
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            GLuint tex_id = glGetUniformLocation(program_id_, "tex");
             glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
 
 
-            this->tmp_texture_id_ = tmp_texture;
+            this->tmp_texture_id_ = texture;
             glBindTexture(GL_TEXTURE_2D, tmp_texture_id_);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-            GLuint tmp_tex_id = glGetUniformLocation(program_id_, "tmp2");
+            GLuint tmp_tex_id = glGetUniformLocation(program_id_, "tmp");
             glUniform1i(tmp_tex_id, 1);
 
 
@@ -117,7 +119,7 @@ class ScreenQuad {
         }
 
         void UpdateVariance(float valToAdd) {
-            this->std_ = fmax(0.25, this->std_ + valToAdd);
+            this->std_ = fmax(0.5, this->std_ + valToAdd);
             cout << "variance : " + std::to_string(this->std_)  << endl;
         }
 
@@ -156,12 +158,14 @@ class ScreenQuad {
 
             glUniform1i(glGetUniformLocation(program_id_, "kernel_size"), kernel_size);
 
-            glUniform1i(glGetUniformLocation(program_id_, "pass"), passNo);
+            glUniform1i(glGetUniformLocation(program_id_, "pass"), 1-passNo);
+
 
             // bind texture
-            GLuint texture_id = (passNo == 0) ? texture_id_ : tmp_texture_id_;
+            //if(passNo == 1) tmp_texture_id_ =
+            GLuint text_id = (passNo == 1) ? texture_id_ : tmp_texture_id_;
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture_id);
+            glBindTexture(GL_TEXTURE_2D, text_id);
 
 
             // draw

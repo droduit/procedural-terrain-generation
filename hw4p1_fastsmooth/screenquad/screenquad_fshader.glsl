@@ -4,14 +4,13 @@ in vec2 uv;
 
 out vec3 color;
 
-uniform sampler2D tmp;
-uniform sampler2D tmp2;
+uniform sampler2D tex;
 
 uniform float tex_width;
 uniform float tex_height;
 
 uniform int kernel_size;
-uniform float kernel[500];
+uniform float kernel[400];
 uniform int pass;
 
 void main() {
@@ -21,14 +20,14 @@ void main() {
     vec3 neigh_color = vec3(0.0);
     vec2 pos = vec2(0.0);
 
-    for(int i= 0; i < kernel_size; i++){
+    for(int i = 0; i < kernel_size; i++){
        float weight = kernel[i];
        if(pass == 0) {
-            pos = vec2((i - (kernel_size / 2.0)) / (tex_width), 0.0);
+            pos = vec2((i - (kernel_size / 2.0)) / tex_width, 0.0);
        } else {
-            pos = vec2(0.0, (i - (kernel_size / 2.0)) / (tex_height));
+            pos = vec2(0.0, (i - (kernel_size / 2.0)) / tex_height);
        }
-       neigh_color = texture(tmp, uv+pos).rgb;
+       neigh_color = texture(tex, uv+pos).rgb;
        color_tot += weight * neigh_color;
        weight_tot += weight;
     }

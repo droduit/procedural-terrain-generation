@@ -16,9 +16,9 @@ class FrameBuffer {
         void Bind() {
             glViewport(0, 0, width_, height_);
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object_id_);
-            const GLenum buffers[] = { GL_COLOR_ATTACHMENT0,
-                                       GL_COLOR_ATTACHMENT1 };
-            glDrawBuffers(2 /*length of buffers[]*/, buffers);
+            const GLenum buffers[] = { GL_COLOR_ATTACHMENT0
+                                        };
+            glDrawBuffers(1 /*length of buffers[]*/, buffers);
         }
 
         void Unbind() {
@@ -52,13 +52,6 @@ class FrameBuffer {
                 // how to load from buffer
             }
 
-            // create render buffer (for depth channel)
-            {
-                glGenRenderbuffers(1, &depth_render_buffer_id_);
-                glBindRenderbuffer(GL_RENDERBUFFER, depth_render_buffer_id_);
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width_, height_);
-                glBindRenderbuffer(GL_RENDERBUFFER, 0);
-            }
 
             // create second color attachement for temp texture
             {
@@ -76,9 +69,18 @@ class FrameBuffer {
 
                 // On some intel OpenGL drivers, GL_RGB32F isn't supported inside
                 // a framebuffer, but using GL_RGB16F is
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width_, height_, 0,
-                                     GL_RGB, GL_FLOAT, NULL);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width_, height_, 0,
+                                     GL_RGB, GL_UNSIGNED_BYTE, NULL);
             }
+
+            // create render buffer (for depth channel)
+            {
+                glGenRenderbuffers(1, &depth_render_buffer_id_);
+                glBindRenderbuffer(GL_RENDERBUFFER, depth_render_buffer_id_);
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width_, height_);
+                glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            }
+
 
             // tie it all together
             {
@@ -103,6 +105,9 @@ class FrameBuffer {
                 }
                 glBindFramebuffer(GL_FRAMEBUFFER, 0); // avoid pollution
             }
+
+            cout << color_texture_id_ << endl;
+            cout << tmp_texture_id_ << endl;
 
             return std::make_tuple(color_texture_id_, tmp_texture_id_);
         }
