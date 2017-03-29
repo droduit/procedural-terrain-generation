@@ -2,7 +2,13 @@
 
 ## Fast Gaussian Blur
 
-First, I started with the biding of the keyboard, because it was the simplest part and it allow to verify rapidely if the value is well passed to the shader.
+First, I started with the binding of the keyboard, because it was the simplest part and it allowed to check quickly if the value was well propagated in the screenquad class (with a simple cout << std << endl). I fix the min value for the standard deviation to 0.25 to avoid a division by 0 who would results in a fully black application.
+
+Then, I worked on the computation of the kernel, so I created a new method compute_kernel in the screenquad class, who fill the kernel of a given size, passed in argument as an array of float. This kernel and its size are passed to the fragment shader. In the shader, I fixed an arbitrary size of 400 for the kernel array, it's a largely sufficient value to prevent from having some weird visual  effects. 
+
+Once the kernel was retrieved in the fragment shader, I already tried to display the first pass of the gaussian blur in x on the texture received. Then, I started to allow the second texture in the framebuffer on the basis of the framebuffer of the third exercise. The first texture will then be blured by the first pass of the algorithm and be assigned to the second texture who will then experience the second pass of the gaussian blur. These 2 pass are done one after the other with two succesive calls in the Display() method of main.cpp.
+
+I also had to solve a problem who displayed the wrong texture when we were resizing the window. The framebuffer was cleaned and the screenquad was badly reinitialized with missing values. The problem was solved in passing the missing second texture as parameter.  
 
 ## Screen Space Reflections
 
