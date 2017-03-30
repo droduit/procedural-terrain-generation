@@ -112,12 +112,36 @@ float OctavePerlin(float x, float y, float z, int octaves, float persistence) {
     return total/maxValue;
 }
 
+#define MAX_OCTAVES 6
+
+float fBm(vec3 point, float H, float lacunarity, float octaves) {
+    float exponants[MAX_OCTAVES];
+    float value = 0.0, frequency = 1.0, remainder = 0.0;
+    int i = 0;
+
+    for (i = 0; i < MAX_OCTAVES; i++) {
+        exponants[i] = pow(frequency, -H);
+        frequency *= lacunarity;
+    }
+
+    for (i = 0; i < octaves; i++) {
+        value += perlin_noise(point.x, point.y, point.z) * exponants[i];
+        point *= lacunarity;
+    }
+
+    remainder = octaves - floor(octaves);
+    if (remainder > 0.0)
+        value += remainder * perlin_noise(point.x, point.y, point.z) * exponants[i];
+
+    return value;
+}
 
 void main() {
     float x = uv.x;
     float y = uv.y;
 
-    float noise = perlin_noise(12*x, 12*y, seed);
+    //float noise = perlin_noise(12*x, 12*y, seed);
+    float noise = fBm(3.0 * vec3(uv, seed), 1.0, 2.0, 6.0) - 0.475;
 
     color = vec3(noise);
 }
