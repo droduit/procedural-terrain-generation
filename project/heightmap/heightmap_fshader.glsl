@@ -5,6 +5,7 @@ in vec2 uv;
 out vec3 color;
 
 const bool fast = true;
+uniform float seed;
 
 // in vec3 vertex;
 
@@ -115,9 +116,8 @@ float OctavePerlin(float x, float y, float z, int octaves, float persistence) {
 void main() {
     float x = uv.x;
     float y = uv.y;
-    float z = 0.0;
 
-    float noise = perlin_noise(12*x, 12*y, 12*z);
+    float noise = perlin_noise(12*x, 12*y, seed);
 
     color = vec3(noise);
 }

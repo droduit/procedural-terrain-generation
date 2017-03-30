@@ -11,13 +11,15 @@ class Heightmap {
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
 
+        float seed_;
         float screenquad_width_;
         float screenquad_height_;
 
         Framebuffer framebuffer_;
 
     public:
-        GLuint Init(float screenquad_width, float screenquad_height) {
+        GLuint Init(float screenquad_width, float screenquad_height, float seed = 0.0) {
+            this->seed_ = seed;
 
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
@@ -121,6 +123,8 @@ class Heightmap {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture_id_);
             */
+
+            glUniform1f(glGetUniformLocation(program_id_, "seed"), this->seed_);
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
