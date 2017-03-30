@@ -14,14 +14,16 @@ void main() {
     vec3 light_dir = normalize(vec3(-2.0, -2.0, 4.0));
     vec3 view_dir = normalize(vec3(-2.0, -2.0, 2.0));
 
-    if (fragPos.z <= -0.4)
-        color = vec3(0.2, 0.3, 0.9) / 2.0;
-    else if (fragPos.z < -0.3)
-        color = vec3(0.8, 0.7, 0.2) / 2.0;
-    else if (fragPos.z < 0.4)
-        color = vec3(0.2, 0.8, 0.4) / 2.0;
+    if (fragPos.z <= 0.0)
+        color = vec3(0.2, 0.3, 0.9) / 2.0; // Water
+    else if (fragPos.z < 0.04)
+        color = vec3(0.8, 0.7, 0.2) / 2.0; // Sand
+    else if (fragPos.z < 0.28)
+        color = vec3(0.2, 0.8, 0.4) / 2.0; // Grass
+    else if (fragPos.z < 0.3)
+        color = vec3(0.6, 0.6, 0.6) / 2.0; // Rock
     else
-        color = vec3(0.9, 0.9, 1.0) / 2.0;
+        color = vec3(0.9, 0.9, 1.0) / 2.0; // Snow
 
     float nl = dot(normal, light_dir);
     if (nl > 0.0) {

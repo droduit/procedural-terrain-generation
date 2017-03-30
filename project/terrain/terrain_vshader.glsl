@@ -10,6 +10,6 @@ uniform sampler2D heightmap;
 
 void main() {
     uv = (position + vec2(2.0)) / 4.0;
-    fragPos = vec4(position.x, position.y, texture(heightmap, uv).r, 1.0);
+    fragPos = vec4(position.x, position.y, max(0.0, texture(heightmap, uv).r - 0.4), 1.0);
     gl_Position = MVP * fragPos;
 }
