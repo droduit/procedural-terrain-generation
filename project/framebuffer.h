@@ -23,7 +23,7 @@ class Framebuffer {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
-        int Init(int image_width, int image_height, bool use_interpolation = false) {
+        int Init(int image_width, int image_height, GLint internalFormat = GL_RGB8, GLenum format = GL_RGB, GLenum type = GL_UNSIGNED_BYTE, bool use_interpolation = false) {
             this->width_ = image_width;
             this->height_ = image_height;
 
@@ -45,8 +45,8 @@ class Framebuffer {
                 // create texture for the color attachment
                 // see Table.2 on how to load from buffer
                 // khronos.org/opengles/sdk/docs/man3/docbook4/xhtml/glTexImage2D.xml
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width_, height_, 0,
-                             GL_RGB, GL_UNSIGNED_BYTE, NULL);
+                glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width_, height_, 0,
+                             format, GL_UNSIGNED_BYTE, NULL);
             }
 
             // create render buffer (for depth channel)

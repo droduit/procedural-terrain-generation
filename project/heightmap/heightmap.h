@@ -23,7 +23,7 @@ class Heightmap {
             this->screenquad_width_ = screenquad_width;
             this->screenquad_height_ = screenquad_height;
 
-            this->texture_id_ = framebuffer_.Init(screenquad_width, screenquad_height);
+            this->texture_id_ = framebuffer_.Init(screenquad_width, screenquad_height, GL_R32F, GL_RED, GL_FLOAT);
 
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("heightmap_vshader.glsl",
