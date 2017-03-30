@@ -29,8 +29,9 @@ void main() {
     if (nl > 0.0) {
         color += nl * vec3(0.5);
 
-        float rv = dot(reflect(-light_dir, normal), view_dir);
-
-        color += pow(max(0.0, rv), 60.0) * vec3(0.8);
+        if (height <= 0.0 || height >= 0.3) {
+            float rv = dot(reflect(-light_dir, normal), view_dir);
+            color += pow(max(0.0, rv), 60.0) * vec3(0.8);
+        }
     }
 }
