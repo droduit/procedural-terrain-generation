@@ -11,12 +11,14 @@
 #include "cube/cube.h"
 #include "quad/quad.h"
 #include "screenquad/screenquad.h"
+#include "terrain/terrain.h"
 
 Cube cube;
 Quad quad;
 
 Framebuffer framebuffer;
 ScreenQuad screenquad;
+Terrain terrain;
 
 int window_width = 800;
 int window_height = 600;
@@ -33,11 +35,14 @@ void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
 
+    /*
     cube.Init();
     quad.Init();
+    */
+    terrain.Init();
 
     // setup view and projection matrices
-    vec3 cam_pos(2.0f, 2.0f, 2.0f);
+    vec3 cam_pos(-2.0f, -2.0f, 2.0f);
     vec3 cam_look(0.0f, 0.0f, 0.0f);
     vec3 cam_up(0.0f, 0.0f, 1.0f);
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
@@ -56,6 +61,7 @@ void Init(GLFWwindow* window) {
 }
 
 void Display() {
+    /*
     // TODO: wrap these calls so they render to a texture (see slides)
     framebuffer.Bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -68,6 +74,11 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     screenquad.Draw();
+    */
+
+    glViewport(0, 0, window_width, window_height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    terrain.Draw(glfwGetTime(), IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
 // gets called when the windows/framebuffer is resized.
@@ -150,8 +161,11 @@ int main(int argc, char *argv[]) {
     }
 
     // cleanup
+    /*
     quad.Cleanup();
     cube.Cleanup();
+    */
+    terrain.Cleanup();
     // TODO: clean framebuffer and screenquad
 
     // close OpenGL window and terminate GLFW
