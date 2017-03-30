@@ -77,7 +77,7 @@ class ScreenQuad {
             // load/Assign texture
             this->texture_id_ = texture;
             glBindTexture(GL_TEXTURE_2D, texture_id_);
-            GLuint tex_id = glGetUniformLocation(program_id_, "tex");
+            GLuint tex_id = glGetUniformLocation(program_id_, "heightmap");
             glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
             glBindTexture(GL_TEXTURE_2D, 0);
 
