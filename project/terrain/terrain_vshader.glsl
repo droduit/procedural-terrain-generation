@@ -16,7 +16,7 @@ uniform vec3 light_pos;
 
 void main() {
     uv = (position + vec2(2.0)) / 4.0;
-    height = max(0.0, texture(heightmap, uv).r - 0.4);
+    height = max(0.0, texture(heightmap, uv).r);
 
     mat4 MV = view * model;
     vpoint_mv = MV * vec4(position, height, 1.0);
