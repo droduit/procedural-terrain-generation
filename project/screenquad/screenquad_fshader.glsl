@@ -126,7 +126,7 @@ void main() {
     float y = uv.y;
     float z = 0.0;
 
-    float noise = OctavePerlin(8*x, 8*y, 8*z, 7, 0.3);
+    float noise = perlin_noise(12*x, 12*y, 12*z);
 
     color = vec3(noise);
 }
