@@ -98,10 +98,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             case GLFW_KEY_D:
                 cam_vel[1] -= CAMERA_SPEED;
                 break;
-            case GLFW_KEY_E:
+            case GLFW_KEY_F:
                 cam_vel[2] -= CAMERA_SPEED;
                 break;
-            case GLFW_KEY_Q:
+            case GLFW_KEY_R:
                 cam_vel[2] += CAMERA_SPEED;
                 break;
         }
@@ -121,10 +121,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             case GLFW_KEY_D:
                 cam_vel[1] += CAMERA_SPEED;
                 break;
-            case GLFW_KEY_E:
+            case GLFW_KEY_F:
                 cam_vel[2] += CAMERA_SPEED;
                 break;
-            case GLFW_KEY_Q:
+            case GLFW_KEY_R:
                 cam_vel[2] -= CAMERA_SPEED;
                 break;
         }
