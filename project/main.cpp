@@ -2,12 +2,16 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <unistd.h>
+
 // contains helper functions such as shader compiler
 #include "icg_helper.h"
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "heightmap/heightmap.h"
 #include "terrain/terrain.h"
+
+#define CAMERA_SPEED 300.0
 
 using namespace glm;
 
@@ -20,7 +24,8 @@ int window_height = 600;
 mat4 projection_matrix;
 mat4 view_matrix;
 
-vec3 cam_pos;
+// Camera
+vec3 cam_pos, cam_dir, cam_vel;
 vec3 light_pos;
 
 void Init(GLFWwindow* window) {
@@ -29,8 +34,11 @@ void Init(GLFWwindow* window) {
 
     // setup view and projection matrices
     light_pos = vec3(-1.0f, 0.0f, 2.0f);
+
     cam_pos = vec3(-2.0f, -2.0f, 2.0f);
-    vec3 cam_look = cam_pos + vec3(2.0, 2.0, -2.0);
+    cam_dir = -cam_pos;
+
+    vec3 cam_look = cam_pos + cam_dir;
     vec3 cam_up(0.0f, 0.0f, 1.0f);
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
 
@@ -39,6 +47,15 @@ void Init(GLFWwindow* window) {
     GLuint heightmap_tex_id = heightmap.Init(512, 512);
     terrain.Init(heightmap_tex_id);
     terrain.SetLighting(light_pos);
+}
+
+void Update(float dt) {
+    if (cam_vel[0] != 0.0 || cam_vel[1] != 0.0) {
+        cam_pos += dt * cam_vel;
+        vec3 cam_look = cam_pos + cam_dir;
+        vec3 cam_up(0.0f, 0.0f, 1.0f);
+        view_matrix = lookAt(cam_pos, cam_look, cam_up);
+    }
 }
 
 void Display() {
@@ -63,8 +80,42 @@ void ErrorCallback(int error, const char* description) {
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
+    if (action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+
+            case GLFW_KEY_W:
+                cam_vel[0] += CAMERA_SPEED;
+                break;
+            case GLFW_KEY_S:
+                cam_vel[0] -= CAMERA_SPEED;
+                break;
+            case GLFW_KEY_A:
+                cam_vel[1] += CAMERA_SPEED;
+                break;
+            case GLFW_KEY_D:
+                cam_vel[1] -= CAMERA_SPEED;
+                break;
+        }
+    }
+
+    if (action == GLFW_RELEASE) {
+        switch (key) {
+            case GLFW_KEY_W:
+                cam_vel[0] -= CAMERA_SPEED;
+                break;
+            case GLFW_KEY_S:
+                cam_vel[0] += CAMERA_SPEED;
+                break;
+            case GLFW_KEY_A:
+                cam_vel[1] -= CAMERA_SPEED;
+                break;
+            case GLFW_KEY_D:
+                cam_vel[1] += CAMERA_SPEED;
+                break;
+        }
     }
 }
 
@@ -116,11 +167,18 @@ int main(int argc, char *argv[]) {
     // initialize our OpenGL program
     Init(window);
 
+    float lastTime = glfwGetTime();
     // render loop
     while(!glfwWindowShouldClose(window)){
+        float dt = glfwGetTime() - lastTime;
+
+        Update(dt);
         Display();
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        lastTime = glfwGetTime();
+        usleep(10);
     }
 
     // cleanup
