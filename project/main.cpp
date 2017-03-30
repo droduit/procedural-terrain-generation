@@ -8,10 +8,13 @@
 #include "icg_helper.h"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui_impl_glfw_gl3.h"
+
 #include "heightmap/heightmap.h"
 #include "terrain/terrain.h"
 
-#define CAMERA_SPEED 300.0
+#define CAMERA_SPEED 2.0
 
 using namespace glm;
 
@@ -61,6 +64,9 @@ void Update(float dt) {
 void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f));
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
@@ -176,6 +182,9 @@ int main(int argc, char *argv[]) {
 
     cout << "OpenGL" << glGetString(GL_VERSION) << endl;
 
+    // init ImGui
+    ImGui_ImplGlfwGL3_Init(window, false);
+
     // initialize our OpenGL program
     Init(window);
 
@@ -183,14 +192,17 @@ int main(int argc, char *argv[]) {
     // render loop
     while(!glfwWindowShouldClose(window)){
         float dt = glfwGetTime() - lastTime;
+        lastTime = glfwGetTime();
+
+        ImGui_ImplGlfwGL3_NewFrame();
 
         Update(dt);
-        Display();
-        glfwSwapBuffers(window);
-        glfwPollEvents();
 
-        lastTime = glfwGetTime();
-        usleep(10);
+        Display();
+        ImGui::Render();
+        glfwSwapBuffers(window);
+
+        glfwPollEvents();
     }
 
     // cleanup
@@ -198,6 +210,7 @@ int main(int argc, char *argv[]) {
     heightmap.Cleanup();
 
     // close OpenGL window and terminate GLFW
+    ImGui_ImplGlfwGL3_Shutdown();
     glfwDestroyWindow(window);
     glfwTerminate();
     return EXIT_SUCCESS;
