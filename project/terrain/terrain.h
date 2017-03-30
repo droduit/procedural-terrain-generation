@@ -30,23 +30,17 @@ class Terrain {
 
             // vertex coordinates and indices
             {
+                int grid_dim = 512;
+                int grid_size = 20;
+
                 std::vector<GLfloat> vertices;
                 std::vector<GLuint> indices;
-                // TODO 5: make a triangle grid with dimension 100x100.
-                // always two subsequent entries in 'vertices' form a 2D vertex position.
-                int grid_dim = 100;
 
-                // the given code below are the vertices for a simple quad.
-                // your grid should have the same dimension as that quad, i.e.,
-                // reach from [-1, -1] to [1, 1].
-
-                // Add the vertices for the grid
-                // There are (n+1)^2 vertices for a n-by-n grid
-                float delta = 2.0f/grid_dim;
+                float delta = (float)grid_size / (float)grid_dim;
                 for (int y = 0; y <= grid_dim; ++y) {
                     for (int x = 0; x <= grid_dim; ++x) {
-                        vertices.push_back(-1.0f + delta*x); // x coordinate
-                        vertices.push_back(-1.0f + delta*y); // y coordinate
+                        vertices.push_back(-grid_size / 2.0f + delta*x); // x coordinate
+                        vertices.push_back(-grid_size / 2.0f + delta*y); // y coordinate
                     }
                 }
 
@@ -55,12 +49,6 @@ class Terrain {
                     return x + y * (grid_dim + 1);
                 };
 
-                // There are 2*n^2 triangles, we create the two forming the
-                // square starting at coord (x,y)
-                // As we need to add triangle lines following an S-shape,
-                // we must have two modes for adding indices: one for adding
-                // triangles from left to right (forward) and one for adding
-                // triangles from right to left (backward).
                 for (int y = 0; y < grid_dim; ++y) {
                     for (int x = 0; x < grid_dim; ++x) {
                         if (y % 2 == 0) { // forward (normal)
@@ -172,15 +160,8 @@ class Terrain {
             glm::mat4 MVP = projection*view*model;
             glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
 
-            // pass the current time stamp to the shader.
-            glUniform1f(glGetUniformLocation(program_id_, "time"), time);
-
             // draw
-            // TODO 5: for debugging it can be helpful to draw only the wireframe.
-            // You can do that by uncommenting the next line.
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            // TODO 5: depending on how you set up your vertex index buffer, you
-            // might have to change GL_TRIANGLE_STRIP to GL_TRIANGLES.
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0);

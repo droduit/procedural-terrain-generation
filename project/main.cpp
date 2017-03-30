@@ -6,39 +6,22 @@
 #include "icg_helper.h"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "framebuffer.h"
-
-#include "cube/cube.h"
-#include "quad/quad.h"
-#include "screenquad/screenquad.h"
 #include "terrain/terrain.h"
 
-Cube cube;
-Quad quad;
+using namespace glm;
 
-Framebuffer framebuffer;
-ScreenQuad screenquad;
 Terrain terrain;
 
 int window_width = 800;
 int window_height = 600;
 
-// TODO: declare Framebuffer + ScreenQuad (see slides)
-
-using namespace glm;
-
 mat4 projection_matrix;
 mat4 view_matrix;
-mat4 cube_model_matrix;
 
 void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
 
-    /*
-    cube.Init();
-    quad.Init();
-    */
     terrain.Init();
 
     // setup view and projection matrices
@@ -46,38 +29,14 @@ void Init(GLFWwindow* window) {
     vec3 cam_look(0.0f, 0.0f, 0.0f);
     vec3 cam_up(0.0f, 0.0f, 1.0f);
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
-    float ratio = window_width / (float) window_height;
-    projection_matrix = perspective(45.0f, ratio, 0.1f, 10.0f);
 
-    // create the model matrix (remember OpenGL is right handed)
-    // accumulated transformation
-    cube_model_matrix = scale(IDENTITY_MATRIX, vec3(0.5));
-    cube_model_matrix = translate(cube_model_matrix, vec3(0.0, 0.0, 0.6));
-
-    // TODO: initialize framebuffer (see slides)
-    // TODO: initialize fullscreen quad (see slides)
-    GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
-    screenquad.Init(window_width, window_height, framebuffer_texture_id);
+    projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 10.0f);
 }
 
 void Display() {
-    /*
-    // TODO: wrap these calls so they render to a texture (see slides)
-    framebuffer.Bind();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        cube.Draw(cube_model_matrix, view_matrix, projection_matrix);
-        quad.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
-    framebuffer.Unbind();
-    
-    // TODO: use the fullscreen quad to draw the framebuffer texture to screen
-    //       (see slides)
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    screenquad.Draw();
-    */
 
-    glViewport(0, 0, window_width, window_height);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     terrain.Draw(glfwGetTime(), IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
@@ -86,13 +45,9 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
     window_width = width;
     window_height = height;
 
-    float ratio = window_width / (float) window_height;
-    projection_matrix = perspective(45.0f, ratio, 0.1f, 10.0f);
+    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 10.0f);
 
-    glViewport(0, 0, window_width, window_height);
-
-    // TODO : when the window is resized, the framebuffer and the fullscreen quad
-    //        sizes should be updated accordingly
+    glViewport(0, 0, width, height);
 }
 
 void ErrorCallback(int error, const char* description) {
@@ -107,7 +62,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 int main(int argc, char *argv[]) {
     // GLFW Initialization
-    if(!glfwInit()) {
+    if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
         return EXIT_FAILURE;
     }
@@ -125,7 +80,7 @@ int main(int argc, char *argv[]) {
     // note some Intel GPUs do not support OpenGL 3.2
     // note update the driver of your graphic card
     GLFWwindow* window = glfwCreateWindow(window_width, window_height,
-                                          "framebuffer", NULL, NULL);
+                                          "terrain", NULL, NULL);
     if(!window) {
         glfwTerminate();
         return EXIT_FAILURE;
@@ -161,12 +116,7 @@ int main(int argc, char *argv[]) {
     }
 
     // cleanup
-    /*
-    quad.Cleanup();
-    cube.Cleanup();
-    */
     terrain.Cleanup();
-    // TODO: clean framebuffer and screenquad
 
     // close OpenGL window and terminate GLFW
     glfwDestroyWindow(window);
