@@ -3,10 +3,13 @@
 in vec2 position;
 
 out vec2 uv;
+out vec4 fragPos;
 
 uniform mat4 MVP;
+uniform sampler2D heightmap;
 
 void main() {
-    uv = (position + vec2(10.0)) / 20.0;
-    gl_Position = MVP * vec4(position.x, position.y, 0.0, 1.0);
+    uv = (position + vec2(2.0)) / 4.0;
+    fragPos = vec4(position.x, position.y, texture(heightmap, uv).r, 1.0);
+    gl_Position = MVP * fragPos;
 }

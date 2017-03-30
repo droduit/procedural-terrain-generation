@@ -1,7 +1,9 @@
 #pragma once
 #include "icg_helper.h"
 
-class ScreenQuad {
+#include "../framebuffer.h"
+
+class Heightmap {
 
     private:
         GLuint vertex_array_id_;        // vertex array object
@@ -12,17 +14,20 @@ class ScreenQuad {
         float screenquad_width_;
         float screenquad_height_;
 
+        Framebuffer framebuffer_;
+
     public:
-        void Init(float screenquad_width, float screenquad_height,
-                  GLuint texture) {
+        GLuint Init(float screenquad_width, float screenquad_height) {
 
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
             this->screenquad_height_ = screenquad_height;
 
+            this->texture_id_ = framebuffer_.Init(screenquad_width, screenquad_height);
+
             // compile the shaders
-            program_id_ = icg_helper::LoadShaders("screenquad_vshader.glsl",
-                                                  "screenquad_fshader.glsl");
+            program_id_ = icg_helper::LoadShaders("heightmap_vshader.glsl",
+                                                  "heightmap_fshader.glsl");
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
@@ -74,16 +79,14 @@ class ScreenQuad {
                                       ZERO_BUFFER_OFFSET);
             }
 
-            // load/Assign texture
-            this->texture_id_ = texture;
-            glBindTexture(GL_TEXTURE_2D, texture_id_);
-            GLuint tex_id = glGetUniformLocation(program_id_, "tex");
-            glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
-            glBindTexture(GL_TEXTURE_2D, 0);
-
             // to avoid the current object being polluted
             glBindVertexArray(0);
             glUseProgram(0);
+
+            // finally draw the heighmap
+            Draw();
+
+            return this->texture_id_;
         }
 
         void Cleanup() {
@@ -92,32 +95,39 @@ class ScreenQuad {
             glDeleteBuffers(1, &vertex_buffer_object_);
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
-            glDeleteTextures(1, &texture_id_);
-        }
 
-        void UpdateSize(int screenquad_width, int screenquad_height) {
-            this->screenquad_width_ = screenquad_width;
-            this->screenquad_height_ = screenquad_height;
+            framebuffer_.Cleanup();
         }
 
         void Draw() {
+            framebuffer_.Bind();
+
+            glViewport(0, 0, screenquad_width_, screenquad_height_);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
             // window size uniforms
+            /*
             glUniform1f(glGetUniformLocation(program_id_, "tex_width"),
                         this->screenquad_width_);
             glUniform1f(glGetUniformLocation(program_id_, "tex_height"),
                         this->screenquad_height_);
+                        */
 
             // bind texture
+            /*
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture_id_);
+            */
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
             glBindVertexArray(0);
             glUseProgram(0);
+
+            framebuffer_.Unbind();
         }
 };

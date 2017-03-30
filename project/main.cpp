@@ -6,10 +6,12 @@
 #include "icg_helper.h"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "heightmap/heightmap.h"
 #include "terrain/terrain.h"
 
 using namespace glm;
 
+Heightmap heightmap;
 Terrain terrain;
 
 int window_width = 800;
@@ -22,7 +24,8 @@ void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
 
-    terrain.Init();
+    GLuint heightmap_tex_id = heightmap.Init(512, 512);
+    terrain.Init(heightmap_tex_id);
 
     // setup view and projection matrices
     vec3 cam_pos(-2.0f, -2.0f, 2.0f);
@@ -117,6 +120,7 @@ int main(int argc, char *argv[]) {
 
     // cleanup
     terrain.Cleanup();
+    heightmap.Cleanup();
 
     // close OpenGL window and terminate GLFW
     glfwDestroyWindow(window);
