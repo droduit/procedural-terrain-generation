@@ -50,7 +50,7 @@ void Init(GLFWwindow* window) {
 }
 
 void Update(float dt) {
-    if (cam_vel[0] != 0.0 || cam_vel[1] != 0.0) {
+    if (cam_vel[0] != 0.0 || cam_vel[1] != 0.0 || cam_vel[2] != 0.0) {
         cam_pos += dt * cam_vel;
         vec3 cam_look = cam_pos + cam_dir;
         vec3 cam_up(0.0f, 0.0f, 1.0f);
@@ -98,6 +98,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             case GLFW_KEY_D:
                 cam_vel[1] -= CAMERA_SPEED;
                 break;
+            case GLFW_KEY_E:
+                cam_vel[2] -= CAMERA_SPEED;
+                break;
+            case GLFW_KEY_Q:
+                cam_vel[2] += CAMERA_SPEED;
+                break;
         }
     }
 
@@ -114,6 +120,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                 break;
             case GLFW_KEY_D:
                 cam_vel[1] += CAMERA_SPEED;
+                break;
+            case GLFW_KEY_E:
+                cam_vel[2] += CAMERA_SPEED;
+                break;
+            case GLFW_KEY_Q:
+                cam_vel[2] -= CAMERA_SPEED;
                 break;
         }
     }
