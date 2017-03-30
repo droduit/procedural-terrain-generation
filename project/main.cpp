@@ -20,27 +20,32 @@ int window_height = 600;
 mat4 projection_matrix;
 mat4 view_matrix;
 
+vec3 cam_pos;
+vec3 light_pos;
+
 void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
 
-    GLuint heightmap_tex_id = heightmap.Init(512, 512);
-    terrain.Init(heightmap_tex_id);
-
     // setup view and projection matrices
-    vec3 cam_pos(-2.0f, -2.0f, 2.0f);
-    vec3 cam_look(0.0f, 0.0f, 0.0f);
+    light_pos = vec3(-1.0f, 0.0f, 2.0f);
+    cam_pos = vec3(-2.0f, -2.0f, 2.0f);
+    vec3 cam_look = cam_pos + vec3(2.0, 2.0, -2.0);
     vec3 cam_up(0.0f, 0.0f, 1.0f);
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
 
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 10.0f);
+
+    GLuint heightmap_tex_id = heightmap.Init(512, 512);
+    terrain.Init(heightmap_tex_id);
+    terrain.SetLighting(light_pos);
 }
 
 void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    terrain.Draw(glfwGetTime(), IDENTITY_MATRIX, view_matrix, projection_matrix);
+    terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
 // gets called when the windows/framebuffer is resized.

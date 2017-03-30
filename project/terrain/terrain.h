@@ -2,6 +2,8 @@
 #include "icg_helper.h"
 #include <glm/gtc/type_ptr.hpp>
 
+using namespace glm;
+
 class Terrain {
 
     private:
@@ -11,7 +13,11 @@ class Terrain {
         GLuint program_id_;                     // GLSL shader program ID
         GLuint texture_id_;                     // texture ID
         GLuint num_indices_;                    // number of vertices to render
-        GLuint MVP_id_;                         // model, view, proj matrix ID
+
+        GLuint projection_id_, view_id_, model_id_;
+        GLuint light_pos_id_;
+
+        vec3 light_pos_;
 
     public:
         void Init(GLuint heightmap_texture_id) {
@@ -100,7 +106,10 @@ class Terrain {
             glBindTexture(GL_TEXTURE_2D, 0);
 
             // other uniforms
-            MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+            projection_id_ = glGetUniformLocation(program_id_, "projection");
+            view_id_ = glGetUniformLocation(program_id_, "view");
+            model_id_ = glGetUniformLocation(program_id_, "model");
+            light_pos_id_ = glGetUniformLocation(program_id_, "light_pos");
 
             // to avoid the current object being polluted
             glBindVertexArray(0);
@@ -116,7 +125,7 @@ class Terrain {
             glDeleteProgram(program_id_);
         }
 
-        void Draw(float time, const glm::mat4 &model = IDENTITY_MATRIX,
+        void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX) {
             glUseProgram(program_id_);
@@ -127,8 +136,10 @@ class Terrain {
             glBindTexture(GL_TEXTURE_2D, texture_id_);
 
             // setup MVP
-            glm::mat4 MVP = projection*view*model;
-            glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
+            glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(view_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
+            glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
+            glUniform3fv(light_pos_id_, ONE, glm::value_ptr(light_pos_));
 
             // draw
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -136,5 +147,9 @@ class Terrain {
 
             glBindVertexArray(0);
             glUseProgram(0);
+        }
+
+        void SetLighting(vec3 light_pos) {
+            this->light_pos_ = light_pos;
         }
 };
