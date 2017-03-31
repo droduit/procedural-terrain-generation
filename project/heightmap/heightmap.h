@@ -14,11 +14,15 @@ class Heightmap {
         float seed_;
         float screenquad_width_;
         float screenquad_height_;
+        float dx_, dy_;
 
         Framebuffer framebuffer_;
 
     public:
         GLuint Init(float screenquad_width, float screenquad_height, float seed = 0.0) {
+            this->dx_ = 0;
+            this->dy_ = 0;
+
             this->seed_ = seed;
 
             // set screenquad size
@@ -125,6 +129,8 @@ class Heightmap {
             */
 
             glUniform1f(glGetUniformLocation(program_id_, "seed"), this->seed_);
+            glUniform1f(glGetUniformLocation(program_id_, "dx"), this->dx_);
+            glUniform1f(glGetUniformLocation(program_id_, "dy"), this->dy_);
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -133,5 +139,12 @@ class Heightmap {
             glUseProgram(0);
 
             framebuffer_.Unbind();
+        }
+
+        void Move(float dx, float dy) {
+            this->dx_ = dx;
+            this->dy_ = dy;
+
+            this->Draw();
         }
 };

@@ -47,7 +47,7 @@ void Init(GLFWwindow* window) {
 
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 10.0f);
 
-    GLuint heightmap_tex_id = heightmap.Init(1024, 1024);
+    GLuint heightmap_tex_id = heightmap.Init(512, 512);
     terrain.Init(heightmap_tex_id);
     terrain.SetLighting(light_pos);
 }
@@ -59,6 +59,8 @@ void Update(float dt) {
         vec3 cam_up(0.0f, 0.0f, 1.0f);
         view_matrix = lookAt(cam_pos, cam_look, cam_up);
     }
+
+    heightmap.Move(glfwGetTime() / 5.0, glfwGetTime() / 5.0);
 }
 
 void Display() {

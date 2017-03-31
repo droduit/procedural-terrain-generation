@@ -5,6 +5,7 @@ in vec2 uv;
 out float color;
 
 uniform float seed;
+uniform float dx, dy;
 
 float rand(vec2 co){
   return fract(sin(seed + dot(co, vec2(12.9898,78.233))) * 43758.5453);
@@ -59,6 +60,6 @@ float fBm(vec2 point, float H, float lacunarity, int octaves) {
 
 void main() {
     // Stretch the montains with 0.75, flatten them with 1.75
-    color = fBm(0.75 * uv, 1.0, 2.0, 24) / 1.75;
+    color = fBm(0.75 * uv + vec2(dx, dy), 1.0, 2.0, 12) / 1.75;
 }
 

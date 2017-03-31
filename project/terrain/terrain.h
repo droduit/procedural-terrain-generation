@@ -36,7 +36,7 @@ class Terrain {
 
             // vertex coordinates and indices
             {
-                int grid_dim = 1024;
+                int grid_dim = 512;
                 int grid_size = 4;
 
                 std::vector<GLfloat> vertices;
