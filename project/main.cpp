@@ -60,15 +60,59 @@ void Update(float dt) {
         view_matrix = lookAt(cam_pos, cam_look, cam_up);
     }
 
-    heightmap.Move(glfwGetTime() / 5.0, glfwGetTime() / 5.0);
+    static bool first_run = true;
+    static float hcomp = 0.75, vcomp = 0.57, speed = 1.0 / 5.0;
+    static float hoffset[2] = { 0.0, 0.0 }, voffset = 0.0;
+    static float H = 1.0, lacunarity = 2.0, offset = 0.0;
+    static int type = 0, seed = 0, octaves = 10;
+
+    ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f));
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+    if (first_run)
+        ImGui::SetNextTreeNodeOpen(true);
+
+    if (ImGui::CollapsingHeader("Terrain Options")) {
+        ImGui::DragFloat2("hoffset", hoffset, 0.005);
+        ImGui::SliderFloat("voffset", &voffset, -2.0, 5.0);
+        ImGui::SliderFloat("speed", &speed, 0.0, 1.0);
+
+        ImGui::SliderFloat("hcomp", &hcomp, 0.01, 5.0);
+
+        if (type == 0)
+            ImGui::SliderFloat("vcomp", &vcomp, 0.0, 10.0);
+        else
+            ImGui::SliderFloat("vcomp", &vcomp, 0.0, 100.0);
+
+        ImGui::DragInt("seed", &seed, 0.05);
+    }
+
+    if (first_run)
+        ImGui::SetNextTreeNodeOpen(true);
+
+    if (ImGui::CollapsingHeader("Harmonic Options")) {
+        ImGui::RadioButton("fBm", &type, 0); ImGui::SameLine();
+        ImGui::RadioButton("mulifractal", &type, 1); ImGui::SameLine();
+        ImGui::RadioButton("sine", &type, 2);
+
+        ImGui::SliderFloat("H", &H, 0.01, 2.0);
+        ImGui::SliderFloat("lacunarity", &lacunarity, 0.8, 3.0);
+        ImGui::SliderInt("octaves", &octaves, 1, 24);
+        ImGui::SliderFloat("offset", &offset, -10.0, 10.0);
+    }
+
+    heightmap.SetCompression(hcomp, vcomp, voffset);
+    heightmap.SetSeed(seed);
+    heightmap.SetHarmonic(type, H, lacunarity, octaves, offset);
+    heightmap.Move(speed * glfwGetTime() + hoffset[0], speed * glfwGetTime() + hoffset[1]);
+    heightmap.Draw();
+
+    first_run = false;
 }
 
 void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f));
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }

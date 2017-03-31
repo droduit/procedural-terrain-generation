@@ -11,19 +11,23 @@ class Heightmap {
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
 
-        float seed_;
         float screenquad_width_;
         float screenquad_height_;
         float dx_, dy_;
+        float hcomp_, vcomp_, voffset_;
+        float H_, lacunarity_, offset_;
+        int type_, seed_, octaves_;
 
         Framebuffer framebuffer_;
 
     public:
-        GLuint Init(float screenquad_width, float screenquad_height, float seed = 0.0) {
+        GLuint Init(float screenquad_width, float screenquad_height) {
             this->dx_ = 0;
             this->dy_ = 0;
+            this->hcomp_ = 0.75;
+            this->vcomp_ = 1.75;
 
-            this->seed_ = seed;
+            this->seed_ = 0;
 
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
@@ -128,9 +132,19 @@ class Heightmap {
             glBindTexture(GL_TEXTURE_2D, texture_id_);
             */
 
-            glUniform1f(glGetUniformLocation(program_id_, "seed"), this->seed_);
             glUniform1f(glGetUniformLocation(program_id_, "dx"), this->dx_);
             glUniform1f(glGetUniformLocation(program_id_, "dy"), this->dy_);
+            glUniform1f(glGetUniformLocation(program_id_, "hcomp"), this->hcomp_);
+            glUniform1f(glGetUniformLocation(program_id_, "vcomp"), this->vcomp_);
+            glUniform1f(glGetUniformLocation(program_id_, "voffset"), this->voffset_);
+
+            glUniform1i(glGetUniformLocation(program_id_, "seed"), this->seed_);
+
+            glUniform1i(glGetUniformLocation(program_id_, "type"), this->type_);
+            glUniform1f(glGetUniformLocation(program_id_, "H"), this->H_);
+            glUniform1f(glGetUniformLocation(program_id_, "lacunarity"), this->lacunarity_);
+            glUniform1i(glGetUniformLocation(program_id_, "octaves"), this->octaves_);
+            glUniform1f(glGetUniformLocation(program_id_, "offset"), this->offset_);
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -144,7 +158,23 @@ class Heightmap {
         void Move(float dx, float dy) {
             this->dx_ = dx;
             this->dy_ = dy;
+        }
 
-            this->Draw();
+        void SetCompression(float hcomp, float vcomp, float voffset) {
+            this->hcomp_ = hcomp;
+            this->vcomp_ = vcomp;
+            this->voffset_ = voffset;
+        }
+
+        void SetSeed(int seed) {
+            this->seed_ = seed;
+        }
+
+        void SetHarmonic(int type, float H, float lacunarity, int octaves, float offset) {
+            this->type_ = type;
+            this->H_ = H;
+            this->lacunarity_ = lacunarity;
+            this->octaves_ = octaves;
+            this->offset_ = offset;
         }
 };

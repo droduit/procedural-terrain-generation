@@ -4,8 +4,10 @@ in vec2 uv;
 
 out float color;
 
-uniform float seed;
 uniform float dx, dy;
+uniform float hcomp, vcomp, voffset;
+uniform float H, lacunarity, offset;
+uniform int type, seed, octaves;
 
 float rand(vec2 co){
   return fract(sin(seed + dot(co, vec2(12.9898,78.233))) * 43758.5453);
@@ -22,7 +24,7 @@ vec2 g(vec2 p) {
     return G[int(4 * rand(p))];
 }
 
-float fnoise(vec2 point) {
+float pnoise(vec2 point) {
     vec2 cell = floor(point);
     vec2 poff = fract(point);
 
@@ -51,7 +53,19 @@ float fBm(vec2 point, float H, float lacunarity, int octaves) {
     float value = 0.0;
 
     for (i = 0; i < octaves; i++) {
-        value += fnoise(point.xy) * pow(lacunarity, -H * i);
+        value += pnoise(point) * pow(lacunarity, -H * i);
+        point *= lacunarity;
+    }
+
+    return value;
+}
+
+float multifractal(vec2 point, float H, float lacunarity, int octaves, float offset) {
+    int i = 0;
+    float value = 1.0;
+
+    for (i = 0; i < octaves; i++) {
+        value *= (offset - abs(pnoise(point))) * pow(lacunarity, -H * i);
         point *= lacunarity;
     }
 
@@ -60,6 +74,11 @@ float fBm(vec2 point, float H, float lacunarity, int octaves) {
 
 void main() {
     // Stretch the montains with 0.75, flatten them with 1.75
-    color = fBm(0.75 * uv + vec2(dx, dy), 1.0, 2.0, 12) / 1.75;
+    if (type == 0)
+        color = fBm(hcomp * (uv + vec2(dx, dy)), H, lacunarity, octaves) * vcomp + voffset;
+    else if (type == 1)
+        color = multifractal(hcomp * (uv + vec2(dx, dy)), H, lacunarity, octaves, offset) * vcomp + voffset;
+    else
+        color = vcomp * sin(hcomp * (uv.x + dx)) + cos(hcomp * (uv.y + dy)) + voffset;
 }
 
