@@ -88,6 +88,11 @@ void ErrorCallback(int error, const char* description) {
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (ImGui::GetIO().WantCaptureKeyboard) {
+        ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
+        return;
+    }
+
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -112,6 +117,9 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             case GLFW_KEY_R:
                 cam_vel[2] += CAMERA_SPEED;
                 break;
+
+            default:
+                ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
         }
     }
 
@@ -135,8 +143,23 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             case GLFW_KEY_R:
                 cam_vel[2] -= CAMERA_SPEED;
                 break;
+
+            default:
+                ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
         }
     }
+}
+
+void CharCallback(GLFWwindow *window, unsigned int codepoint) {
+    ImGui_ImplGlfwGL3_CharCallback(window, codepoint);
+}
+
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
+}
+
+void MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+    ImGui_ImplGlfwGL3_ScrollCallback(window, xoffset, yoffset);
 }
 
 int main(int argc, char *argv[]) {
@@ -168,8 +191,11 @@ int main(int argc, char *argv[]) {
     // makes the OpenGL context of window current on the calling thread
     glfwMakeContextCurrent(window);
 
-    // set the callback for escape key
+    // set the callback for inputs
     glfwSetKeyCallback(window, KeyCallback);
+    glfwSetCharCallback(window, CharCallback);
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetScrollCallback(window, MouseScrollCallback);
 
     // set the framebuffer resize callback
     glfwSetFramebufferSizeCallback(window, ResizeCallback);
