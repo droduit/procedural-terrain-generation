@@ -74,7 +74,7 @@ void Update(float dt) {
 
     if (ImGui::CollapsingHeader("Terrain Options")) {
         ImGui::DragFloat2("hoffset", hoffset, 0.005);
-        ImGui::SliderFloat("voffset", &voffset, -2.0, 5.0);
+        ImGui::SliderFloat("voffset", &voffset, -3.0, 5.0);
         ImGui::SliderFloat("speed", &speed, 0.0, 1.0);
 
         ImGui::SliderFloat("hcomp", &hcomp, 0.01, 5.0);
@@ -82,7 +82,7 @@ void Update(float dt) {
         if (type == 0)
             ImGui::SliderFloat("vcomp", &vcomp, 0.0, 10.0);
         else
-            ImGui::SliderFloat("vcomp", &vcomp, 0.0, 100.0);
+            ImGui::SliderFloat("vcomp", &vcomp, 0.0, 10.0);
 
         ImGui::DragInt("seed", &seed, 0.05);
     }
@@ -92,8 +92,10 @@ void Update(float dt) {
 
     if (ImGui::CollapsingHeader("Harmonic Options")) {
         ImGui::RadioButton("fBm", &type, 0); ImGui::SameLine();
-        ImGui::RadioButton("mulifractal", &type, 1); ImGui::SameLine();
-        ImGui::RadioButton("sine", &type, 2);
+        ImGui::RadioButton("ridged fBm", &type, 1); ImGui::SameLine();
+        ImGui::RadioButton("billowy fBm", &type, 2); ImGui::SameLine();
+        ImGui::RadioButton("mulifractal", &type, 3); ImGui::SameLine();
+        ImGui::RadioButton("sine", &type, 4);
 
         ImGui::SliderFloat("H", &H, 0.01, 2.0);
         ImGui::SliderFloat("lacunarity", &lacunarity, 0.8, 3.0);
