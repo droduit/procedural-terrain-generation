@@ -14,14 +14,10 @@ float rand(vec2 co){
 }
 
 vec2 g(vec2 p) {
-    vec2 G[4];
+    float angle = 2.0 * 3.14159 * rand(p);
+    float factor = 2.0 * rand(-p);
 
-    G[0] = vec2( 1,  1);
-    G[1] = vec2(-1,  1);
-    G[2] = vec2( 1, -1);
-    G[3] = vec2(-1, -1);
-
-    return G[int(4 * rand(p))];
+    return factor * vec2(cos(angle), sin(angle));
 }
 
 float pnoise(vec2 point) {
@@ -38,7 +34,7 @@ float pnoise(vec2 point) {
     float u = dot(g(cell + vec2(0.0, 1.0)), c);
     float v = dot(g(cell + vec2(1.0, 1.0)), d);
 
-    vec2 f = 6.0 * pow(poff, vec2(5)) - 15.0 * pow(poff, vec2(4)) + 10.0 * pow(poff, vec2(3));
+    vec2 f = poff * poff * poff * (10 + poff * (-15.0 + poff * 6.0));
 
     float st = mix(s, t, f.x);
     float uv = mix(u, v, f.x);
