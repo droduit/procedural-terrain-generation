@@ -11,24 +11,18 @@ class Heightmap {
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
 
-        float screenquad_width_;
-        float screenquad_height_;
-        float dx_, dy_;
-        float hcomp_, vcomp_, voffset_;
-        float H_, lacunarity_, offset_;
-        int type_, seed_, octaves_;
-
         Framebuffer framebuffer_;
 
+        float screenquad_width_;
+        float screenquad_height_;
+
     public:
+        float dx_ = 0.0, dy_ = 0.0;
+        float hcomp_ = 1.0, vcomp_ = 0.875, voffset_ = -1.55;
+        float H_ = 0.8, lacunarity_ = 2.0, offset_ = 0.0;
+        int type_ = 1, seed_ = 0, octaves_ = 10;
+
         GLuint Init(float screenquad_width, float screenquad_height) {
-            this->dx_ = 0;
-            this->dy_ = 0;
-            this->hcomp_ = 0.75;
-            this->vcomp_ = 1.75;
-
-            this->seed_ = 0;
-
             // set screenquad size
             this->screenquad_width_ = screenquad_width;
             this->screenquad_height_ = screenquad_height;
@@ -153,28 +147,5 @@ class Heightmap {
             glUseProgram(0);
 
             framebuffer_.Unbind();
-        }
-
-        void Move(float dx, float dy) {
-            this->dx_ = dx;
-            this->dy_ = dy;
-        }
-
-        void SetCompression(float hcomp, float vcomp, float voffset) {
-            this->hcomp_ = hcomp;
-            this->vcomp_ = vcomp;
-            this->voffset_ = voffset;
-        }
-
-        void SetSeed(int seed) {
-            this->seed_ = seed;
-        }
-
-        void SetHarmonic(int type, float H, float lacunarity, int octaves, float offset) {
-            this->type_ = type;
-            this->H_ = H;
-            this->lacunarity_ = lacunarity;
-            this->octaves_ = octaves;
-            this->offset_ = offset;
         }
 };
