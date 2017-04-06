@@ -18,7 +18,7 @@ void main() {
 
     float slope = 1.0 - normalize(normal).z;
 
-    float height = height * 1.7;
+    float height = height * 2.4;
 
     if (height == 0.0)
         color = vec3(0.0, 0.0, 1.0);

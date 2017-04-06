@@ -101,11 +101,15 @@ void Update(float dt) {
         ImGui::SliderInt("octaves", &heightmap.octaves_, 1, 24);
     }
 
-    heightmap.dx_ = (hoffset[0] += speed * dt);
-    heightmap.dy_ = (hoffset[1] += speed * dt);
-    heightmap.Draw();
-
     cam_dir.x -= cam_vel[3] * dt;
+
+    vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
+
+    cam_pos.x += dt * cam_vel[0] * cam_dir_2d.x;
+    cam_pos.y += dt * cam_vel[0] * cam_dir_2d.y;
+    cam_pos.x -= dt * cam_vel[1] * cam_dir_2d.y;
+    cam_pos.y += dt * cam_vel[1] * cam_dir_2d.x;
+    cam_pos.z += dt * cam_vel[2];
 
     vec3 cam_target(
         sin(cam_dir.y) * cos(cam_dir.x),
@@ -119,14 +123,12 @@ void Update(float dt) {
         -sin(cam_dir.y)
     );
 
-    cam_pos.x += dt * cam_vel[0] * cam_target.x;
-    cam_pos.y += dt * cam_vel[0] * cam_target.y;
-    cam_pos.x -= dt * cam_vel[1] * cam_target.y;
-    cam_pos.y += dt * cam_vel[1] * cam_target.x;
-    cam_pos.z += dt * cam_vel[2];
-
     vec3 cam_look = cam_pos + cam_target;
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
+
+    heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x);
+    heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y);
+    heightmap.Draw();
 
     first_run = false;
 }
