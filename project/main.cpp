@@ -212,7 +212,7 @@ bool mouseDown = false;
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    if (!ImGui::GetIO().WantCaptureMouse && button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
         mouseDown = !mouseDown;
 }
 
