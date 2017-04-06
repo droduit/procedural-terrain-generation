@@ -18,7 +18,7 @@ include(common/icg_settings.cmake)
 #add_subdirectory(hw3_trackball)
 
 # week 4
-#add_subdirectory(hw4_shading)
+#add_subdirectory(hw3_shading)
 
 # week 5
 #add_subdirectory(lab5_framebuffer)

@@ -4,6 +4,7 @@ in vec2 uv;
 in vec4 vpoint_mv;
 in float height;
 in vec3 light_dir, view_dir;
+in vec3 normal;
 
 out vec3 color;
 
