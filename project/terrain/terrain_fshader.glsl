@@ -14,7 +14,7 @@ void main() {
     vec3 dx = dFdx(vpoint_mv.xyz);
     vec3 dy = dFdy(vpoint_mv.xyz);
     //vec3 normal_ = normalize(cross(dx, dy));
-    vec3 norm = normalize(normal);
+    vec3 norm = normalize(normal_mv);
     vec3 light_dir = normalize(light_dir);
     vec3 view_dir = normalize(view_dir);
 
