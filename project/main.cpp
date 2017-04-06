@@ -29,7 +29,8 @@ mat4 view_matrix;
 
 // Camera
 vec4 cam_vel;
-vec3 cam_pos, cam_dir;
+vec2 cam_dir;
+vec3 cam_pos;
 vec3 light_pos;
 
 void Init(GLFWwindow* window) {
@@ -40,11 +41,7 @@ void Init(GLFWwindow* window) {
     light_pos = vec3(-1.0f, 0.0f, 2.0f);
 
     cam_pos = vec3(-2.0f, -2.0f, 2.0f);
-    cam_dir = vec3(0.707f, 0.707f, -0.707f);
-
-    vec3 cam_look = cam_pos + cam_dir;
-    vec3 cam_up(0.0f, 0.0f, 1.0f);
-    view_matrix = lookAt(cam_pos, cam_look, cam_up);
+    cam_dir = vec2(-3.0 * M_PI / 4.0f, -2.2f);
 
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 10.0f);
 
@@ -61,7 +58,7 @@ void Update(float dt) {
     static float camera_direction[3] = { 0.0, 0.0, 0.0 };
 
     camera_position[0] = cam_pos[0]; camera_position[1] = cam_pos[1]; camera_position[2] = cam_pos[2];
-    camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1]; camera_direction[2] = cam_dir[2];
+    camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1];
 
     ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f));
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -74,7 +71,7 @@ void Update(float dt) {
         ImGui::DragFloat3("direction", camera_direction, 0.005);
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
-        cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1]; cam_dir[2] = camera_direction[2];
+        cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
     }
 
     if (first_run)
@@ -108,18 +105,27 @@ void Update(float dt) {
     heightmap.dy_ = (hoffset[1] += speed * dt);
     heightmap.Draw();
 
-    cam_pos.x += dt * cam_vel[0] * cam_dir.x;
-    cam_pos.y += dt * cam_vel[0] * cam_dir.y;
-    cam_pos.x -= dt * cam_vel[1] * cam_dir.y;
-    cam_pos.y += dt * cam_vel[1] * cam_dir.x;
+    cam_dir.x -= cam_vel[3] * dt;
+
+    vec3 cam_target(
+        sin(cam_dir.y) * cos(cam_dir.x),
+        sin(cam_dir.y) * sin(cam_dir.x),
+        cos(cam_dir.y)
+    );
+
+    vec3 cam_up(
+        cos(cam_dir.y) * cos(cam_dir.x),
+        cos(cam_dir.y) * sin(cam_dir.x),
+        -sin(cam_dir.y)
+    );
+
+    cam_pos.x += dt * cam_vel[0] * cam_target.x;
+    cam_pos.y += dt * cam_vel[0] * cam_target.y;
+    cam_pos.x -= dt * cam_vel[1] * cam_target.y;
+    cam_pos.y += dt * cam_vel[1] * cam_target.x;
     cam_pos.z += dt * cam_vel[2];
 
-    float hangle = atan2(cam_dir.y, cam_dir.x) - dt * cam_vel[3];
-    cam_dir.x = cos(hangle);
-    cam_dir.y = sin(hangle);
-
-    vec3 cam_look = cam_pos + cam_dir;
-    vec3 cam_up(0.0f, 0.0f, 1.0f);
+    vec3 cam_look = cam_pos + cam_target;
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
 
     first_run = false;
@@ -239,12 +245,8 @@ void CursorPosCallback(GLFWwindow *window, double posx, double posy) {
     if (cameraMoving && !ImGui::GetIO().WantCaptureMouse) {
         double dx = posx - last_posx, dy = posy - last_posy;
 
-        float hangle = atan2(cam_dir[1], cam_dir[0]) - dx * da;
-        cam_dir[0] = cos(hangle);
-        cam_dir[1] = sin(hangle);
-
-        float vangle = asin(cam_dir[2]) - dy * da;
-        cam_dir[2] = sin(vangle);
+        cam_dir.x -= dx * da;
+        cam_dir.y -= dy * da;
     }
 
     last_posx = posx; last_posy = posy;
