@@ -6,7 +6,7 @@ out vec2 uv;
 out vec4 vpoint_mv;
 out float height;
 out vec3 light_dir, view_dir;
-out vec3 normal_mv;
+out vec3 normal;
 
 uniform sampler2D heightmap;
 
@@ -29,18 +29,15 @@ void main() {
     light_dir = light_pos_mv.xyz - vpoint_mv.xyz;
     view_dir = -vpoint_mv.xyz;
 
+    float sx0 = textureOffset(heightmap, uv, ivec2(-1 ,0)).r;
+    float sx1 = textureOffset(heightmap, uv, ivec2( 1, 0)).r;
+    float sy0 = textureOffset(heightmap, uv, ivec2( 0,-1)).r;
+    float sy1 = textureOffset(heightmap, uv, ivec2( 0, 1)).r;
 
-    vec4 wave = texture(heightmap, uv);
-    float s11 = wave.x;
-    float s01 = textureOffset(heightmap, uv, ivec2(-1,0)).x;
-    float s21 = textureOffset(heightmap, uv, ivec2(1,0)).x;
-    float s10 = textureOffset(heightmap, uv, ivec2(0,-1)).x;
-    float s12 = textureOffset(heightmap, uv, ivec2(0,1)).x;
-
-    vec3 va = normalize(vec3(vec2(2.0,0.0), s21-s01));
-    vec3 vb = normalize(vec3(vec2(0.0, 2.0), s12-s10));
-    vec4 bump = vec4(cross(va, vb), s11);
-    height = max(0.0, bump.a);
-    normal_mv = bump.xyz;
+    // vec3 va = normalize(vec3(size.x, s21-s01, size.y));
+    // vec3 vb = normalize(vec3(size.y, s12-s10, -size.x));
+    vec3 vx = vec3(2.0/512, 0, (sx1 - sx0));
+    vec3 vy = vec3(0, 2.0/512, (sy1 - sy0));
+    normal = cross(vx,vy);
 
 }
