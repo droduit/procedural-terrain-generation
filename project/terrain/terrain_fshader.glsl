@@ -23,7 +23,7 @@ void main() {
     if (height == 0.0)
         color = vec3(0.0, 0.0, 1.0);
     else
-        color = texture(tex_color, vec2(height, slope)).rgb;
+        color = texture(tex_color, vec2(height, pow(slope, 1.5))).rgb;
 
     color = color / 1.2;
 
