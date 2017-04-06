@@ -39,7 +39,7 @@ void Init(GLFWwindow* window) {
     light_pos = vec3(-1.0f, 0.0f, 2.0f);
 
     cam_pos = vec3(-2.0f, -2.0f, 2.0f);
-    cam_dir = -cam_pos;
+    cam_dir = vec3(0.707f, 0.707f, -0.707f);
 
     vec3 cam_look = cam_pos + cam_dir;
     vec3 cam_up(0.0f, 0.0f, 1.0f);
@@ -53,19 +53,28 @@ void Init(GLFWwindow* window) {
 }
 
 void Update(float dt) {
-    if (cam_vel[0] != 0.0 || cam_vel[1] != 0.0 || cam_vel[2] != 0.0) {
-        cam_pos += dt * cam_vel;
-        vec3 cam_look = cam_pos + cam_dir;
-        vec3 cam_up(0.0f, 0.0f, 1.0f);
-        view_matrix = lookAt(cam_pos, cam_look, cam_up);
-    }
-
     static bool first_run = true;
     static float speed = 0.0;
     static float hoffset[2] = { 0.0, 0.0 };
+    static float camera_position[3]  = { 0.0, 0.0, 0.0 };
+    static float camera_direction[3] = { 0.0, 0.0, 0.0 };
+
+    camera_position[0] = cam_pos[0]; camera_position[1] = cam_pos[1]; camera_position[2] = cam_pos[2];
+    camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1]; camera_direction[2] = cam_dir[2];
 
     ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f));
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+    if (first_run)
+        ImGui::SetNextTreeNodeOpen(true);
+
+    if (ImGui::CollapsingHeader("Camera")) {
+        ImGui::DragFloat3("position", camera_position, 0.005);
+        ImGui::DragFloat3("direction", camera_direction, 0.005);
+
+        cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
+        cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1]; cam_dir[2] = camera_direction[2];
+    }
 
     if (first_run)
         ImGui::SetNextTreeNodeOpen(true);
@@ -97,6 +106,16 @@ void Update(float dt) {
     heightmap.dx_ = (hoffset[0] += speed * dt);
     heightmap.dy_ = (hoffset[1] += speed * dt);
     heightmap.Draw();
+
+    cam_pos.x += dt * cam_vel[0] * cam_dir.x;
+    cam_pos.y += dt * cam_vel[0] * cam_dir.y;
+    cam_pos.x -= dt * cam_vel[1] * cam_dir.y;
+    cam_pos.y += dt * cam_vel[1] * cam_dir.x;
+    cam_pos.z += dt * cam_vel[2];
+
+    vec3 cam_look = cam_pos + cam_dir;
+    vec3 cam_up(0.0f, 0.0f, 1.0f);
+    view_matrix = lookAt(cam_pos, cam_look, cam_up);
 
     first_run = false;
 }
@@ -189,8 +208,30 @@ void CharCallback(GLFWwindow *window, unsigned int codepoint) {
     ImGui_ImplGlfwGL3_CharCallback(window, codepoint);
 }
 
+bool mouseDown = false;
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+        mouseDown = !mouseDown;
+}
+
+void CursorPosCallback(GLFWwindow *window, double posx, double posy) {
+    const float da = M_PI / 2000.0;
+    static double last_posx = posx, last_posy = posy;
+
+    if (mouseDown && !ImGui::GetIO().WantCaptureMouse) {
+        double dx = posx - last_posx, dy = posy - last_posy;
+
+        float hangle = atan2(cam_dir[1], cam_dir[0]) - dx * da;
+        cam_dir[0] = cos(hangle);
+        cam_dir[1] = sin(hangle);
+
+        float vangle = asin(cam_dir[2]) - dy * da;
+        cam_dir[2] = sin(vangle);
+    }
+
+    last_posx = posx; last_posy = posy;
 }
 
 void MouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
@@ -230,6 +271,7 @@ int main(int argc, char *argv[]) {
     glfwSetKeyCallback(window, KeyCallback);
     glfwSetCharCallback(window, CharCallback);
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetCursorPosCallback(window, CursorPosCallback);
     glfwSetScrollCallback(window, MouseScrollCallback);
 
     // set the framebuffer resize callback
