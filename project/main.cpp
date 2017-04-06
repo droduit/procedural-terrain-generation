@@ -28,7 +28,8 @@ mat4 projection_matrix;
 mat4 view_matrix;
 
 // Camera
-vec3 cam_pos, cam_dir, cam_vel;
+vec4 cam_vel;
+vec3 cam_pos, cam_dir;
 vec3 light_pos;
 
 void Init(GLFWwindow* window) {
@@ -113,6 +114,10 @@ void Update(float dt) {
     cam_pos.y += dt * cam_vel[1] * cam_dir.x;
     cam_pos.z += dt * cam_vel[2];
 
+    float hangle = atan2(cam_dir.y, cam_dir.x) - dt * cam_vel[3];
+    cam_dir.x = cos(hangle);
+    cam_dir.y = sin(hangle);
+
     vec3 cam_look = cam_pos + cam_dir;
     vec3 cam_up(0.0f, 0.0f, 1.0f);
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
@@ -171,6 +176,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             case GLFW_KEY_R:
                 cam_vel[2] += CAMERA_SPEED;
                 break;
+            case GLFW_KEY_Q:
+                cam_vel[3] -= CAMERA_SPEED;
+                break;
+            case GLFW_KEY_E:
+                cam_vel[3] += CAMERA_SPEED;
+                break;
 
             default:
                 ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
@@ -197,6 +208,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             case GLFW_KEY_R:
                 cam_vel[2] -= CAMERA_SPEED;
                 break;
+            case GLFW_KEY_Q:
+                cam_vel[3] += CAMERA_SPEED;
+                break;
+            case GLFW_KEY_E:
+                cam_vel[3] -= CAMERA_SPEED;
+                break;
 
             default:
                 ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
@@ -208,19 +225,18 @@ void CharCallback(GLFWwindow *window, unsigned int codepoint) {
     ImGui_ImplGlfwGL3_CharCallback(window, codepoint);
 }
 
-bool mouseDown = false;
+bool cameraMoving = false;
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
 
-    if (!ImGui::GetIO().WantCaptureMouse && button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-        mouseDown = !mouseDown;
+    cameraMoving = button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse;
 }
 
 void CursorPosCallback(GLFWwindow *window, double posx, double posy) {
     const float da = M_PI / 2000.0;
     static double last_posx = posx, last_posy = posy;
 
-    if (mouseDown && !ImGui::GetIO().WantCaptureMouse) {
+    if (cameraMoving && !ImGui::GetIO().WantCaptureMouse) {
         double dx = posx - last_posx, dy = posy - last_posy;
 
         float hangle = atan2(cam_dir[1], cam_dir[0]) - dx * da;
