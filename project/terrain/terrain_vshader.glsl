@@ -7,6 +7,7 @@ out vec4 vpoint_mv;
 out float height;
 out vec3 light_dir, view_dir;
 out vec3 normal_mv;
+out vec3 normal;
 
 uniform sampler2D heightmap;
 
@@ -23,7 +24,7 @@ void main() {
     vpoint_mv = MV * vec4(position, height, 1.0);
     gl_Position = projection * vpoint_mv;
 
-    vec3 normal = vec3(0.0, 0.0, 1.0);
+    normal = vec3(0.0, 0.0, 1.0);
 
     if (height > 0.0) {
         float sx0 = textureOffset(heightmap, uv, ivec2(-1 ,0)).r;

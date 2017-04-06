@@ -107,7 +107,7 @@ class Terrain {
             glBindTexture(GL_TEXTURE_2D, 0);
 
 
-            // load texture
+            // load texture for heights
             {
                 int width;
                 int height;
@@ -165,6 +165,7 @@ class Terrain {
             glDeleteVertexArrays(1, &vertex_array_id_);
             glDeleteProgram(program_id_);
             glDeleteTextures(1, &texture_color_id_);
+
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -180,6 +181,7 @@ class Terrain {
 
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, texture_color_id_);
+
 
             // setup MVP
             glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));

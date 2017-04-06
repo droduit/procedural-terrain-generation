@@ -18,9 +18,9 @@ class Heightmap {
 
     public:
         float dx_ = 0.0, dy_ = 0.0;
-        float hcomp_ = 1.0, vcomp_ = 0.875, voffset_ = -1.55;
-        float H_ = 0.8, lacunarity_ = 2.0, offset_ = 0.0;
-        int type_ = 1, seed_ = 0, octaves_ = 10;
+        float hcomp_ = 1.0, vcomp_ = 1.0, voffset_ = -1.55;
+        float H_ = 1.5, lacunarity_ = 1.5;
+        int type_ = 1, seed_ = 4, octaves_ = 10;
 
         GLuint Init(float screenquad_width, float screenquad_height) {
             // set screenquad size
@@ -138,7 +138,6 @@ class Heightmap {
             glUniform1f(glGetUniformLocation(program_id_, "H"), this->H_);
             glUniform1f(glGetUniformLocation(program_id_, "lacunarity"), this->lacunarity_);
             glUniform1i(glGetUniformLocation(program_id_, "octaves"), this->octaves_);
-            glUniform1f(glGetUniformLocation(program_id_, "offset"), this->offset_);
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

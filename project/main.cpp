@@ -92,7 +92,6 @@ void Update(float dt) {
         ImGui::SliderFloat("H", &heightmap.H_, 0.01, 2.0);
         ImGui::SliderFloat("lacunarity", &heightmap.lacunarity_, 0.8, 3.0);
         ImGui::SliderInt("octaves", &heightmap.octaves_, 1, 24);
-        ImGui::SliderFloat("offset", &heightmap.offset_, -10.0, 10.0);
     }
 
     heightmap.dx_ = (hoffset[0] += speed * dt);
