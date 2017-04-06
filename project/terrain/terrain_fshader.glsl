@@ -4,16 +4,20 @@ in vec2 uv;
 in vec4 vpoint_mv;
 in float height;
 in vec3 light_dir, view_dir;
-in vec3 normal;
+in vec3 normal_mv;
+
+uniform sampler2D tex_color;
 
 out vec3 color;
 
 void main() {
     vec3 dx = dFdx(vpoint_mv.xyz);
     vec3 dy = dFdy(vpoint_mv.xyz);
+    //vec3 normal = normalize(normal_mv);
     vec3 normal = normalize(cross(dx, dy));
     vec3 light_dir = normalize(light_dir);
     vec3 view_dir = normalize(view_dir);
+
 
     if (height <= 0.0)
         color = vec3(0.2, 0.3, 0.9) / 2.0; // Water
@@ -35,4 +39,6 @@ void main() {
             color += pow(max(0.0, rv), 60.0) * vec3(0.8);
         }
     }
+
+    //color = texture(tex_color, uv).rgb;
 }

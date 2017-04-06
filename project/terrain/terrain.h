@@ -11,7 +11,7 @@ class Terrain {
         GLuint vertex_buffer_object_position_;  // memory buffer for positions
         GLuint vertex_buffer_object_index_;     // memory buffer for indices
         GLuint program_id_;                     // GLSL shader program ID
-        GLuint texture_id_;                     // texture ID
+        GLuint texture_id_, texture_color_id_;                     // texture ID
         GLuint num_indices_;                    // number of vertices to render
 
         GLuint projection_id_, view_id_, model_id_;
@@ -99,11 +99,50 @@ class Terrain {
             }
 
             // load/Assign texture
+
             this->texture_id_ = heightmap_texture_id;
             glBindTexture(GL_TEXTURE_2D, texture_id_);
             GLuint tex_id = glGetUniformLocation(program_id_, "heightmap");
             glUniform1i(tex_id, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
+
+
+            // load texture
+            {
+                int width;
+                int height;
+                int nb_component;
+                string filename = "terrain_texture.tga";
+                // set stb_image to have the same coordinates as OpenGL
+                stbi_set_flip_vertically_on_load(1);
+                unsigned char* image = stbi_load(filename.c_str(), &width,
+                                                 &height, &nb_component, 0);
+
+                if(image == nullptr) {
+                    throw(string("Failed to load texture"));
+                }
+
+                glGenTextures(1, &texture_color_id_);
+                glBindTexture(GL_TEXTURE_2D, texture_color_id_);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+                if(nb_component == 3) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+                                 GL_RGB, GL_UNSIGNED_BYTE, image);
+                } else if(nb_component == 4) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                                 GL_RGBA, GL_UNSIGNED_BYTE, image);
+                }
+
+                GLuint tex_id = glGetUniformLocation(program_id_, "tex_color");
+                glUniform1i(tex_id, 1 /*GL_TEXTURE0*/);
+
+                // cleanup
+                glBindTexture(GL_TEXTURE_2D, 1);
+                stbi_image_free(image);
+            }
+
 
             // other uniforms
             projection_id_ = glGetUniformLocation(program_id_, "projection");
@@ -123,6 +162,7 @@ class Terrain {
             glDeleteBuffers(1, &vertex_buffer_object_index_);
             glDeleteVertexArrays(1, &vertex_array_id_);
             glDeleteProgram(program_id_);
+            glDeleteTextures(1, &texture_color_id_);
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -134,6 +174,10 @@ class Terrain {
             // bind textures
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture_id_);
+
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, texture_color_id_);
 
             // setup MVP
             glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));

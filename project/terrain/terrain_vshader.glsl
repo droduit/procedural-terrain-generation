@@ -6,7 +6,7 @@ out vec2 uv;
 out vec4 vpoint_mv;
 out float height;
 out vec3 light_dir, view_dir;
-out vec3 normal;
+out vec3 normal_mv;
 
 uniform sampler2D heightmap;
 
@@ -41,6 +41,6 @@ void main() {
     vec3 vb = normalize(vec3(vec2(0.0, 2.0), s12-s10));
     vec4 bump = vec4(cross(va, vb), s11);
     height = max(0.0, bump.a);
-    normal = bump.xyz;
+    normal_mv = bump.xyz;
 
 }
