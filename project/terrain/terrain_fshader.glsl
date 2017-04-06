@@ -40,5 +40,6 @@ void main() {
         }
     }
 
-    //color = texture(tex_color, uv).rgb;
+    //color *= texture(tex_color, uv).rgb;
+
 }
