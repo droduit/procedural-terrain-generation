@@ -11,9 +11,6 @@ uniform sampler2D tex_color;
 out vec3 color;
 
 void main() {
-    vec3 dx = dFdx(vpoint_mv.xyz);
-    vec3 dy = dFdy(vpoint_mv.xyz);
-    //vec3 normal_ = normalize(cross(dx, dy));
     vec3 norm = normalize(normal_mv);
     vec3 light_dir = normalize(light_dir);
     vec3 view_dir = normalize(view_dir);
@@ -35,12 +32,10 @@ void main() {
         color += nl * vec3(0.5);
 
         // Add reflection on water and snow
-        /*
         if (height <= 0.0 || height >= 0.3) {
             float rv = dot(reflect(-light_dir, norm), view_dir);
             color += pow(max(0.0, rv), 60.0) * vec3(0.8);
         }
-        */
     }
 
     //color *= texture(tex_color, uv).rgb;
