@@ -40,7 +40,8 @@ void main() {
         bool is_snow = (height > hsnow && dot(vec3(1.0), color) > fsnow);
         if (is_water || is_snow) {
             float rv = dot(reflect(-light_dir, norm), view_dir);
-            color += pow(max(0.0, rv), alpha) * vec3(specular);
+            color += pow(max(0.0, rv), alpha) * vec3(specular) *
+                     min(1.0, smoothstep(hsnow, hsnow + 0.1, height));
         }
     }
 }
