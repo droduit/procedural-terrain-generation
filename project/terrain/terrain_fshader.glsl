@@ -5,6 +5,7 @@ in vec4 vpoint_mv;
 in float height;
 in vec3 light_dir, view_dir;
 in vec3 normal_mv;
+in vec3 vert_mv;
 in vec3 normal;
 
 uniform sampler2D tex_color;
@@ -21,12 +22,12 @@ void main() {
     float slope = 1.0 - normalize(normal).z;
     float height = height * fheight;
 
-    float height = height * 2.4;
-
-    if (height == 0.0)
+    if (height > 0.0) {
+        color = texture(tex_color, vec2(height, pow(slope, fslope))).rgb;
+    } else {
         color = vec3(0.0, 0.0, 1.0);
-    else
-        color = texture(tex_color, vec2(height, pow(slope, 1.5))).rgb;
+        norm = vert_mv;
+    }
 
     color = color * fcolor;
 
