@@ -19,12 +19,18 @@ class Terrain {
 
         vec3 light_pos_;
 
+        int grid_tesselation_;
+        float grid_area_;
+
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
         float hsnow_ = 0.5f, fsnow_ = 2.0f;
         float fheight_ = 2.4f, fslope_ = 1.2f, fcolor_ = 0.8333f;
 
-        void Init(GLuint heightmap_texture_id) {
+        void Init(GLuint heightmap_texture_id, int grid_tesselation, float grid_area) {
+            grid_tesselation_ = grid_tesselation;
+            grid_area_ = grid_area;
+
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("terrain_vshader.glsl",
                                                   "terrain_fshader.glsl");
@@ -40,27 +46,28 @@ class Terrain {
 
             // vertex coordinates and indices
             {
-                int grid_dim = 512;
-                int grid_size = 4;
+                // The lambda requires local variables
+                int grid_tesselation_ = this->grid_tesselation_;
+                int grid_area_ = this->grid_area_;
 
                 std::vector<GLfloat> vertices;
                 std::vector<GLuint> indices;
 
-                float delta = (float)grid_size / (float)grid_dim;
-                for (int y = 0; y <= grid_dim; ++y) {
-                    for (int x = 0; x <= grid_dim; ++x) {
-                        vertices.push_back(-grid_size / 2.0f + delta*x); // x coordinate
-                        vertices.push_back(-grid_size / 2.0f + delta*y); // y coordinate
+                float delta = (float)grid_area_ / (float)grid_tesselation_;
+                for (int y = 0; y <= grid_tesselation_; ++y) {
+                    for (int x = 0; x <= grid_tesselation_; ++x) {
+                        vertices.push_back(-grid_area_ / 2.0f + delta*x); // x coordinate
+                        vertices.push_back(-grid_area_ / 2.0f + delta*y); // y coordinate
                     }
                 }
 
                 // helper function to convert x and y coordinate to an index
-                auto to_index = [grid_dim](int x, int y) {
-                    return x + y * (grid_dim + 1);
+                auto to_index = [grid_tesselation_](int x, int y) {
+                    return x + y * (grid_tesselation_ + 1);
                 };
 
-                for (int y = 0; y < grid_dim; ++y) {
-                    for (int x = 0; x < grid_dim; ++x) {
+                for (int y = 0; y < grid_tesselation_; ++y) {
+                    for (int x = 0; x < grid_tesselation_; ++x) {
                         if (y % 2 == 0) { // forward (normal)
                             if (x == 0) { // initial points at the beginning of the line
                                 indices.push_back(to_index(x, y));
@@ -70,7 +77,7 @@ class Terrain {
                             indices.push_back(to_index(x+1, y+1));
 
                         } else { // backward
-                            int x_ = grid_dim - x - 1;
+                            int x_ = grid_tesselation_ - x - 1;
                             if (x == 0) { // initial points at the beginning of the line
                                 indices.push_back(to_index(x_+1, y));
                                 indices.push_back(to_index(x_+1, y+1));
@@ -192,6 +199,9 @@ class Terrain {
             glUniformMatrix4fv(view_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
             glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
             glUniform3fv(light_pos_id_, ONE, glm::value_ptr(light_pos_));
+
+            glUniform1f(glGetUniformLocation(program_id_, "tesselation"), this->grid_tesselation_);
+            glUniform1f(glGetUniformLocation(program_id_, "area"), this->grid_area_);
 
             glUniform1f(glGetUniformLocation(program_id_, "diffuse"), this->diffuse_);
             glUniform1f(glGetUniformLocation(program_id_, "specular"), this->specular_);

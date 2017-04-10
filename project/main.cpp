@@ -45,8 +45,9 @@ void Init(GLFWwindow* window) {
 
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 10.0f);
 
-    GLuint heightmap_tex_id = heightmap.Init(512, 512);
-    terrain.Init(heightmap_tex_id);
+    const int grid_tesselation = 512, grid_area = 4;
+    GLuint heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
+    terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
 }
 

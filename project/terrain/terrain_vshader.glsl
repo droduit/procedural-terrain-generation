@@ -16,9 +16,10 @@ uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
 uniform vec3 light_pos;
+uniform float tesselation, area;
 
 void main() {
-    uv = (position + vec2(2.0)) / 4.0;
+    uv = (position + vec2(area / 2)) / area;
     height = texture(heightmap, uv).r;
 
     mat4 MV = view * model;
@@ -30,8 +31,8 @@ void main() {
     float sy0 = textureOffset(heightmap, uv, ivec2( 0,-1)).r;
     float sy1 = textureOffset(heightmap, uv, ivec2( 0, 1)).r;
 
-    vec3 vx = vec3(2.0 / 512.0, 0, (sx1 - sx0));
-    vec3 vy = vec3(0, 2.0 / 512.0, (sy1 - sy0));
+    vec3 vx = vec3(area / (2 * tesselation), 0, (sx1 - sx0));
+    vec3 vy = vec3(0, area / (2 * tesselation), (sy1 - sy0));
 
     normal = cross(vx, vy);
 
