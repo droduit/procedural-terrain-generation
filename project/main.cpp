@@ -57,6 +57,7 @@ void Update(float dt) {
     static float hoffset[2] = { 0.0, 0.0 };
     static float camera_position[3]  = { 0.0, 0.0, 0.0 };
     static float camera_direction[2] = { 0.0, 0.0 };
+    static float clear_color[3] = { 0.0, 0.1, 0.15 };
 
     camera_position[0] = cam_pos[0]; camera_position[1] = cam_pos[1]; camera_position[2] = cam_pos[2];
     camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1];
@@ -70,9 +71,11 @@ void Update(float dt) {
     if (ImGui::CollapsingHeader("Camera")) {
         ImGui::DragFloat3("position", camera_position, 0.005);
         ImGui::DragFloat2("direction", camera_direction, 0.005);
+        ImGui::SliderFloat3("clear color", clear_color, 0.0, 1.0);
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
         cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
+        glClearColor(clear_color[0], clear_color[1], clear_color[2], 1.0);
     }
 
     if (first_run)
