@@ -94,7 +94,7 @@ float multifractal(vec2 point, float H, float lacunarity, int octaves, float off
 void main() {
     // Stretch the montains with 0.75, flatten them with 1.75
     if (type == 0)
-        color = fBm(hcomp * (uv + vec2(dx, dy)), H, lacunarity, octaves) * vcomp + voffset;
+        color = fBm(hcomp * uv + vec2(dx, dy), H, lacunarity, octaves) * vcomp + voffset;
     else if (type == 1)
         color = ridged_fBm(hcomp * (uv + vec2(dx, dy)), H, lacunarity, octaves) * vcomp + voffset;
     else if (type == 2)

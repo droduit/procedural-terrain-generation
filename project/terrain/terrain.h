@@ -20,6 +20,10 @@ class Terrain {
         vec3 light_pos_;
 
     public:
+        float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
+        float hsnow_ = 0.5f, fsnow_ = 2.0f;
+        float fheight_ = 2.4f, fslope_ = 1.5f, fcolor_ = 0.8333f;
+
         void Init(GLuint heightmap_texture_id) {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("terrain_vshader.glsl",
@@ -188,6 +192,15 @@ class Terrain {
             glUniformMatrix4fv(view_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
             glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
             glUniform3fv(light_pos_id_, ONE, glm::value_ptr(light_pos_));
+
+            glUniform1f(glGetUniformLocation(program_id_, "diffuse"), this->diffuse_);
+            glUniform1f(glGetUniformLocation(program_id_, "specular"), this->specular_);
+            glUniform1f(glGetUniformLocation(program_id_, "alpha"), this->alpha_);
+            glUniform1f(glGetUniformLocation(program_id_, "fheight"), this->fheight_);
+            glUniform1f(glGetUniformLocation(program_id_, "hsnow"), this->hsnow_);
+            glUniform1f(glGetUniformLocation(program_id_, "fsnow"), this->fsnow_);
+            glUniform1f(glGetUniformLocation(program_id_, "fslope"), this->fslope_);
+            glUniform1f(glGetUniformLocation(program_id_, "fcolor"), this->fcolor_);
 
             // draw
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

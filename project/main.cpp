@@ -91,6 +91,21 @@ void Update(float dt) {
     if (first_run)
         ImGui::SetNextTreeNodeOpen(true);
 
+    if (ImGui::CollapsingHeader("Texture Options")) {
+        ImGui::DragFloat("fcolor", &terrain.fcolor_, 0.005);
+        ImGui::DragFloat("fslope", &terrain.fslope_, 0.005);
+        ImGui::DragFloat("fheight", &terrain.fheight_, 0.005);
+        ImGui::DragFloat("hsnow", &terrain.hsnow_, 0.005);
+        ImGui::DragFloat("fsnow", &terrain.fsnow_, 0.005);
+
+        ImGui::DragFloat("diffuse", &terrain.diffuse_, 0.005);
+        ImGui::DragFloat("specular", &terrain.specular_, 0.005);
+        ImGui::DragFloat("alpha", &terrain.alpha_, 0.5);
+    }
+
+    if (first_run)
+        ImGui::SetNextTreeNodeOpen(true);
+
     if (ImGui::CollapsingHeader("Harmonic Options")) {
         ImGui::RadioButton("fBm", &heightmap.type_, 0); ImGui::SameLine();
         ImGui::RadioButton("ridged fBm", &heightmap.type_, 1); ImGui::SameLine();
