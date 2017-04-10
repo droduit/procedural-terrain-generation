@@ -22,7 +22,7 @@ class Terrain {
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
         float hsnow_ = 0.5f, fsnow_ = 2.0f;
-        float fheight_ = 2.4f, fslope_ = 1.5f, fcolor_ = 0.8333f;
+        float fheight_ = 2.4f, fslope_ = 1.2f, fcolor_ = 0.8333f;
 
         void Init(GLuint heightmap_texture_id) {
             // compile the shaders.
