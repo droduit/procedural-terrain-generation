@@ -21,8 +21,8 @@ using namespace glm;
 Heightmap heightmap;
 Terrain terrain;
 
-int window_width = 800;
-int window_height = 600;
+int window_width = 1200;
+int window_height = 900;
 
 mat4 projection_matrix;
 mat4 view_matrix;
@@ -72,6 +72,7 @@ void Update(float dt) {
         ImGui::DragFloat3("position", camera_position, 0.005);
         ImGui::DragFloat2("direction", camera_direction, 0.005);
         ImGui::SliderFloat3("clear color", clear_color, 0.0, 1.0);
+        ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
         cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
