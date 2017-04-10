@@ -26,6 +26,7 @@ class Terrain {
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
         float hsnow_ = 0.8f, fsnow_ = 2.0f;
         float fheight_ = 2.4f, fslope_ = 1.2f, fcolor_ = 0.8333f;
+        bool wireframe_mode_ = false;
 
         void Init(GLuint heightmap_texture_id, int grid_tesselation, float grid_area) {
             grid_tesselation_ = grid_tesselation;
@@ -213,8 +214,13 @@ class Terrain {
             glUniform1f(glGetUniformLocation(program_id_, "fcolor"), this->fcolor_);
 
             // draw
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            if (wireframe_mode_)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
             glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
+
+            if (wireframe_mode_)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
             glBindVertexArray(0);
             glUseProgram(0);
