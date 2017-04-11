@@ -14,8 +14,8 @@ copy_files_once(${TEXTURES})
 file(GLOB SHADERS
     heightmap/*.glsl
     terrain/*.glsl
-    cube/*.glsl
     quad/*.glsl
+    floor/*.glsl
     screenquad/*.glsl)
 deploy_shaders_to_build_dir(${SHADERS})
 

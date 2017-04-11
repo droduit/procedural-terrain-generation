@@ -14,12 +14,17 @@
 #include "heightmap/heightmap.h"
 #include "terrain/terrain.h"
 
+#include "framebuffer.h"
+#include "floor/floor.h"
+
 #define CAMERA_SPEED 0.05
 
 using namespace glm;
 
 Heightmap heightmap;
 Terrain terrain;
+//Floor shinyfloor;
+//Framebuffer framebuffer;
 
 int window_width = 1200;
 int window_height = 900;
@@ -49,6 +54,10 @@ void Init(GLFWwindow* window) {
     GLuint heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
     terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
+
+    //GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
+    //shinyfloor.Init(framebuffer_texture_id);
+
 }
 
 void Update(float dt) {
@@ -133,6 +142,7 @@ void Update(float dt) {
         ImGui::RadioButton("fBm", &heightmap.type_, 0); ImGui::SameLine();
         ImGui::RadioButton("ridged fBm", &heightmap.type_, 1); ImGui::SameLine();
         ImGui::RadioButton("billowy fBm", &heightmap.type_, 2);
+        ImGui::RadioButton("swiss turbulence", &heightmap.type_, 3);
 
         ImGui::SliderFloat("H", &heightmap.H_, 0.01, 2.0);
         ImGui::SliderFloat("lacunarity", &heightmap.lacunarity_, 0.8, 3.0);
@@ -176,6 +186,7 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    //shinyfloor.Draw(projection_matrix);
 }
 
 // gets called when the windows/framebuffer is resized.
@@ -186,6 +197,9 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
     projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 400.0f);
 
     glViewport(0, 0, width, height);
+
+    //framebuffer.Cleanup();
+    //framebuffer.Init(window_width, window_height);
 }
 
 void ErrorCallback(int error, const char* description) {
