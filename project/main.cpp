@@ -14,7 +14,7 @@
 #include "heightmap/heightmap.h"
 #include "terrain/terrain.h"
 
-#define CAMERA_SPEED 2.0
+#define CAMERA_SPEED 0.05
 
 using namespace glm;
 
@@ -40,12 +40,12 @@ void Init(GLFWwindow* window) {
     // setup view and projection matrices
     light_pos = vec3(-1.0f, 0.0f, 2.0f);
 
-    cam_pos = vec3(-2.0f, -2.0f, 2.0f);
+    cam_pos = vec3(0.0f, 0.0f, 2.0f);
     cam_dir = vec2(-3.0 * M_PI / 4.0f, -2.2f);
 
-    projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 10.0f);
+    projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 400.0f);
 
-    const int grid_tesselation = 512, grid_area = 4;
+    const int grid_tesselation = 512, grid_area = 200;
     GLuint heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
     terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
@@ -57,7 +57,7 @@ void Update(float dt) {
     static float hoffset[2] = { 0.0, 0.0 };
     static float camera_position[3]  = { 0.0, 0.0, 0.0 };
     static float camera_direction[2] = { 0.0, 0.0 };
-    static float clear_color[3] = { 0.0, 0.1, 0.15 };
+    static float fog_color[3] = { 0.73, 0.8, 1.0 };
 
     camera_position[0] = cam_pos[0]; camera_position[1] = cam_pos[1]; camera_position[2] = cam_pos[2];
     camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1];
@@ -71,12 +71,10 @@ void Update(float dt) {
     if (ImGui::CollapsingHeader("Camera")) {
         ImGui::DragFloat3("position", camera_position, 0.005);
         ImGui::DragFloat2("direction", camera_direction, 0.005);
-        ImGui::SliderFloat3("clear color", clear_color, 0.0, 1.0);
         ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
         cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
-        glClearColor(clear_color[0], clear_color[1], clear_color[2], 1.0);
     }
 
     if (first_run)
@@ -91,6 +89,26 @@ void Update(float dt) {
 
         ImGui::DragInt("seed", &heightmap.seed_, 0.05);
         ImGui::DragFloat("speed", &speed, 0.01);
+    }
+
+    if (first_run)
+        ImGui::SetNextTreeNodeOpen(true);
+
+    if (ImGui::CollapsingHeader("Fog Options")) {
+        ImGui::RadioButton("linear", &terrain.fog_type_, 0); ImGui::SameLine();
+        ImGui::RadioButton("exponential", &terrain.fog_type_, 1);
+
+        ImGui::SliderFloat("start", &terrain.fog_start_, 20, 100);
+        ImGui::SliderFloat("end", &terrain.fog_end_, 20, 100);
+        ImGui::SliderFloat3("color", fog_color, 0.0, 1.0);
+        ImGui::DragFloat("density", &terrain.fog_density_, 0.0001);
+        ImGui::DragFloat("power", &terrain.fog_power_, 0.005);
+
+        terrain.fog_color_[0] = fog_color[0];
+        terrain.fog_color_[1] = fog_color[1];
+        terrain.fog_color_[2] = fog_color[2];
+
+        glClearColor(fog_color[0], fog_color[1], fog_color[2], 1.0);
     }
 
     if (first_run)
@@ -125,11 +143,9 @@ void Update(float dt) {
 
     vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
 
-    cam_pos.x += dt * cam_vel[0] * cam_dir_2d.x;
-    cam_pos.y += dt * cam_vel[0] * cam_dir_2d.y;
-    cam_pos.x -= dt * cam_vel[1] * cam_dir_2d.y;
-    cam_pos.y += dt * cam_vel[1] * cam_dir_2d.x;
-    cam_pos.z += dt * cam_vel[2];
+    float cam_speed = glm::max(0.005f, (float)pow(abs(cam_pos.z), 0.8f));
+
+    cam_pos.z += dt * cam_vel[2] * cam_speed;
 
     vec3 cam_target(
         sin(cam_dir.y) * cos(cam_dir.x),
@@ -146,8 +162,10 @@ void Update(float dt) {
     vec3 cam_look = cam_pos + cam_target;
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
 
-    heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x);
-    heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y);
+    terrain.cam_pos_ = cam_pos;
+
+    heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
+    heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
     heightmap.Draw();
 
     first_run = false;
@@ -165,7 +183,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
     window_width = width;
     window_height = height;
 
-    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 10.0f);
+    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 400.0f);
 
     glViewport(0, 0, width, height);
 }
@@ -199,16 +217,16 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                 cam_vel[1] -= CAMERA_SPEED;
                 break;
             case GLFW_KEY_F:
-                cam_vel[2] -= CAMERA_SPEED;
+                cam_vel[2] -= CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_R:
-                cam_vel[2] += CAMERA_SPEED;
+                cam_vel[2] += CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_Q:
-                cam_vel[3] -= CAMERA_SPEED;
+                cam_vel[3] -= CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_E:
-                cam_vel[3] += CAMERA_SPEED;
+                cam_vel[3] += CAMERA_SPEED * 20;
                 break;
 
             default:
@@ -231,16 +249,16 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                 cam_vel[1] += CAMERA_SPEED;
                 break;
             case GLFW_KEY_F:
-                cam_vel[2] += CAMERA_SPEED;
+                cam_vel[2] += CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_R:
-                cam_vel[2] -= CAMERA_SPEED;
+                cam_vel[2] -= CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_Q:
-                cam_vel[3] += CAMERA_SPEED;
+                cam_vel[3] += CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_E:
-                cam_vel[3] -= CAMERA_SPEED;
+                cam_vel[3] -= CAMERA_SPEED * 20;
                 break;
 
             default:

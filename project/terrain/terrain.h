@@ -25,8 +25,11 @@ class Terrain {
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
         float hsnow_ = 0.8f, fsnow_ = 2.0f;
-        float fheight_ = 2.4f, fslope_ = 1.2f, fcolor_ = 0.8333f;
+        float fheight_ = 0.4f, fslope_ = 1.2f, fcolor_ = 0.8333f;
         bool wireframe_mode_ = false;
+        vec3 cam_pos_, fog_color_;
+        float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.015f, fog_power_ = 4.0f;
+        int fog_type_ = 1;
 
         void Init(GLuint heightmap_texture_id, int grid_tesselation, float grid_area) {
             grid_tesselation_ = grid_tesselation;
@@ -212,6 +215,14 @@ class Terrain {
             glUniform1f(glGetUniformLocation(program_id_, "fsnow"), this->fsnow_);
             glUniform1f(glGetUniformLocation(program_id_, "fslope"), this->fslope_);
             glUniform1f(glGetUniformLocation(program_id_, "fcolor"), this->fcolor_);
+
+            glUniform3fv(glGetUniformLocation(program_id_, "cam_pos"), ONE, glm::value_ptr(cam_pos_));
+            glUniform3fv(glGetUniformLocation(program_id_, "fog_color"), ONE, glm::value_ptr(fog_color_));
+            glUniform1f(glGetUniformLocation(program_id_, "fog_start"), this->fog_start_);
+            glUniform1f(glGetUniformLocation(program_id_, "fog_end"), this->fog_end_);
+            glUniform1i(glGetUniformLocation(program_id_, "fog_type"), this->fog_type_);
+            glUniform1f(glGetUniformLocation(program_id_, "fog_density"), this->fog_density_);
+            glUniform1f(glGetUniformLocation(program_id_, "fog_power"), this->fog_power_);
 
             // draw
             if (wireframe_mode_)

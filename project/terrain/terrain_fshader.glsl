@@ -1,8 +1,9 @@
 #version 330
 
 in vec2 uv;
-in vec4 vpoint_mv;
 in float height;
+in vec4 vpoint_mv;
+in vec3 cam_pos_mv;
 in vec3 light_dir, view_dir;
 in vec3 normal_mv;
 in vec3 vert_mv;
@@ -11,6 +12,10 @@ in vec3 normal;
 uniform sampler2D tex_color;
 uniform float fheight, fslope, fcolor, hsnow, fsnow;
 uniform float diffuse, specular, alpha;
+
+uniform vec3 fog_color;
+uniform float fog_start, fog_end, fog_density, fog_power;
+uniform int fog_type;
 
 out vec3 color;
 
@@ -49,4 +54,14 @@ void main() {
                      
         }
     }
+
+    // Fog
+    float fog_factor = 0.0;
+    float distance = length(cam_pos_mv - vpoint_mv.xyz);
+    if (fog_type == 0) // Linear factor
+        fog_factor = 1.0 - (fog_end - distance) / (fog_end - fog_start), 0.0, 1.0;
+    else // Exp factor
+        fog_factor = 1.0 - exp(-pow(fog_density * distance, fog_power)), 0.0, 1.0;
+
+    color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
 }

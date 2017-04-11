@@ -18,7 +18,7 @@ class Heightmap {
 
     public:
         float dx_ = 0.0, dy_ = 0.0;
-        float hcomp_ = 1.0, vcomp_ = 1.0, voffset_ = -1.55;
+        float hcomp_ = 5.0, vcomp_ = 5.0, voffset_ = -7;
         float H_ = 1.5, lacunarity_ = 1.5;
         int type_ = 1, seed_ = 4, octaves_ = 10;
 

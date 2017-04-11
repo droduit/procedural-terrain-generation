@@ -8,6 +8,7 @@ out float height;
 out vec3 light_dir, view_dir;
 out vec3 normal_mv;
 out vec3 vert_mv;
+out vec3 cam_pos_mv;
 out vec3 normal;
 
 uniform sampler2D heightmap;
@@ -15,6 +16,7 @@ uniform sampler2D heightmap;
 uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
+uniform vec3 cam_pos;
 uniform vec3 light_pos;
 uniform float tesselation, area;
 
@@ -24,6 +26,7 @@ void main() {
 
     mat4 MV = view * model;
     vpoint_mv = MV * vec4(position, max(0.0, height), 1.0);
+    cam_pos_mv = (MV * vec4(cam_pos, 1.0)).xyz;
     gl_Position = projection * vpoint_mv;
 
     float sx0 = textureOffset(heightmap, uv, ivec2(-1 ,0)).r;
