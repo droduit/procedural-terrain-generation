@@ -25,10 +25,10 @@ class Terrain {
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
         float hsnow_ = 0.8f, fsnow_ = 2.0f;
-        float fheight_ = 0.4f, fslope_ = 1.2f, fcolor_ = 0.8333f;
+        float fheight_ = 0.06f, fslope_ = 1.2f, fcolor_ = 0.8333f;
         bool wireframe_mode_ = false;
         vec3 cam_pos_, fog_color_;
-        float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.015f, fog_power_ = 4.0f;
+        float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.012f, fog_power_ = 10.0f;
         int fog_type_ = 1;
 
         void Init(GLuint heightmap_texture_id, int grid_tesselation, float grid_area) {

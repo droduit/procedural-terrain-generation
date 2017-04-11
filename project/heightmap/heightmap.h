@@ -17,10 +17,10 @@ class Heightmap {
         float screenquad_height_;
 
     public:
-        float dx_ = 0.0, dy_ = 0.0;
-        float hcomp_ = 5.0, vcomp_ = 5.0, voffset_ = -7;
-        float H_ = 1.5, lacunarity_ = 1.5;
-        int type_ = 1, seed_ = 4, octaves_ = 10;
+        float dx_ = -0.8, dy_ = 0.9;
+        float hcomp_ = 2.0, vcomp_ = 13.0, voffset_ = -8.5;
+        float H_ = 1.5, lacunarity_ = 2.0;
+        int type_ = 3, seed_ = 4, octaves_ = 10;
 
         GLuint Init(float screenquad_width, float screenquad_height) {
             // set screenquad size

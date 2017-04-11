@@ -45,8 +45,8 @@ void Init(GLFWwindow* window) {
     // setup view and projection matrices
     light_pos = vec3(-1.0f, 0.0f, 2.0f);
 
-    cam_pos = vec3(0.0f, 0.0f, 2.0f);
-    cam_dir = vec2(-3.0 * M_PI / 4.0f, -2.2f);
+    cam_pos = vec3(0.0f, 0.0f, 11.5f);
+    cam_dir = vec2(7.0f, -1.9f);
 
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 400.0f);
 
@@ -63,7 +63,7 @@ void Init(GLFWwindow* window) {
 void Update(float dt) {
     static bool first_run = true;
     static float speed = 0.0;
-    static float hoffset[2] = { 0.0, 0.0 };
+    static float hoffset[2] = { heightmap.dx_, heightmap.dy_ };
     static float camera_position[3]  = { 0.0, 0.0, 0.0 };
     static float camera_direction[2] = { 0.0, 0.0 };
     static float fog_color[3] = { 0.73, 0.8, 1.0 };
