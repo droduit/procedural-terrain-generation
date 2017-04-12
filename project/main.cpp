@@ -16,6 +16,7 @@
 
 #include "framebuffer.h"
 #include "water/water.h"
+#include "screenquad/screenquad.h"
 
 #define CAMERA_SPEED 0.05
 
@@ -24,7 +25,8 @@ using namespace glm;
 Heightmap heightmap;
 Terrain terrain;
 Water water;
-Framebuffer framebuffer;
+Framebuffer water_reflection;
+ScreenQuad sq;
 
 int window_width = 1200;
 int window_height = 900;
@@ -55,10 +57,10 @@ void Init(GLFWwindow* window) {
     terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
 
+    GLuint reflection_texture_id = water_reflection.Init(window_width, window_height);
 
-    //GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
-    water.Init(heightmap_tex_id, -1, grid_tesselation, grid_area);
-
+    sq.Init(window_width, window_height, reflection_texture_id);
+    water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area);
 }
 
 void Update(float dt) {
@@ -183,8 +185,35 @@ void Update(float dt) {
 }
 
 void Display() {
+    {
+        water_reflection.Bind();
+
+        vec3 cam_target(
+            sin(cam_dir.y) * cos(cam_dir.x),
+            sin(cam_dir.y) * sin(cam_dir.x),
+            cos(cam_dir.y)
+        );
+
+        vec3 cam_up(
+            cos(cam_dir.y) * cos(cam_dir.x),
+            cos(cam_dir.y) * sin(cam_dir.x),
+            -sin(cam_dir.y)
+        );
+
+        vec3 cam_look = cam_pos + cam_target;
+        mat4 view_matrix_ = lookAt(cam_pos, cam_look, cam_up);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        terrain.Draw(IDENTITY_MATRIX, view_matrix_, projection_matrix);
+
+        water_reflection.Unbind();
+    }
+
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //sq.Draw();
 
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 
@@ -203,8 +232,8 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
 
     glViewport(0, 0, width, height);
 
-    //framebuffer.Cleanup();
-    //framebuffer.Init(window_width, window_height);
+    water_reflection.Cleanup();
+    water.SetReflection(water_reflection.Init(window_width, window_height));
 }
 
 void ErrorCallback(int error, const char* description) {
@@ -391,6 +420,8 @@ int main(int argc, char *argv[]) {
     terrain.Cleanup();
     heightmap.Cleanup();
     water.Cleanup();
+    water_reflection.Cleanup();
+    sq.Cleanup();
 
     // close OpenGL window and terminate GLFW
     ImGui_ImplGlfwGL3_Shutdown();

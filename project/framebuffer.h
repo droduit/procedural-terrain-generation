@@ -10,6 +10,10 @@ class Framebuffer {
         GLuint depth_render_buffer_id_;
         GLuint color_texture_id_;
 
+        GLenum buffer_id_;
+
+        //static GLenum buffer_count_ = 0;
+
     public:
         // warning: overrides viewport!!
         void Bind() {
@@ -23,7 +27,7 @@ class Framebuffer {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
-        int Init(int image_width, int image_height, GLint internalFormat = GL_RGB8, GLenum format = GL_RGB, GLenum type = GL_UNSIGNED_BYTE, bool use_interpolation = false) {
+        int Init(int image_width, int image_height, GLint internalFormat = GL_RGB, GLenum format = GL_RGB, GLenum type = GL_UNSIGNED_BYTE, bool use_interpolation = false) {
             this->width_ = image_width;
             this->height_ = image_height;
 

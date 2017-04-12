@@ -8,9 +8,9 @@ class Water {
         GLuint vertex_array_id_;        // vertex array object
         GLuint program_id_;             // GLSL shader program ID
         GLuint vertex_buffer_object_;   // memory buffer
-        GLuint texture_id_;             // texture ID
         GLuint texture_mirror_id_;      // texture mirror ID
         GLuint heightmap_texture_id_;
+        GLuint reflection_texture_id_;
 
         GLuint projection_id_, view_id_, model_id_;
         GLuint light_pos_id_;
@@ -27,7 +27,7 @@ class Water {
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
 
-        void Init(GLuint heightmap_texture_id, GLuint tex_mirror, int grid_tesselation, float grid_area) {
+        void Init(GLuint heightmap_texture_id, GLuint reflection_texture_id, int grid_tesselation, float grid_area) {
             grid_tesselation_ = grid_tesselation;
             grid_area_ = grid_area;
 
@@ -111,53 +111,15 @@ class Water {
 
             this->heightmap_texture_id_ = heightmap_texture_id;
             glBindTexture(GL_TEXTURE_2D, heightmap_texture_id_);
-            GLuint tex_id = glGetUniformLocation(program_id_, "heightmap");
-            glUniform1i(tex_id, 0);
+            GLuint heigh_tex_id = glGetUniformLocation(program_id_, "heightmap");
+            glUniform1i(heigh_tex_id, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
 
-            /*
-            {
-                // load texture
-                int width;
-                int height;
-                int nb_component;
-                string filename = "floor_texture.tga";
-                // set stb_image to have the same coordinates as OpenGL
-                stbi_set_flip_vertically_on_load(1);
-                unsigned char* image = stbi_load(filename.c_str(), &width,
-                                                 &height, &nb_component, 0);
-
-                if(image == nullptr) {
-                    throw(string("Failed to load texture"));
-                }
-
-                glGenTextures(1, &texture_id_);
-                glBindTexture(GL_TEXTURE_2D, texture_id_);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-                if(nb_component == 3) {
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-                                 GL_RGB, GL_UNSIGNED_BYTE, image);
-                } else if(nb_component == 4) {
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                                 GL_RGBA, GL_UNSIGNED_BYTE, image);
-                }
-
-
-                texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
-
-                // texture uniforms
-                GLuint tex_id = glGetUniformLocation(program_id_, "tex");
-                glUniform1i(tex_id, 0);
-                GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
-                glUniform1i(tex_mirror_id, 1);
-
-                // cleanup
-                glBindTexture(GL_TEXTURE_2D, 1);
-                stbi_image_free(image);
-            }
-            */
+            this->reflection_texture_id_ = reflection_texture_id;
+            glBindTexture(GL_TEXTURE_2D, reflection_texture_id_);
+            GLuint refl_tex_id = glGetUniformLocation(program_id_, "reflection");
+            glUniform1i(refl_tex_id, 1);
+            glBindTexture(GL_TEXTURE_2D, 1);
 
             projection_id_ = glGetUniformLocation(program_id_, "projection");
             view_id_ = glGetUniformLocation(program_id_, "view");
@@ -176,7 +138,6 @@ class Water {
             glDeleteBuffers(1, &vertex_buffer_object_index_);
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
-            glDeleteTextures(1, &texture_id_);
 
         }
 
@@ -192,7 +153,7 @@ class Water {
             
             // bind textures
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
+            glBindTexture(GL_TEXTURE_2D, reflection_texture_id_);
                
             // setup MVP
             glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
@@ -209,5 +170,9 @@ class Water {
 
             glBindVertexArray(0);
             glUseProgram(0);
+        }
+
+        void SetReflection(GLuint new_reflection_tex_id) {
+            this->reflection_texture_id_ = new_reflection_tex_id;
         }
 };
