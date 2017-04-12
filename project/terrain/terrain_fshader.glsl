@@ -44,8 +44,13 @@ void main() {
         }
     }
 
-    if (height < 0.0)
+    if (height < 0.0) {
+        vec3 sand_color = texture(tex_color, vec2(0.0, 0.0)).rgb * fcolor;
+
+        // Force sand color when underwater
+        color = mix(sand_color, color, smoothstep(-0.3, 0.0, height));
         color = mix(color, vec3(0.5, 0.7, 0.9), 0.4);
+    }
 
     // Fog
     float fog_factor = 0.0;
