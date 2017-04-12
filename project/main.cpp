@@ -82,6 +82,7 @@ void Update(float dt) {
         ImGui::DragFloat3("position", camera_position, 0.005);
         ImGui::DragFloat2("direction", camera_direction, 0.005);
         ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
+        water.wireframe_mode_ = terrain.wireframe_mode_;
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
         cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
