@@ -5,7 +5,6 @@ file(GLOB_RECURSE HEADERS "*.h")
 # these files are copied only once
 file(GLOB TEXTURES
     cube/cube_texture.tga
-    floor/floor_texture.tga
     terrain/terrain_texture.tga
     quad/quad_texture.tga)
 copy_files_once(${TEXTURES})
@@ -16,7 +15,7 @@ file(GLOB SHADERS
     heightmap/*.glsl
     terrain/*.glsl
     quad/*.glsl
-    floor/*.glsl
+    water/*.glsl
     screenquad/*.glsl)
 deploy_shaders_to_build_dir(${SHADERS})
 

@@ -15,7 +15,7 @@
 #include "terrain/terrain.h"
 
 #include "framebuffer.h"
-#include "floor/floor.h"
+#include "water/water.h"
 
 #define CAMERA_SPEED 0.05
 
@@ -23,7 +23,7 @@ using namespace glm;
 
 Heightmap heightmap;
 Terrain terrain;
-Floor shinyfloor;
+Water water;
 Framebuffer framebuffer;
 
 int window_width = 1200;
@@ -59,7 +59,7 @@ void Init(GLFWwindow* window) {
     water_matrix = scale(IDENTITY_MATRIX, vec3(grid_area / 2.0f, grid_area / 2.0f, 1.0f));
 
     //GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
-    shinyfloor.Init(heightmap_tex_id);
+    water.Init(heightmap_tex_id);
 
 }
 
@@ -192,7 +192,7 @@ void Display() {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    shinyfloor.Draw(water_matrix, view_matrix, projection_matrix);
+    water.Draw(water_matrix, view_matrix, projection_matrix);
     glDisable(GL_BLEND);
 }
 
@@ -392,7 +392,7 @@ int main(int argc, char *argv[]) {
     // cleanup
     terrain.Cleanup();
     heightmap.Cleanup();
-    shinyfloor.Cleanup();
+    water.Cleanup();
 
     // close OpenGL window and terminate GLFW
     ImGui_ImplGlfwGL3_Shutdown();

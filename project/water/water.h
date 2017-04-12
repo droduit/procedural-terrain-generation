@@ -2,7 +2,7 @@
 #include "icg_helper.h"
 #include "glm/gtc/type_ptr.hpp"
 
-class Floor {
+class Water {
 
     private:
         GLuint vertex_array_id_;        // vertex array object
@@ -20,8 +20,8 @@ class Floor {
     public:
         void Init(GLuint heightmap_texture_id, GLuint tex_mirror = -1) {
             // compile the shaders
-            program_id_ = icg_helper::LoadShaders("floor_vshader.glsl",
-                                                  "floor_fshader.glsl");
+            program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
+                                                  "water_fshader.glsl");
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
