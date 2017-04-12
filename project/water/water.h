@@ -15,7 +15,14 @@ class Water {
         GLuint projection_id_, view_id_, model_id_;
         GLuint light_pos_id_;
 
+        GLuint vertex_buffer_object_position_;  // memory buffer for positions
+        GLuint vertex_buffer_object_index_; // memory buffer for indices
+        GLuint num_indices_; // number of vertices to render
+
         vec3 light_pos_ = vec3(0.0f);
+
+        int grid_tesselation_;
+        float grid_area_;
 
     public:
         void Init(GLuint heightmap_texture_id, GLuint tex_mirror = -1) {
@@ -32,45 +39,69 @@ class Water {
             glGenVertexArrays(1, &vertex_array_id_);
             glBindVertexArray(vertex_array_id_);
 
-            // vertex coordinates
+            // vertex coordinates and indices
             {
-                const GLfloat vertex_point[] = { /*V1*/ -1.0f, -1.0f, 0.0f,
-                                                 /*V2*/ +1.0f, -1.0f, 0.0f,
-                                                 /*V3*/ -1.0f, +1.0f, 0.0f,
-                                                 /*V4*/ +1.0f, +1.0f, 0.0f};
-                // buffer
-                glGenBuffers(1, &vertex_buffer_object_);
-                glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_point),
-                             vertex_point, GL_STATIC_DRAW);
+                // The lambda requires local variables
+                int grid_tesselation_ = this->grid_tesselation_;
+                int grid_area_ = this->grid_area_;
 
-                // attribute
-                GLuint vertex_point_id = glGetAttribLocation(program_id_, "vpoint");
-                glEnableVertexAttribArray(vertex_point_id);
-                glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE,
+                std::vector<GLfloat> vertices;
+                std::vector<GLuint> indices;
+
+                float delta = (float)grid_area_ / (float)grid_tesselation_;
+                for (int y = 0; y <= grid_tesselation_; ++y) {
+                    for (int x = 0; x <= grid_tesselation_; ++x) {
+                        vertices.push_back(-grid_area_ / 2.0f + delta*x); // x coordinate
+                        vertices.push_back(-grid_area_ / 2.0f + delta*y); // y coordinate
+                    }
+                }
+
+                // helper function to convert x and y coordinate to an index
+                auto to_index = [grid_tesselation_](int x, int y) {
+                    return x + y * (grid_tesselation_ + 1);
+                };
+
+                for (int y = 0; y < grid_tesselation_; ++y) {
+                    for (int x = 0; x < grid_tesselation_; ++x) {
+                        if (y % 2 == 0) { // forward (normal)
+                            if (x == 0) { // initial points at the beginning of the line
+                                indices.push_back(to_index(x, y));
+                                indices.push_back(to_index(x, y+1));
+                            }
+                            indices.push_back(to_index(x+1, y));
+                            indices.push_back(to_index(x+1, y+1));
+
+                        } else { // backward
+                            int x_ = grid_tesselation_ - x - 1;
+                            if (x == 0) { // initial points at the beginning of the line
+                                indices.push_back(to_index(x_+1, y));
+                                indices.push_back(to_index(x_+1, y+1));
+                            }
+                            indices.push_back(to_index(x_, y));
+                            indices.push_back(to_index(x_, y+1));
+                        }
+                    }
+                }
+
+                num_indices_ = indices.size();
+
+                // position buffer
+                glGenBuffers(1, &vertex_buffer_object_position_);
+                glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_position_);
+                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat),
+                             &vertices[0], GL_STATIC_DRAW);
+
+                // vertex indices
+                glGenBuffers(1, &vertex_buffer_object_index_);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_index_);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
+                             &indices[0], GL_STATIC_DRAW);
+
+                // position shader attribute
+                GLuint loc_position = glGetAttribLocation(program_id_, "position");
+                glEnableVertexAttribArray(loc_position);
+                glVertexAttribPointer(loc_position, 2, GL_FLOAT, DONT_NORMALIZE,
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
-            }
-
-            // texture coordinates
-            {
-                const GLfloat vertex_texture_coordinates[] = { /*V1*/ 0.0f, 0.0f,
-                                                               /*V2*/ 1.0f, 0.0f,
-                                                               /*V3*/ 0.0f, 1.0f,
-                                                               /*V4*/ 1.0f, 1.0f};
-
-                // buffer
-                glGenBuffers(1, &vertex_buffer_object_);
-                glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_texture_coordinates),
-                             vertex_texture_coordinates, GL_STATIC_DRAW);
-
-                // attribute
-                GLuint vertex_texture_coord_id = glGetAttribLocation(program_id_,
-                                                                     "vtexcoord");
-                glEnableVertexAttribArray(vertex_texture_coord_id);
-                glVertexAttribPointer(vertex_texture_coord_id, 2, GL_FLOAT,
-                                      DONT_NORMALIZE, ZERO_STRIDE,
-                                      ZERO_BUFFER_OFFSET);
             }
 
             this->heightmap_texture_id_ = heightmap_texture_id;
@@ -163,8 +194,12 @@ class Water {
             glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
             glUniform3fv(light_pos_id_, ONE, glm::value_ptr(light_pos_));
 
+            glUniform1f(glGetUniformLocation(program_id_, "tesselation"), this->grid_tesselation_);
+            glUniform1f(glGetUniformLocation(program_id_, "area"), this->grid_area_);
+
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
 
             glBindVertexArray(0);
             glUseProgram(0);

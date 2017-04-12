@@ -1,6 +1,7 @@
 #version 330 core
 out vec4 color;
 in vec2 uv;
+in float height;
 
 uniform sampler2D heightmap;
 
