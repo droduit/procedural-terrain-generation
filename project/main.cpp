@@ -23,14 +23,15 @@ using namespace glm;
 
 Heightmap heightmap;
 Terrain terrain;
-//Floor shinyfloor;
-//Framebuffer framebuffer;
+Floor shinyfloor;
+Framebuffer framebuffer;
 
 int window_width = 1200;
 int window_height = 900;
 
 mat4 projection_matrix;
 mat4 view_matrix;
+mat4 water_matrix;
 
 // Camera
 vec4 cam_vel;
@@ -55,8 +56,10 @@ void Init(GLFWwindow* window) {
     terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
 
+    water_matrix = scale(IDENTITY_MATRIX, vec3(grid_area / 2.0f, grid_area / 2.0f, 1.0f));
+
     //GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
-    //shinyfloor.Init(framebuffer_texture_id);
+    shinyfloor.Init(heightmap_tex_id);
 
 }
 
@@ -186,7 +189,11 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
-    //shinyfloor.Draw(projection_matrix);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    shinyfloor.Draw(water_matrix, view_matrix, projection_matrix);
+    glDisable(GL_BLEND);
 }
 
 // gets called when the windows/framebuffer is resized.
@@ -385,6 +392,7 @@ int main(int argc, char *argv[]) {
     // cleanup
     terrain.Cleanup();
     heightmap.Cleanup();
+    shinyfloor.Cleanup();
 
     // close OpenGL window and terminate GLFW
     ImGui_ImplGlfwGL3_Shutdown();

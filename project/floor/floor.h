@@ -10,9 +10,15 @@ class Floor {
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
         GLuint texture_mirror_id_;      // texture mirror ID
+        GLuint heightmap_texture_id_;
+
+        GLuint projection_id_, view_id_, model_id_;
+        GLuint light_pos_id_;
+
+        vec3 light_pos_ = vec3(0.0f);
 
     public:
-        void Init(GLuint tex_mirror = -1) {
+        void Init(GLuint heightmap_texture_id, GLuint tex_mirror = -1) {
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("floor_vshader.glsl",
                                                   "floor_fshader.glsl");
@@ -67,6 +73,13 @@ class Floor {
                                       ZERO_BUFFER_OFFSET);
             }
 
+            this->heightmap_texture_id_ = heightmap_texture_id;
+            glBindTexture(GL_TEXTURE_2D, heightmap_texture_id_);
+            GLuint tex_id = glGetUniformLocation(program_id_, "heightmap");
+            glUniform1i(tex_id, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            /*
             {
                 // load texture
                 int width;
@@ -100,14 +113,20 @@ class Floor {
 
                 // texture uniforms
                 GLuint tex_id = glGetUniformLocation(program_id_, "tex");
-                glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
+                glUniform1i(tex_id, 0);
                 GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
-                glUniform1i(tex_mirror_id, 1 /*GL_TEXTURE1*/);
+                glUniform1i(tex_mirror_id, 1);
 
                 // cleanup
-                glBindTexture(GL_TEXTURE_2D, 0);
+                glBindTexture(GL_TEXTURE_2D, 1);
                 stbi_image_free(image);
             }
+            */
+
+            projection_id_ = glGetUniformLocation(program_id_, "projection");
+            view_id_ = glGetUniformLocation(program_id_, "view");
+            model_id_ = glGetUniformLocation(program_id_, "model");
+            light_pos_id_ = glGetUniformLocation(program_id_, "light_pos");
 
             // to avoid the current object being polluted
             glBindVertexArray(0);
@@ -124,7 +143,9 @@ class Floor {
             glDeleteTextures(1, &texture_mirror_id_);
         }
 
-        void Draw(const glm::mat4& MVP) {
+        void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
+                  const glm::mat4 &view = IDENTITY_MATRIX,
+                  const glm::mat4 &projection = IDENTITY_MATRIX) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
@@ -137,8 +158,10 @@ class Floor {
             glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
                
             // setup MVP
-            GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
-            glUniformMatrix4fv(MVP_id, 1, GL_FALSE, value_ptr(MVP));
+            glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(view_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
+            glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
+            glUniform3fv(light_pos_id_, ONE, glm::value_ptr(light_pos_));
 
             // draw
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

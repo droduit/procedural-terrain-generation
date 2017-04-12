@@ -17,7 +17,7 @@ class Terrain {
         GLuint projection_id_, view_id_, model_id_;
         GLuint light_pos_id_;
 
-        vec3 light_pos_;
+        vec3 light_pos_ = vec3(0.0f);
 
         int grid_tesselation_;
         float grid_area_;
@@ -114,7 +114,6 @@ class Terrain {
             }
 
             // load/Assign texture
-
             this->texture_id_ = heightmap_texture_id;
             glBindTexture(GL_TEXTURE_2D, texture_id_);
             GLuint tex_id = glGetUniformLocation(program_id_, "heightmap");

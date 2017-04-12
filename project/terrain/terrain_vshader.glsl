@@ -25,7 +25,7 @@ void main() {
     height = texture(heightmap, uv).r;
 
     mat4 MV = view * model;
-    vpoint_mv = MV * vec4(position, max(0.0, height), 1.0);
+    vpoint_mv = MV * vec4(position, height, 1.0);
     cam_pos_mv = (MV * vec4(cam_pos, 1.0)).xyz;
     gl_Position = projection * vpoint_mv;
 
