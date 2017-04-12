@@ -28,7 +28,7 @@ class Terrain {
         float fheight_ = 0.06f, fslope_ = 1.2f, fcolor_ = 0.8333f;
         bool wireframe_mode_ = false;
         vec3 cam_pos_, fog_color_;
-        float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.012f, fog_power_ = 10.0f;
+        float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.004f, fog_power_ = 6.0f;
         int fog_type_ = 1;
 
         void Init(GLuint heightmap_texture_id, int grid_tesselation, float grid_area) {

@@ -17,8 +17,8 @@ class Heightmap {
         float screenquad_height_;
 
     public:
-        float dx_ = -0.8, dy_ = 0.9;
-        float hcomp_ = 2.0, vcomp_ = 13.0, voffset_ = -8.5;
+        float dx_ = 1.5, dy_ = -1.5;
+        float hcomp_ = 6.0, vcomp_ = 13.0, voffset_ = -8.5;
         float H_ = 1.5, lacunarity_ = 2.0;
         int type_ = 3, seed_ = 4, octaves_ = 10;
 

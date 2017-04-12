@@ -45,12 +45,12 @@ void Init(GLFWwindow* window) {
     // setup view and projection matrices
     light_pos = vec3(-1.0f, 0.0f, 2.0f);
 
-    cam_pos = vec3(0.0f, 0.0f, 11.5f);
-    cam_dir = vec2(7.0f, -1.9f);
+    cam_pos = vec3(0.0f, 0.0f, 3.0f);
+    cam_dir = vec2(12.5f, -1.8f);
 
-    projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 400.0f);
+    projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 1000.0f);
 
-    const int grid_tesselation = 512, grid_area = 200;
+    const int grid_tesselation = 512, grid_area = 600;
     GLuint heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
     terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
@@ -194,7 +194,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
     window_width = width;
     window_height = height;
 
-    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 400.0f);
+    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
     glViewport(0, 0, width, height);
 
