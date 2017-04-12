@@ -28,6 +28,7 @@ void main() {
     );
     */
 
-    //color = vec3(texture(heightmap, uv).r);
+    //color = vec4(vec3(texture(heightmap, uv).r), 0.6);
     color = vec4(0.7, 0.7, 1.0, 0.6);
+
 }

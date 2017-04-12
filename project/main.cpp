@@ -31,7 +31,6 @@ int window_height = 900;
 
 mat4 projection_matrix;
 mat4 view_matrix;
-mat4 water_matrix;
 
 // Camera
 vec4 cam_vel;
@@ -56,10 +55,9 @@ void Init(GLFWwindow* window) {
     terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
 
-    water_matrix = scale(IDENTITY_MATRIX, vec3(grid_area / 2.0f, grid_area / 2.0f, 1.0f));
 
     //GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
-    water.Init(heightmap_tex_id);
+    water.Init(heightmap_tex_id, -1, grid_tesselation, grid_area);
 
 }
 
@@ -192,7 +190,7 @@ void Display() {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    water.Draw(water_matrix, view_matrix, projection_matrix);
+    water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     glDisable(GL_BLEND);
 }
 

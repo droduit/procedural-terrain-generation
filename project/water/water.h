@@ -25,7 +25,12 @@ class Water {
         float grid_area_;
 
     public:
-        void Init(GLuint heightmap_texture_id, GLuint tex_mirror = -1) {
+        float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
+
+        void Init(GLuint heightmap_texture_id, GLuint tex_mirror, int grid_tesselation, float grid_area) {
+            grid_tesselation_ = grid_tesselation;
+            grid_area_ = grid_area;
+
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                                   "water_fshader.glsl");
@@ -167,11 +172,12 @@ class Water {
         void Cleanup() {
             glBindVertexArray(0);
             glUseProgram(0);
-            glDeleteBuffers(1, &vertex_buffer_object_);
+            glDeleteBuffers(1, &vertex_buffer_object_position_);
+            glDeleteBuffers(1, &vertex_buffer_object_index_);
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
             glDeleteTextures(1, &texture_id_);
-            glDeleteTextures(1, &texture_mirror_id_);
+
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -198,7 +204,7 @@ class Water {
             glUniform1f(glGetUniformLocation(program_id_, "area"), this->grid_area_);
 
             // draw
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
 
 
             glBindVertexArray(0);

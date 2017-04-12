@@ -7,14 +7,13 @@ uniform vec3 light_pos;
 uniform float tesselation, area;
 uniform sampler2D heightmap;
 
-in vec3 vpoint;
 in vec2 position;
 
 out vec2 uv;
 out float height;
 
 void main() {
-    gl_Position = projection * view * model * vec4(vpoint, 1.0);
+    gl_Position = projection * view * model * vec4(position, 0.0, 1.0);
     uv = (position + vec2(area / 2)) / area;
     height = texture(heightmap, uv).r;
 }
