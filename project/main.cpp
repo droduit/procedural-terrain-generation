@@ -154,7 +154,7 @@ void Update(float dt) {
 
     vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
 
-    float cam_speed = glm::max(0.005f, (float)pow(abs(cam_pos.z), 0.8f));
+    float cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
 
     cam_pos.z += dt * cam_vel[2] * cam_speed;
 

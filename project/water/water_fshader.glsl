@@ -29,6 +29,7 @@ void main() {
     */
 
     //color = vec4(vec3(texture(heightmap, uv).r), 0.6);
-    color = vec4(0.7, 0.7, 1.0, 0.6);
 
+    float bank = smoothstep(-2.4, 0.0, height);
+    color = vec4(0.2, 0.3, 0.6, 0.8 - bank / 2.0);
 }

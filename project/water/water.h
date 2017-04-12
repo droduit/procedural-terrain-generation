@@ -188,7 +188,7 @@ class Water {
 
             // bind textures
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture_id_);
+            glBindTexture(GL_TEXTURE_2D, heightmap_texture_id_);
             
             // bind textures
             glActiveTexture(GL_TEXTURE1);
