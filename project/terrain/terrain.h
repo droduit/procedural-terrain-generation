@@ -37,7 +37,10 @@ class Terrain {
 
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("terrain_vshader.glsl",
-                                                  "terrain_fshader.glsl");
+                                                  "terrain_fshader.glsl",
+                                                  NULL, // Geometry shader
+                                                  "terrain_tcshader.glsl",
+                                                  "terrain_teshader.glsl");
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
@@ -72,23 +75,10 @@ class Terrain {
 
                 for (int y = 0; y < grid_tesselation_; ++y) {
                     for (int x = 0; x < grid_tesselation_; ++x) {
-                        if (y % 2 == 0) { // forward (normal)
-                            if (x == 0) { // initial points at the beginning of the line
-                                indices.push_back(to_index(x, y));
-                                indices.push_back(to_index(x, y+1));
-                            }
-                            indices.push_back(to_index(x+1, y));
-                            indices.push_back(to_index(x+1, y+1));
-
-                        } else { // backward
-                            int x_ = grid_tesselation_ - x - 1;
-                            if (x == 0) { // initial points at the beginning of the line
-                                indices.push_back(to_index(x_+1, y));
-                                indices.push_back(to_index(x_+1, y+1));
-                            }
-                            indices.push_back(to_index(x_, y));
-                            indices.push_back(to_index(x_, y+1));
-                        }
+                        indices.push_back(to_index(x, y));
+                        indices.push_back(to_index(x, y+1));
+                        indices.push_back(to_index(x+1, y+1));
+                        indices.push_back(to_index(x+1, y));
                     }
                 }
 
@@ -228,7 +218,8 @@ class Terrain {
             if (wireframe_mode_)
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-            glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
+            glPatchParameteri(GL_PATCH_VERTICES, 4);
+            glDrawElements(GL_PATCHES, num_indices_, GL_UNSIGNED_INT, 0);
 
             if (wireframe_mode_)
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
