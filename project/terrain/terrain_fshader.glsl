@@ -15,7 +15,6 @@ uniform float diffuse, specular, alpha;
 uniform vec3 fog_color;
 uniform float fog_start, fog_end, fog_density, fog_power;
 uniform int fog_type;
-uniform vec4 clip_plane;
 
 out vec4 out_color;
 

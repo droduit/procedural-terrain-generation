@@ -16,6 +16,7 @@
 
 #include "framebuffer.h"
 #include "water/water.h"
+//#include "skybox/skybox.h"
 #include "screenquad/screenquad.h"
 
 #define CAMERA_SPEED 0.05
@@ -27,6 +28,7 @@ Terrain terrain;
 Water water;
 Framebuffer water_reflection;
 ScreenQuad sq;
+//SkyBox skybox;
 
 int window_width = 1200;
 int window_height = 900;
@@ -61,6 +63,8 @@ void Init(GLFWwindow* window) {
 
     sq.Init(window_width, window_height, reflection_texture_id);
     water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area);
+
+    //skybox.Init();
 }
 
 void Update(float dt) {
@@ -195,6 +199,7 @@ void Update(float dt) {
 }
 
 void Display() {
+
     {
         water_reflection.Bind();
 
@@ -227,7 +232,6 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //sq.Draw();
 
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 
@@ -235,6 +239,9 @@ void Display() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     glDisable(GL_BLEND);
+
+
+    //skybox.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
 // gets called when the windows/framebuffer is resized.

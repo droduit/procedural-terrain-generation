@@ -4,7 +4,6 @@ file(GLOB_RECURSE HEADERS "*.h")
 
 # these files are copied only once
 file(GLOB TEXTURES
-    cube/cube_texture.tga
     terrain/terrain_texture.tga
     quad/quad_texture.tga)
 copy_files_once(${TEXTURES})
@@ -12,6 +11,7 @@ copy_files_once(${TEXTURES})
 # list all the files you want to copy everytime
 # you build (ie, you want the shaders there)
 file(GLOB SHADERS
+    skybox/*.glsl
     heightmap/*.glsl
     terrain/*.glsl
     quad/*.glsl
