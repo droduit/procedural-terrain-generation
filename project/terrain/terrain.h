@@ -18,6 +18,7 @@ class Terrain {
         GLuint light_pos_id_;
 
         vec3 light_pos_ = vec3(0.0f);
+        vec4 clip_plane_ = vec4(0.0f);
 
         int grid_tesselation_;
         float grid_area_;
@@ -223,6 +224,8 @@ class Terrain {
             glUniform1f(glGetUniformLocation(program_id_, "fog_density"), this->fog_density_);
             glUniform1f(glGetUniformLocation(program_id_, "fog_power"), this->fog_power_);
 
+            glUniform4fv(glGetUniformLocation(program_id_, "clip_plane"), ONE, glm::value_ptr(clip_plane_));
+
             // draw
             if (wireframe_mode_)
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -238,5 +241,9 @@ class Terrain {
 
         void SetLighting(vec3 light_pos) {
             this->light_pos_ = light_pos;
+        }
+
+        void SetClipPlane(vec4 clip_plane) {
+            this->clip_plane_ = clip_plane;
         }
 };
