@@ -121,6 +121,15 @@ void Update(float dt) {
         terrain.fog_color_[1] = fog_color[1];
         terrain.fog_color_[2] = fog_color[2];
 
+        water.fog_type_ = terrain.fog_type_;
+        water.fog_start_ = terrain.fog_start_;
+        water.fog_end_ = terrain.fog_end_;
+        water.fog_color_[0] = fog_color[0];
+        water.fog_color_[1] = fog_color[1];
+        water.fog_color_[2] = fog_color[2];
+        water.fog_density_ = terrain.fog_density_;
+        water.fog_power_ = terrain.fog_power_;
+
         glClearColor(fog_color[0], fog_color[1], fog_color[2], 1.0);
     }
 

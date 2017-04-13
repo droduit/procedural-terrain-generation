@@ -1,12 +1,10 @@
 #version 330
 
-in vec2 uv;
 in float height;
 in vec4 vpoint_mv;
 in vec3 cam_pos_mv;
 in vec3 light_dir, view_dir;
 in vec3 normal_mv;
-in vec3 vert_mv;
 in vec3 normal;
 
 uniform vec3 cam_pos;

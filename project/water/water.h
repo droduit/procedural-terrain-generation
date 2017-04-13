@@ -27,6 +27,9 @@ class Water {
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
         bool wireframe_mode_ = false;
+        vec3 cam_pos_, fog_color_;
+        float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.004f, fog_power_ = 6.0f;
+        int fog_type_ = 1;
 
         void Init(GLuint heightmap_texture_id, GLuint reflection_texture_id, int grid_tesselation, float grid_area) {
             grid_tesselation_ = grid_tesselation;
@@ -161,6 +164,19 @@ class Water {
             glUniformMatrix4fv(view_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
             glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
             glUniform3fv(light_pos_id_, ONE, glm::value_ptr(light_pos_));
+
+            glUniform3fv(glGetUniformLocation(program_id_, "cam_pos"), ONE, glm::value_ptr(cam_pos_));
+
+            glUniform1f(glGetUniformLocation(program_id_, "diffuse"), this->diffuse_);
+            glUniform1f(glGetUniformLocation(program_id_, "specular"), this->specular_);
+            glUniform1f(glGetUniformLocation(program_id_, "alpha"), this->alpha_);
+
+            glUniform3fv(glGetUniformLocation(program_id_, "fog_color"), ONE, glm::value_ptr(fog_color_));
+            glUniform1f(glGetUniformLocation(program_id_, "fog_start"), this->fog_start_);
+            glUniform1f(glGetUniformLocation(program_id_, "fog_end"), this->fog_end_);
+            glUniform1i(glGetUniformLocation(program_id_, "fog_type"), this->fog_type_);
+            glUniform1f(glGetUniformLocation(program_id_, "fog_density"), this->fog_density_);
+            glUniform1f(glGetUniformLocation(program_id_, "fog_power"), this->fog_power_);
 
             glUniform1f(glGetUniformLocation(program_id_, "tesselation"), this->grid_tesselation_);
             glUniform1f(glGetUniformLocation(program_id_, "area"), this->grid_area_);
