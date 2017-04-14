@@ -20,11 +20,12 @@ void main() {
 
     uv_mirror.y = 1.0 - uv_mirror.y;
 
+    float transparency = 0.8 - smoothstep(-2.4, 0.0, height) / 2.0;
+
     vec4 reflection_color = texture(reflection, uv_mirror);
-    vec4 water_color = vec4(0.2, 0.3, 0.6, 0.8 - smoothstep(-2.4, 0.0, height) / 2.0);
+    vec4 water_color = vec4(0.2, 0.3, 0.6, 1.0);
 
     vec3 color = mix(water_color, reflection_color, 0.2).rgb;
-
 
     // Fog
     float fog_factor = 0.0;
@@ -36,6 +37,5 @@ void main() {
 
     color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
 
-    out_color = vec4(color, 1.0);
-
+    out_color = vec4(color, transparency);
 }

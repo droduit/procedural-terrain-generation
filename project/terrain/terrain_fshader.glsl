@@ -6,6 +6,7 @@ in vec3 cam_pos_mv;
 in vec3 light_dir, view_dir;
 in vec3 normal_mv;
 in vec3 normal;
+in vec2 uv;
 
 uniform vec3 cam_pos;
 uniform sampler2D tex_color;
