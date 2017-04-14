@@ -1,6 +1,5 @@
 #version 330
 
-in vec2 uv;
 in float height;
 in vec4 vpoint_mv;
 in vec3 cam_pos_mv;
@@ -16,7 +15,6 @@ uniform float diffuse, specular, alpha;
 uniform vec3 fog_color;
 uniform float fog_start, fog_end, fog_density, fog_power;
 uniform int fog_type;
-uniform vec4 clip_plane;
 
 uniform vec2 hoffset;
 uniform sampler2D grass_tex;
