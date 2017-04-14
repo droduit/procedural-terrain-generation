@@ -6,7 +6,7 @@ out float color;
 
 uniform float dx, dy;
 uniform float hcomp, vcomp, voffset;
-uniform float H, lacunarity, offset;
+uniform float H, lacunarity, warp;
 uniform int type, seed, octaves;
 
 float rand(vec2 co){
@@ -63,30 +63,27 @@ vec3 perlinNoiseDeriv(vec2 point) {
     float v = dot(g(cell + vec2(1.0, 1.0)), d); // d = g2.zw
 
     vec2 f = poff * poff * poff * (10 + poff * (-15.0 + poff * 6.0));
+    vec4 f4 = vec4(1.0, f.x, f.y, f.x * f.y);
 
-    float st = mix(s, t, f.x);
-    float uv = mix(u, v, f.x);
-    float noise = mix(st, uv, f.y);
+    vec4 grads = vec4(s, t - s, u - s, s - t - u + v);
 
-
-    // Calculate the derivatives dn/dx and dn/dy
-    f = point - floor(point);
-    vec2 w = f * f * f * (f * (f * 6 - 15) + 10); // 6f^5 - 15f^4 + 10f^3
+    float noise = dot(f4, grads);
 
     // Get the derivative dw/df
-    vec2 dw = f * f * (f * (f * 30 - 60) + 30); // 30f^4 - 60f^3 + 30f^2
+    vec2 df = poff * poff * (poff * (poff * 30 - 60) + 30); // 30f^4 - 60f^3 + 30f^2
 
     // Get the derivative d(w*f)/df
-    vec2 dwp = f * f * f * (f * (f * 36 - 75) + 40); // 36f^5 - 75f^4 + 40f^3
+    vec2 dfp = poff * poff * poff * (poff * (poff * 36 - 75) + 40); // 36f^5 - 75f^4 + 40f^3
 
-    float dx = (g1.x + (g1.z-g1.x)*w.y) + ((g2.y-g1.y)*f.y - g2.x +
-               ((g1.y-g2.y-g1.w+g2.w)*f.y + g2.x + g1.w - g2.z - g2.w)*w.y)*
-               dw.x + ((g2.x-g1.x) + (g1.x-g2.x-g1.z+g2.z)*w.y)*dwp.x;
+    float dx = (g1.x + (g1.z-g1.x)*f.y) + ((g2.y-g1.y)*f.y - g2.x +
+               ((g1.y-g2.y-g1.w+g2.w)*f.y + g2.x + g1.w - g2.z - g2.w)*f.y)*
+               df.x + ((g2.x-g1.x) + (g1.x-g2.x-g1.z+g2.z)*f.y)*dfp.x;
 
-    float dy = (g1.y + (g2.y-g1.y)*w.x) + ((g1.z-g1.x)*f.x - g1.w + ((g1.x-
-               g2.x-g1.z+g2.z)*f.x + g2.x + g1.w - g2.z - g2.w)*w.x)*dw.y +
-               ((g1.w-g1.y) + (g1.y-g2.y-g1.w+g2.w)*w.x)*dwp.y;
-
+    float dy =
+        g1.y +
+        f.x * (g2.y - g1.y) +
+        df.y * (f.x * (f.x * (g1.x - g2.x - g1.z + g2.z) + g2.x + g1.w - g2.z - g2.w + g1.z - g1.x) - g1.w) +
+        dfp.y * (g1.w - g1.y + f.x * (g1.y - g2.y - g1.w + g2.w));
 
     // Return the noise value, roughly normalized in the range [-1, 1]
     // Also return the pseudo dn/dx and dn/dy, scaled by the same factor
@@ -129,19 +126,6 @@ float billowy_fBm(vec2 point, float H, float lacunarity, int octaves) {
     return value;
 }
 
-float multifractal(vec2 point, float H, float lacunarity, int octaves, float offset) {
-    int i = 0;
-    float value = 1.0;
-
-    for (i = 0; i < octaves; i++) {
-        value *= pnoise(point) * pow(lacunarity, -H * i);
-        point *= lacunarity;
-    }
-
-    return value;
-}
-
-
 float swissTurbulence(vec2 p, int octaves, float lacunarity, float gain, float warp) {
      float sum = 0;
      float freq = 1.0, amp = 1.0;
@@ -167,14 +151,7 @@ void main() {
         color = ridged_fBm(hcomp * (uv + vec2(dx, dy)), H, lacunarity, octaves) * vcomp + voffset;
     else if (type == 2)
         color = billowy_fBm(hcomp * (uv + vec2(dx, dy)), H, lacunarity, octaves) * vcomp + voffset;
-    else if (type == 3)
-        //color = multifractal(hcomp * (uv + vec2(dx, dy)), H, lacunarity, octaves, offset) * vcomp + voffset;
-        color = swissTurbulence(hcomp * uv + vec2(dx, dy), octaves, lacunarity, 0.5, 0.15) * vcomp + voffset;
-
     else
-        color = vcomp * sin(hcomp * (uv.x + dx)) + cos(hcomp * (uv.y + dy)) + voffset;
-
-
-
+        color = swissTurbulence(hcomp * uv + vec2(dx, dy), octaves, lacunarity, H, warp) * vcomp + voffset;
 }
 

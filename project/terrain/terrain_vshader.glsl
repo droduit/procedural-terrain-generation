@@ -7,7 +7,6 @@ out vec4 vpoint_mv;
 out float height;
 out vec3 light_dir, view_dir;
 out vec3 normal_mv;
-out vec3 vert_mv;
 out vec3 cam_pos_mv;
 out vec3 normal;
 
@@ -48,8 +47,5 @@ void main() {
     light_dir = light_pos_mv.xyz - vpoint_mv.xyz;
     view_dir = -vpoint_mv.xyz;
 
-    mat3 MVT = inverse(transpose(mat3(MV)));
-
-    normal_mv = MVT * normal;
-    vert_mv = MVT * vec3(0.0, 0.0, 1.0);
+    normal_mv = inverse(transpose(mat3(MV))) * normal;
 }

@@ -6,7 +6,6 @@ in vec4 vpoint_mv;
 in vec3 cam_pos_mv;
 in vec3 light_dir, view_dir;
 in vec3 normal_mv;
-in vec3 vert_mv;
 in vec3 normal;
 
 uniform vec3 cam_pos;
@@ -19,6 +18,11 @@ uniform float fog_start, fog_end, fog_density, fog_power;
 uniform int fog_type;
 uniform vec4 clip_plane;
 
+uniform vec2 hoffset;
+uniform sampler2D grass_tex;
+uniform sampler2D sand_tex;
+uniform sampler2D rock_tex;
+
 out vec4 out_color;
 
 void main() {
@@ -26,42 +30,39 @@ void main() {
     vec3 light_dir = normalize(light_dir);
     vec3 view_dir = normalize(view_dir);
 
+    // fetch ground textures
+    vec2 uv = uv + hoffset / 6.0; // divide by hcomp
+
+    vec4 sand  = texture(sand_tex,  10 * uv);
+    vec4 grass = texture(grass_tex,  10 * uv);
+    vec4 rock  = texture(rock_tex,  10 * uv);
+
+    // fetch texture mix
     float slope = 1.0 - normalize(normal).z;
     float height = height * fheight;
 
-    vec3 color = texture(tex_color, vec2(height, pow(slope, fslope))).rgb * fcolor;
+    vec3 color = texture(tex_color, vec2(height, pow(slope, fslope))).rgb;
 
-    float nl = dot(norm, light_dir);
-    if (nl > 0.0) {
-        color += nl * vec3(diffuse);
+    // mix textures
+    out_color = vec4(0.0);
+    out_color += sand  * color.r;
+    out_color += grass * color.g;
+    out_color += rock  * color.b;
 
-        // Add reflection on water and snow
-        if (height > hsnow && dot(vec3(1.0), color) > fsnow) {
-            float rv = dot(reflect(-light_dir, norm), view_dir);
-            vec3 spec = vec3(specular) * min(1.0, smoothstep(hsnow, hsnow + 0.1, height));
+    out_color = out_color / dot(vec3(1.0), color.rgb);
 
-            color += pow(max(0.0, rv), alpha) * spec;
-                     
-        }
-    }
+    // compute diffuse
+    out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0);
 
+    // force sand color underwater
     if (height < 0.0) {
-        vec3 sand_color = texture(tex_color, vec2(0.0, 0.0)).rgb * fcolor;
-
-        // Force sand color when underwater
-        color = mix(sand_color, color, smoothstep(-0.3, 0.0, height));
-        color = mix(color, vec3(0.5, 0.7, 0.9), 0.4);
+        out_color = mix(out_color, sand, 1.0 - smoothstep(-0.3, 0.0, height));
+        out_color = mix(out_color, vec4(0.5, 0.7, 0.9, 1.0), 0.4);
     }
 
-    // Fog
-    float fog_factor = 0.0;
+    // add fog
     float distance = length(cam_pos_mv - vpoint_mv.xyz);
-    if (fog_type == 0) // Linear factor
-        fog_factor = 1.0 - (fog_end - distance) / (fog_end - fog_start);
-    else // Exp factor
-        fog_factor = 1.0 - exp(-pow(fog_density * distance, fog_power));
+    float fog_factor = 1.0 - exp(-pow(fog_density * distance, fog_power));
 
-    color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
-
-    out_color = vec4(color, 1.0);
+    out_color = mix(out_color, vec4(fog_color, 1.0), clamp(fog_factor, 0.0, 1.0));
 }

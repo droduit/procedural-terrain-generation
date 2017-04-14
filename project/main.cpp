@@ -45,7 +45,7 @@ void Init(GLFWwindow* window) {
     glEnable(GL_DEPTH_TEST);
 
     // setup view and projection matrices
-    light_pos = vec3(-1.0f, 0.0f, 2.0f);
+    light_pos = vec3(-1.0f, 0.0f, 20.0f);
 
     cam_pos = vec3(0.0f, 0.0f, 3.0f);
     cam_dir = vec2(12.5f, -1.8f);
@@ -150,6 +150,7 @@ void Update(float dt) {
 
         ImGui::SliderFloat("H", &heightmap.H_, 0.01, 2.0);
         ImGui::SliderFloat("lacunarity", &heightmap.lacunarity_, 0.8, 3.0);
+        ImGui::SliderFloat("warp", &heightmap.warp_, 0.01, 2.0);
         ImGui::SliderInt("octaves", &heightmap.octaves_, 1, 24);
     }
 
@@ -181,6 +182,9 @@ void Update(float dt) {
     heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
     heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
     heightmap.Draw();
+
+    terrain.hoffset_.x = hoffset[0];
+    terrain.hoffset_.y = hoffset[1];
 
     first_run = false;
 }

@@ -12,6 +12,7 @@ class Terrain {
         GLuint vertex_buffer_object_index_;     // memory buffer for indices
         GLuint program_id_;                     // GLSL shader program ID
         GLuint texture_id_, texture_color_id_;                     // texture ID
+        GLuint texture_grass_id_, texture_sand_id_, texture_rock_id_;
         GLuint num_indices_;                    // number of vertices to render
 
         GLuint projection_id_, view_id_, model_id_;
@@ -24,13 +25,14 @@ class Terrain {
         float grid_area_;
 
     public:
-        float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
+        float diffuse_ = 0.25f, specular_ = 0.8f, alpha_ = 60.0f;
         float hsnow_ = 0.8f, fsnow_ = 2.0f;
-        float fheight_ = 0.06f, fslope_ = 1.2f, fcolor_ = 0.8333f;
+        float fheight_ = 0.1f, fslope_ = 1.2f, fcolor_ = 0.8333f;
         bool wireframe_mode_ = false;
         vec3 cam_pos_, fog_color_;
         float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.004f, fog_power_ = 6.0f;
         int fog_type_ = 1;
+        vec2 hoffset_ = vec2(0.0f);
 
         void Init(GLuint heightmap_texture_id, int grid_tesselation, float grid_area) {
             grid_tesselation_ = grid_tesselation;
@@ -160,6 +162,117 @@ class Terrain {
                 stbi_image_free(image);
             }
 
+            {
+                int width;
+                int height;
+                int nb_component;
+                string filename = "Grass1.png";
+                // set stb_image to have the same coordinates as OpenGL
+                stbi_set_flip_vertically_on_load(1);
+                unsigned char* image = stbi_load(filename.c_str(), &width,
+                                                 &height, &nb_component, 0);
+
+                if(image == nullptr) {
+                    throw(string("Failed to load texture"));
+                }
+
+                glGenTextures(1, &texture_grass_id_);
+                glBindTexture(GL_TEXTURE_2D, texture_grass_id_);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+                if(nb_component == 3) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+                                 GL_RGB, GL_UNSIGNED_BYTE, image);
+                } else if(nb_component == 4) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                                 GL_RGBA, GL_UNSIGNED_BYTE, image);
+                }
+
+                GLuint tex_id = glGetUniformLocation(program_id_, "grass_tex");
+                glUniform1i(tex_id, 2 /*GL_TEXTURE0*/);
+
+                // cleanup
+                glBindTexture(GL_TEXTURE_2D, 2);
+                stbi_image_free(image);
+            }
+
+            {
+                int width;
+                int height;
+                int nb_component;
+                string filename = "Rock9.png";
+                // set stb_image to have the same coordinates as OpenGL
+                stbi_set_flip_vertically_on_load(1);
+                unsigned char* image = stbi_load(filename.c_str(), &width,
+                                                 &height, &nb_component, 0);
+
+                if(image == nullptr) {
+                    throw(string("Failed to load texture"));
+                }
+
+                glGenTextures(1, &texture_sand_id_);
+                glBindTexture(GL_TEXTURE_2D, texture_sand_id_);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+                if(nb_component == 3) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+                                 GL_RGB, GL_UNSIGNED_BYTE, image);
+                } else if(nb_component == 4) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                                 GL_RGBA, GL_UNSIGNED_BYTE, image);
+                }
+
+                GLuint tex_id = glGetUniformLocation(program_id_, "sand_tex");
+                glUniform1i(tex_id, 3 /*GL_TEXTURE0*/);
+
+                // cleanup
+                glBindTexture(GL_TEXTURE_2D, 3);
+                stbi_image_free(image);
+            }
+
+            {
+                int width;
+                int height;
+                int nb_component;
+                string filename = "Rock5.png";
+                // set stb_image to have the same coordinates as OpenGL
+                stbi_set_flip_vertically_on_load(1);
+                unsigned char* image = stbi_load(filename.c_str(), &width,
+                                                 &height, &nb_component, 0);
+
+                if(image == nullptr) {
+                    throw(string("Failed to load texture"));
+                }
+
+                glGenTextures(1, &texture_rock_id_);
+                glBindTexture(GL_TEXTURE_2D, texture_rock_id_);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+                if(nb_component == 3) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+                                 GL_RGB, GL_UNSIGNED_BYTE, image);
+                } else if(nb_component == 4) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                                 GL_RGBA, GL_UNSIGNED_BYTE, image);
+                }
+
+                GLuint tex_id = glGetUniformLocation(program_id_, "rock_tex");
+                glUniform1i(tex_id, 4 /*GL_TEXTURE0*/);
+
+                // cleanup
+                glBindTexture(GL_TEXTURE_2D, 4);
+                stbi_image_free(image);
+            }
+
 
             // other uniforms
             projection_id_ = glGetUniformLocation(program_id_, "projection");
@@ -197,6 +310,14 @@ class Terrain {
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, texture_color_id_);
 
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, texture_grass_id_);
+
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, texture_sand_id_);
+
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_2D, texture_rock_id_);
 
             // setup MVP
             glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
@@ -224,6 +345,7 @@ class Terrain {
             glUniform1f(glGetUniformLocation(program_id_, "fog_density"), this->fog_density_);
             glUniform1f(glGetUniformLocation(program_id_, "fog_power"), this->fog_power_);
 
+            glUniform2fv(glGetUniformLocation(program_id_, "hoffset"), ONE, glm::value_ptr(hoffset_));
             glUniform4fv(glGetUniformLocation(program_id_, "clip_plane"), ONE, glm::value_ptr(clip_plane_));
 
             // draw
