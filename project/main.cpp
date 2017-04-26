@@ -204,13 +204,14 @@ void Update(float dt) {
 
 void Display() {
 
+    // Draw the water reflection on a framebuffer
     {
         water_reflection.Bind();
 
         vec3 cam_target(
             sin(cam_dir.y) * cos(cam_dir.x),
             sin(cam_dir.y) * sin(cam_dir.x),
-            cos(cam_dir.y)
+            -cos(cam_dir.y)
         );
 
         vec3 cam_up(
@@ -219,8 +220,10 @@ void Display() {
             -sin(cam_dir.y)
         );
 
-        vec3 cam_look = cam_pos + cam_target;
-        mat4 view_matrix_ = lookAt(cam_pos, cam_look, cam_up);
+        vec3 cam_pos_invert = cam_pos;
+        cam_pos_invert.z = -cam_pos_invert.z;
+        vec3 cam_look = cam_pos_invert + cam_target;
+        mat4 view_matrix_ = lookAt(cam_pos_invert, cam_look, cam_up);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
