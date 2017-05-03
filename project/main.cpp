@@ -167,6 +167,17 @@ void Update(float dt) {
         ImGui::SliderInt("octaves", &heightmap.octaves_, 1, 24);
     }
 
+    if (first_run)
+        ImGui::SetNextTreeNodeOpen(true);
+
+    if (ImGui::CollapsingHeader("SkyBox")) {
+        ImGui::SliderFloat("Rotate X", &skybox.rotX_, 0.0, 90.0);
+        ImGui::SliderFloat("Rotate Y", &skybox.rotY_, 0.0, 90.0);
+        ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 90.0);
+
+    }
+
+
     cam_dir.x -= cam_vel[3] * dt;
 
     vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));

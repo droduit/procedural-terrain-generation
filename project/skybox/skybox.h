@@ -100,7 +100,10 @@ class SkyBox {
     GLuint vertex_array_id_;     // vertex array object
     GLuint tex_id;                  // texture ID
 
+
     public:
+        float rotX_ = 14.3f, rotY_ = 0.15f, rotZ_ = 0.0f;
+
         void Init() {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("skybox_vshader.glsl",
@@ -146,7 +149,7 @@ class SkyBox {
                 int width;
                 int height;
                 int nb_component;
-                string texture_filename = "tex_sky.tga";
+                string texture_filename = "tex_sky.jpg";
                 stbi_set_flip_vertically_on_load(1);
                 unsigned char* image = stbi_load(texture_filename.c_str(), &width, &height, &nb_component, 0);
 
@@ -193,6 +196,8 @@ class SkyBox {
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX){
 
+            float time_s = glfwGetTime();
+
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
@@ -205,8 +210,16 @@ class SkyBox {
 
             // setup MVP
             glm::mat4 MVP = projection * view * model;
+            MVP = glm::rotate(MVP, 0.1f*rotX_, glm::vec3(1.0f, 0.0f, 0.0f));
+            MVP = glm::rotate(MVP, time_s*0.1f*rotY_, glm::vec3(0.0f, 1.0f, 0.0f));
+            MVP = glm::rotate(MVP, 0.1f*rotZ_, glm::vec3(0.0f, 0.0f, 1.0f));
+
             GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
             glUniformMatrix4fv(MVP_id, 1, GL_FALSE, glm::value_ptr(MVP));
+
+            glUniform1f(glGetUniformLocation(program_id_, "rotX"), this->rotX_);
+            glUniform1f(glGetUniformLocation(program_id_, "rotY"), this->rotY_);
+            glUniform1f(glGetUniformLocation(program_id_, "rotZ"), this->rotZ_);
 
             glDrawArrays(GL_TRIANGLES, 0, NbCubeVertices);
 
