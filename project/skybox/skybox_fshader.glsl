@@ -1,9 +1,9 @@
 #version 330 core
-in vec3 texCoords;
-out vec4 color;
+in vec2 uv;
+uniform sampler2D tex;
+out vec3 color;
 
-uniform samplerCube skybox;
 
 void main() {
-    color = texture(skybox, texCoords).rgb;
+    color = texture(tex, uv).rgb;
 }
