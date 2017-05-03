@@ -227,7 +227,9 @@ void Display() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         glEnable(GL_CLIP_DISTANCE0);
+        skybox.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
         terrain.SetClipPlane(vec4(0.0f, 0.0f, 1.0f, 0.0f));
         terrain.Draw(IDENTITY_MATRIX, view_matrix_, projection_matrix);
         terrain.SetClipPlane(vec4(0.0f));
