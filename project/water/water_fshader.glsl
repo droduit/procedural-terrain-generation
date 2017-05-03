@@ -27,13 +27,9 @@ void main() {
 
     vec3 color = mix(water_color, reflection_color, 0.2).rgb;
 
-    // Fog
-    float fog_factor = 0.0;
+    // add fog
     float distance = length(cam_pos_mv - vpoint_mv.xyz);
-    if (fog_type == 0) // Linear factor
-        fog_factor = 1.0 - (fog_end - distance) / (fog_end - fog_start);
-    else // Exp factor
-        fog_factor = 1.0 - exp(-pow(fog_density * distance, fog_power));
+    float fog_factor = 1.0 - exp(-pow(fog_density * distance, fog_power));
 
     color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
 
