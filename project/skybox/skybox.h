@@ -102,8 +102,6 @@ class SkyBox {
 
     public:
         void Init() {
-            //glDepthMask(GL_FALSE);
-
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("skybox_vshader.glsl",
                                                   "skybox_fshader.glsl");
@@ -175,7 +173,6 @@ class SkyBox {
                 // cleanup
                 glBindTexture(GL_TEXTURE_2D, 0);
                 stbi_image_free(image);
-
             }
 
             // to avoid the current object being polluted
@@ -195,7 +192,6 @@ class SkyBox {
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX){
-
 
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);

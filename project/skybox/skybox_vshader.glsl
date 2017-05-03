@@ -25,6 +25,6 @@ mat4 S(float tx, float ty, float tz){
 }
 
 void main() {
-    gl_Position = MVP * T(0,1,1) * S(50,50,50) * vec4(vpoint,1);
+    gl_Position = MVP * T(0,1,1) * S(100,250,150) * vec4(vpoint,1);
     uv = vtexcoord;
 }

@@ -239,16 +239,15 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+    skybox.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     glDisable(GL_BLEND);
 
-
-    skybox.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
 // gets called when the windows/framebuffer is resized.
