@@ -38,6 +38,7 @@ mat4 view_matrix;
 
 // Camera
 vec4 cam_vel;
+vec4 cam_acc; // Stock the user informations of movements
 vec2 cam_dir;
 vec3 cam_pos;
 vec3 light_pos;
@@ -177,12 +178,30 @@ void Update(float dt) {
 
     }
 
+    float cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
+
+
+    for(int i = 0; i < 4; ++i) {
+        if(i != 0) {
+            cam_vel[i] = cam_acc[i];
+        } else {
+            if(cam_acc[i] == 0) {
+               if(cam_vel[i] > 0) {
+                    cam_vel[i] = glm::max(0.0f, cam_vel[i] - 2 * (float)CAMERA_SPEED * dt);
+               } else {
+                    cam_vel[i] = glm::min(0.0f, cam_vel[i] + 2 * (float)CAMERA_SPEED * dt);
+               }
+            } else {
+               cam_vel[i] =  glm::min(1.8f*(float)CAMERA_SPEED, cam_vel[i] + cam_acc[i] * cam_speed * dt);
+            }
+        }
+    }
+
 
     cam_dir.x -= cam_vel[3] * dt;
 
     vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
 
-    float cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
 
     cam_pos.z += dt * cam_vel[2] * cam_speed;
 
@@ -293,28 +312,28 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                 break;
 
             case GLFW_KEY_W:
-                cam_vel[0] += CAMERA_SPEED;
+                cam_acc[0] += CAMERA_SPEED;
                 break;
             case GLFW_KEY_S:
-                cam_vel[0] -= CAMERA_SPEED;
+                cam_acc[0] -= CAMERA_SPEED;
                 break;
             case GLFW_KEY_A:
-                cam_vel[1] += CAMERA_SPEED;
+                cam_acc[1] += CAMERA_SPEED;
                 break;
             case GLFW_KEY_D:
-                cam_vel[1] -= CAMERA_SPEED;
+                cam_acc[1] -= CAMERA_SPEED;
                 break;
             case GLFW_KEY_F:
-                cam_vel[2] -= CAMERA_SPEED * 20;
+                cam_acc[2] -= CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_R:
-                cam_vel[2] += CAMERA_SPEED * 20;
+                cam_acc[2] += CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_Q:
-                cam_vel[3] -= CAMERA_SPEED * 20;
+                cam_acc[3] -= CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_E:
-                cam_vel[3] += CAMERA_SPEED * 20;
+                cam_acc[3] += CAMERA_SPEED * 20;
                 break;
 
             default:
@@ -325,34 +344,39 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (action == GLFW_RELEASE) {
         switch (key) {
             case GLFW_KEY_W:
-                cam_vel[0] -= CAMERA_SPEED;
+                cam_acc[0] -= CAMERA_SPEED;
                 break;
             case GLFW_KEY_S:
-                cam_vel[0] += CAMERA_SPEED;
+                cam_acc[0] += CAMERA_SPEED;
                 break;
             case GLFW_KEY_A:
-                cam_vel[1] -= CAMERA_SPEED;
+                cam_acc[1] -= CAMERA_SPEED;
                 break;
             case GLFW_KEY_D:
-                cam_vel[1] += CAMERA_SPEED;
+                cam_acc[1] += CAMERA_SPEED;
                 break;
             case GLFW_KEY_F:
-                cam_vel[2] += CAMERA_SPEED * 20;
+                cam_acc[2] += CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_R:
-                cam_vel[2] -= CAMERA_SPEED * 20;
+                cam_acc[2] -= CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_Q:
-                cam_vel[3] += CAMERA_SPEED * 20;
+                cam_acc[3] += CAMERA_SPEED * 20;
                 break;
             case GLFW_KEY_E:
-                cam_vel[3] -= CAMERA_SPEED * 20;
+                cam_acc[3] -= CAMERA_SPEED * 20;
                 break;
 
             default:
                 ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
         }
     }
+
+    if(abs(cam_acc[0]) <  10e-4) {
+        cam_acc[0] = 0;
+    }
+
 }
 
 void CharCallback(GLFWwindow *window, unsigned int codepoint) {
