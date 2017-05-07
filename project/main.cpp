@@ -30,8 +30,8 @@ Framebuffer water_reflection;
 ScreenQuad sq;
 SkyBox skybox;
 
-int window_width = 1200;
-int window_height = 900;
+int window_width = 1600;
+int window_height = 1000;
 
 mat4 projection_matrix;
 mat4 view_matrix;
@@ -172,9 +172,9 @@ void Update(float dt) {
         ImGui::SetNextTreeNodeOpen(true);
 
     if (ImGui::CollapsingHeader("SkyBox")) {
-        ImGui::SliderFloat("Rotate X", &skybox.rotX_, 0.0, 90.0);
-        ImGui::SliderFloat("Rotate Y", &skybox.rotY_, 0.0, 90.0);
-        ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 90.0);
+        ImGui::SliderFloat("Rotate X", &skybox.rotX_, 0.0, 2*3.142);
+        ImGui::SliderFloat("Rotate Y", &skybox.rotY_, 0.0, 2*3.142);
+        ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 2*3.142);
 
     }
 
@@ -257,9 +257,10 @@ void Display() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // TODO: skybox rendered last with depth buffer to improve performance
+        skybox.Draw(cam_pos_invert, IDENTITY_MATRIX, view_matrix_, projection_matrix);
 
         glEnable(GL_CLIP_DISTANCE0);
-        skybox.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
         terrain.SetClipPlane(vec4(0.0f, 0.0f, 1.0f, 0.0f));
         terrain.Draw(IDENTITY_MATRIX, view_matrix_, projection_matrix);
         terrain.SetClipPlane(vec4(0.0f));
@@ -271,9 +272,8 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    skybox.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    skybox.Draw(cam_pos, IDENTITY_MATRIX, view_matrix, projection_matrix);
     terrain.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
-
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

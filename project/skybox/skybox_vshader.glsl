@@ -1,12 +1,12 @@
 #version 330 core
 
 in vec3 vpoint;
-in vec2 vtexcoord;
 
 uniform mat4 MVP;
+uniform float horizon_z;
+uniform vec3 cam_pos;
 
-out vec2 uv;
-
+out vec3 texCoord;
 
 mat4 T(float tx, float ty, float tz) {
     mat4 T = mat4(1);
@@ -24,8 +24,7 @@ mat4 S(float tx, float ty, float tz){
     return T;
 }
 
-
 void main() {
-    gl_Position = MVP * T(0,1,0) * S(100,250,150) * vec4(vpoint,1);
-    uv = vtexcoord;
+    gl_Position = MVP * T(0, -cam_pos.z, 0) * S(250,250,250) * vec4(vpoint,1);
+    texCoord = vpoint;
 }
