@@ -7,8 +7,7 @@ file(GLOB TEXTURES
     terrain/texture/*.png
     terrain/terrain_texture.tga
     quad/quad_texture.tga
-    skybox/tex_sky.jpg
-    skybox/cube_texture.tga)
+    skybox/*.tga)
 copy_files_once(${TEXTURES})
 
 # list all the files you want to copy everytime
