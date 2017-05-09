@@ -27,7 +27,6 @@ GLuint loadCubemap(vector<const GLchar*> faces)
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
             color_mode, width, height, 0, color_mode, GL_UNSIGNED_BYTE, image);
 
-        // TODO: is it correct to free the image ?
         stbi_image_free(image);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -43,19 +42,14 @@ GLuint loadCubemap(vector<const GLchar*> faces)
 class SkyBox {
 
     private:
-    GLuint program_id_;             // GLSL shader program ID
-    GLuint vertex_buffer_object_;   // memory buffer
-    GLuint vertex_array_id_;                // vertex array object
-    GLuint vertex_buffer_object_position_;  // memory buffer for positions
-    GLuint vertex_buffer_object_index_;     // memory buffer for indices
-    GLuint tex_id;                  // texture ID
-    GLuint num_indices_;
-    // TODO: remove TMP
-    bool wireframe_mode_ = false;
+	    GLuint program_id_;             // GLSL shader program ID
+	    GLuint vertex_array_id_;                // vertex array object
+	    GLuint vertex_buffer_object_position_;  // memory buffer for positions
+	    GLuint vertex_buffer_object_index_;     // memory buffer for indices
+	    GLuint num_indices_;
 
     public:
         float rotX_ = -M_PI/2, rotY_ = 0.0f, rotZ_ = 0.0f;
-        float horizon_z_ = 0; // TODO adjust when the skybox is fixed
 
         void Init() {
             // compile the shaders.
@@ -68,6 +62,7 @@ class SkyBox {
             glUseProgram(program_id_);
 
             glDepthMask(GL_FALSE);
+
             // vertex one vertex array
             glGenVertexArrays(1, &vertex_array_id_);
             glBindVertexArray(vertex_array_id_);
@@ -143,10 +138,10 @@ class SkyBox {
         void Cleanup() {
             glBindVertexArray(0);
             glUseProgram(0);
-            glDeleteBuffers(1, &vertex_buffer_object_);
+			glDeleteBuffers(1, &vertex_buffer_object_position_);
+			glDeleteBuffers(1, &vertex_buffer_object_index_);
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
-            glDeleteTextures(1, &tex_id);
         }
 
         void Draw(const vec3 cam_pos = vec3(0.0f),
@@ -162,10 +157,6 @@ class SkyBox {
             // Keep in background
             glDisable(GL_DEPTH_TEST);
 
-            // bind textures
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, tex_id);
-
             // setup MVP
             glm::mat4 MVP = mat4(1.f);
             MVP = glm::rotate(MVP, rotX_, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -178,20 +169,11 @@ class SkyBox {
 
             glUniform3fv(glGetUniformLocation(program_id_, "cam_pos"), ONE, glm::value_ptr(cam_pos));
 
-            glUniform1f(glGetUniformLocation(program_id_, "horizon_z"), horizon_z_);
-
             glUniform1f(glGetUniformLocation(program_id_, "rotX"), this->rotX_);
             glUniform1f(glGetUniformLocation(program_id_, "rotY"), this->rotY_);
             glUniform1f(glGetUniformLocation(program_id_, "rotZ"), this->rotZ_);
 
-            // draw
-            if (wireframe_mode_)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
-
-            if (wireframe_mode_)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
             glEnable(GL_DEPTH_TEST);
             glBindVertexArray(0);
