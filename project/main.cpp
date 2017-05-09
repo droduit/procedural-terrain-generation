@@ -32,6 +32,7 @@ SkyBox skybox;
 
 int window_width = 1600;
 int window_height = 1000;
+const vec3 cam_up = vec3(0.0f, 0.0f, 1.0f);
 
 mat4 projection_matrix;
 mat4 view_matrix;
@@ -211,12 +212,6 @@ void Update(float dt) {
         cos(cam_dir.y)
     );
 
-    vec3 cam_up(
-        cos(cam_dir.y) * cos(cam_dir.x),
-        cos(cam_dir.y) * sin(cam_dir.x),
-        -sin(cam_dir.y)
-    );
-
     vec3 cam_look = cam_pos + cam_target;
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
 
@@ -242,12 +237,6 @@ void Display() {
             sin(cam_dir.y) * cos(cam_dir.x),
             sin(cam_dir.y) * sin(cam_dir.x),
             -cos(cam_dir.y)
-        );
-
-        vec3 cam_up(
-            cos(cam_dir.y) * cos(cam_dir.x),
-            cos(cam_dir.y) * sin(cam_dir.x),
-            -sin(cam_dir.y)
         );
 
         vec3 cam_pos_invert = cam_pos;
