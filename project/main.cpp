@@ -185,16 +185,16 @@ void Update(float dt) {
     for(int i = 0; i < 4; ++i) {
         if(i != 0) {
             cam_vel[i] = cam_acc[i];
-        } else {
-            if(cam_acc[i] == 0) {
-               if(cam_vel[i] > 0) {
-                    cam_vel[i] = glm::max(0.0f, cam_vel[i] - 2 * (float)CAMERA_SPEED * dt);
-               } else {
-                    cam_vel[i] = glm::min(0.0f, cam_vel[i] + 2 * (float)CAMERA_SPEED * dt);
-               }
+        } else { // Only for forward / backward for the moment
+
+            if(cam_acc[i] == 0) { // When the key is released, we slow down the movement
+               //cam_vel[i] = glm::min(cam_vel[i] + 2 * (float)CAMERA_SPEED * dt, glm::max(0.0f, cam_vel[i] - 2 * (float)CAMERA_SPEED * dt));
+               cam_vel[i] = clamp(0.0f, cam_vel[i] - 2 * (float)CAMERA_SPEED * dt, cam_vel[i] + 2 * (float)CAMERA_SPEED * dt);
             } else {
-               cam_vel[i] =  glm::min(1.8f*(float)CAMERA_SPEED, cam_vel[i] + cam_acc[i] * cam_speed * dt);
+               //cam_vel[i] =  glm::min((float)CAMERA_SPEED, glm::max(-1.0f*(float)CAMERA_SPEED, cam_vel[i] + cam_acc[i] * cam_speed * dt));
+               cam_vel[i] = clamp(-1.0f*(float)CAMERA_SPEED, cam_vel[i] + cam_acc[i] * cam_speed * dt, (float)CAMERA_SPEED);
             }
+
         }
     }
 
