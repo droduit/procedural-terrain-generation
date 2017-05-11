@@ -44,6 +44,7 @@ vec2 cam_dir;
 vec3 cam_pos;
 vec3 light_pos;
 
+
 void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
@@ -67,6 +68,7 @@ void Init(GLFWwindow* window) {
     water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area);
 
     skybox.Init();
+
 }
 
 void Update(float dt) {
@@ -176,8 +178,10 @@ void Update(float dt) {
         ImGui::SliderFloat("Rotate X", &skybox.rotX_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Y", &skybox.rotY_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 2*3.142);
-
     }
+
+    if(first_run)
+        ImGui::SetNextTreeNodeOpen(true);
 
     float cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
 
@@ -227,7 +231,35 @@ void Update(float dt) {
     first_run = false;
 }
 
+
+// http://stackoverflow.com/questions/785097/how-do-i-implement-a-b%C3%A9zier-curve-in-c
+vec3 getBezierPoint(vec3* points, float t) {
+    int numPoints = 10;
+    vec3* tmp = new vec3[numPoints];
+    memcpy(tmp, points, numPoints * sizeof(vec2));
+
+    int i = numPoints - 1;
+    while (i > 0) {
+        for (int k = 0; k < i; k++)
+            tmp[k] = tmp[k] + t * ( tmp[k+1] - tmp[k] );
+        i--;
+    }
+
+    vec3 answer = tmp[0];
+    delete[] tmp;
+    return answer;
+}
+
+
 void Display() {
+    float time = glfwGetTime();
+
+
+    /*
+    vec3 bPoints = getBezierPoint(time);
+    cam_pos[2] = bPoints[2];
+    cam_dir = vec2(bPoints[0], bPoints[1]);
+    */
 
     // Draw the water reflection on a framebuffer
     {
@@ -296,6 +328,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     if (action == GLFW_PRESS) {
         switch (key) {
+            case GLFW_KEY_P:
+                cout << "cam_pos : (" << cam_pos[0] << ", " << cam_pos[1] << ", " << cam_pos[2] << ")" << endl;
+                cout << "cam_dir : (" << cam_dir[0] << ", " << cam_dir[1] << ")" << endl;
+                break;
+
+
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
