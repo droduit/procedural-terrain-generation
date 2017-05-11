@@ -19,7 +19,8 @@
 #include "skybox/skybox.h"
 #include "screenquad/screenquad.h"
 
-#define CAMERA_SPEED 0.05
+#define CAMERA_SPEED (0.05)
+#define FRAMEBUFFER_RATIO (0.3)
 
 using namespace glm;
 
@@ -32,9 +33,12 @@ SkyBox skybox;
 
 int window_width = 1600;
 int window_height = 1000;
+int water_framebuffer_width = (int) window_width*FRAMEBUFFER_RATIO;
+int water_framebuffer_height = (int) window_height*FRAMEBUFFER_RATIO;
 const vec3 cam_up = vec3(0.0f, 0.0f, 1.0f);
 
 mat4 projection_matrix;
+mat4 framebuffer_projection_matrix;
 mat4 view_matrix;
 
 // Camera
@@ -56,16 +60,17 @@ void Init(GLFWwindow* window) {
     cam_dir = vec2(12.5f, -1.8f);
 
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 1000.0f);
+    framebuffer_projection_matrix = perspective(45.0f, (float)water_framebuffer_width/ (float)water_framebuffer_height, 0.1f, 1000.0f);
 
     const int grid_tesselation = 512, grid_area = 600;
     GLuint heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
     terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
     terrain.SetLighting(light_pos);
 
-    GLuint reflection_texture_id = water_reflection.Init(window_width, window_height);
+    GLuint reflection_texture_id = water_reflection.Init(water_framebuffer_width, water_framebuffer_height);
 
     sq.Init(window_width, window_height, reflection_texture_id);
-    water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area);
+    water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area, FRAMEBUFFER_RATIO);
 
     skybox.Init();
 
@@ -92,7 +97,6 @@ void Update(float dt) {
         ImGui::DragFloat3("position", camera_position, 0.005);
         ImGui::DragFloat2("direction", camera_direction, 0.005);
         ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
-        water.wireframe_mode_ = terrain.wireframe_mode_;
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
         cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
@@ -278,12 +282,12 @@ void Display() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // TODO: skybox rendered last with depth buffer to improve performance
-        skybox.Draw(cam_pos_invert, IDENTITY_MATRIX, view_matrix_, projection_matrix);
+        // TODO: Don't draw the skybox for the water reflection but use the cubemap texture directly
+        skybox.Draw(cam_pos_invert, IDENTITY_MATRIX, view_matrix_, framebuffer_projection_matrix);
 
         glEnable(GL_CLIP_DISTANCE0);
         terrain.SetClipPlane(vec4(0.0f, 0.0f, 1.0f, 0.0f));
-        terrain.Draw(IDENTITY_MATRIX, view_matrix_, projection_matrix);
+        terrain.Draw(IDENTITY_MATRIX, view_matrix_, framebuffer_projection_matrix);
         terrain.SetClipPlane(vec4(0.0f));
         glDisable(GL_CLIP_DISTANCE0);
 
@@ -313,7 +317,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 
     water_reflection.Cleanup();
-    water.SetReflection(water_reflection.Init(window_width, window_height));
+    water.SetReflection(water_reflection.Init(water_framebuffer_width, water_framebuffer_height));
 }
 
 void ErrorCallback(int error, const char* description) {

@@ -6,6 +6,7 @@ file(GLOB_RECURSE HEADERS "*.h")
 file(GLOB TEXTURES
     terrain/texture/*.png
     terrain/terrain_texture.tga
+    water/*.jpg
     quad/quad_texture.tga
     skybox/*.tga)
 copy_files_once(${TEXTURES})

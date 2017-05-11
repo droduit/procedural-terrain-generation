@@ -33,7 +33,7 @@ void main() {
     vec2 uv = uv + hoffset / 6.0; // divide by hcomp
 
     vec4 sand  = texture(sand_tex,  10 * uv);
-    vec4 grass = texture(grass_tex,  10 * uv);
+    vec4 grass = texture(grass_tex,  100 * uv);
     vec4 rock  = texture(rock_tex,  10 * uv);
 
     // fetch texture mix

@@ -11,6 +11,7 @@ class Water {
         GLuint texture_mirror_id_;      // texture mirror ID
         GLuint heightmap_texture_id_;
         GLuint reflection_texture_id_;
+		GLuint normal_map_id_; // normal map texture id
 
         GLuint projection_id_, view_id_, model_id_;
         GLuint light_pos_id_;
@@ -23,17 +24,18 @@ class Water {
 
         int grid_tesselation_;
         float grid_area_;
+		float fb_ratio_;
 
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
-        bool wireframe_mode_ = false;
         vec3 cam_pos_, fog_color_;
         float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.004f, fog_power_ = 6.0f;
         int fog_type_ = 1;
 
-        void Init(GLuint heightmap_texture_id, GLuint reflection_texture_id, int grid_tesselation, float grid_area) {
+        void Init(GLuint heightmap_texture_id, GLuint reflection_texture_id, int grid_tesselation, float grid_area, float fb_ratio) {
             grid_tesselation_ = grid_tesselation;
             grid_area_ = grid_area;
+			fb_ratio_ = fb_ratio;
 
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
@@ -113,6 +115,43 @@ class Water {
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
 
+            {
+                int width;
+                int height;
+                int nb_component;
+                string filename = "normal_map.jpg";
+                // set stb_image to have the same coordinates as OpenGL
+                stbi_set_flip_vertically_on_load(1);
+                unsigned char* image = stbi_load(filename.c_str(), &width,
+                                                 &height, &nb_component, 0);
+
+                if(image == nullptr) {
+                    throw(string("Failed to load texture"));
+                }
+
+                glGenTextures(1, &normal_map_id_);
+                glBindTexture(GL_TEXTURE_2D, normal_map_id_);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+                if(nb_component == 3) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+                                 GL_RGB, GL_UNSIGNED_BYTE, image);
+                } else if(nb_component == 4) {
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                                 GL_RGBA, GL_UNSIGNED_BYTE, image);
+                }
+
+                GLuint tex_id = glGetUniformLocation(program_id_, "normal");
+                glUniform1i(tex_id, 1 /*GL_TEXTURE0*/);
+
+                // cleanup
+                glBindTexture(GL_TEXTURE_2D, 1);
+                stbi_image_free(image);
+            }
+
             this->heightmap_texture_id_ = heightmap_texture_id;
             glBindTexture(GL_TEXTURE_2D, heightmap_texture_id_);
             GLuint heigh_tex_id = glGetUniformLocation(program_id_, "heightmap");
@@ -140,6 +179,7 @@ class Water {
             glUseProgram(0);
             glDeleteBuffers(1, &vertex_buffer_object_position_);
             glDeleteBuffers(1, &vertex_buffer_object_index_);
+            glDeleteTextures(1, &normal_map_id_);
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
 
@@ -154,12 +194,15 @@ class Water {
             // bind textures
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, heightmap_texture_id_);
-            
+
             // bind textures
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, reflection_texture_id_);
-               
-            // setup MVP
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, normal_map_id_);
+
+            // setup MVP;
             glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
             glUniformMatrix4fv(view_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
             glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
@@ -178,18 +221,13 @@ class Water {
             glUniform1f(glGetUniformLocation(program_id_, "fog_density"), this->fog_density_);
             glUniform1f(glGetUniformLocation(program_id_, "fog_power"), this->fog_power_);
 
+            glUniform1f(glGetUniformLocation(program_id_, "water_fb_ratio"), fb_ratio_);
+
             glUniform1f(glGetUniformLocation(program_id_, "tesselation"), this->grid_tesselation_);
             glUniform1f(glGetUniformLocation(program_id_, "area"), this->grid_area_);
 
             // draw
-            if (wireframe_mode_)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
             glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
-
-            if (wireframe_mode_)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 
             glBindVertexArray(0);
             glUseProgram(0);

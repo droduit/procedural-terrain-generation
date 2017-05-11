@@ -4,6 +4,7 @@ out vec4 out_color;
 in float height;
 in vec4 vpoint_mv;
 in vec3 cam_pos_mv;
+in vec3 norm; // TODO lookup normal here ?
 
 uniform sampler2D heightmap;
 uniform sampler2D reflection;
@@ -12,11 +13,11 @@ uniform vec3 fog_color;
 uniform float fog_start, fog_end, fog_density, fog_power;
 uniform int fog_type;
 uniform float diffuse, specular, alpha;
-
+uniform float water_fb_ratio;
 
 void main() {
 
-    vec2 uv_mirror = gl_FragCoord.xy / textureSize(reflection, 0);
+    vec2 uv_mirror = gl_FragCoord.xy / textureSize(reflection, 0) * water_fb_ratio;
 
     uv_mirror.y = 1.0 - uv_mirror.y;
 
@@ -34,4 +35,5 @@ void main() {
     color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
 
     out_color = vec4(color, transparency);
+	// out_color = vec4(normalize(abs(norm)), transparency);
 }
