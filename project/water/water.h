@@ -161,6 +161,8 @@ class Water {
             this->reflection_texture_id_ = reflection_texture_id;
             glBindTexture(GL_TEXTURE_2D, reflection_texture_id_);
             GLuint refl_tex_id = glGetUniformLocation(program_id_, "reflection");
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glUniform1i(refl_tex_id, 1);
             glBindTexture(GL_TEXTURE_2D, 1);
 

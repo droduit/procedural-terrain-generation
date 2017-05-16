@@ -20,7 +20,7 @@
 #include "screenquad/screenquad.h"
 
 #define CAMERA_SPEED (0.05)
-#define FRAMEBUFFER_RATIO (0.3)
+#define FRAMEBUFFER_RATIO (0.5)
 
 using namespace glm;
 
