@@ -142,7 +142,7 @@ class Terrain {
                 glGenTextures(1, &texture_color_id_);
                 glBindTexture(GL_TEXTURE_2D, texture_color_id_);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -158,6 +158,7 @@ class Terrain {
                 glUniform1i(tex_id, 1 /*GL_TEXTURE0*/);
 
                 // cleanup
+				glGenerateMipmap(GL_TEXTURE_2D);
                 glBindTexture(GL_TEXTURE_2D, 1);
                 stbi_image_free(image);
             }
@@ -179,7 +180,7 @@ class Terrain {
                 glGenTextures(1, &texture_grass_id_);
                 glBindTexture(GL_TEXTURE_2D, texture_grass_id_);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -195,6 +196,7 @@ class Terrain {
                 glUniform1i(tex_id, 2 /*GL_TEXTURE0*/);
 
                 // cleanup
+				glGenerateMipmap(GL_TEXTURE_2D);
                 glBindTexture(GL_TEXTURE_2D, 2);
                 stbi_image_free(image);
             }
@@ -216,7 +218,7 @@ class Terrain {
                 glGenTextures(1, &texture_sand_id_);
                 glBindTexture(GL_TEXTURE_2D, texture_sand_id_);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -232,6 +234,7 @@ class Terrain {
                 glUniform1i(tex_id, 3 /*GL_TEXTURE0*/);
 
                 // cleanup
+				glGenerateMipmap(GL_TEXTURE_2D);
                 glBindTexture(GL_TEXTURE_2D, 3);
                 stbi_image_free(image);
             }
@@ -252,8 +255,9 @@ class Terrain {
 
                 glGenTextures(1, &texture_rock_id_);
                 glBindTexture(GL_TEXTURE_2D, texture_rock_id_);
+
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -269,6 +273,7 @@ class Terrain {
                 glUniform1i(tex_id, 4 /*GL_TEXTURE0*/);
 
                 // cleanup
+				glGenerateMipmap(GL_TEXTURE_2D);
                 glBindTexture(GL_TEXTURE_2D, 4);
                 stbi_image_free(image);
             }
