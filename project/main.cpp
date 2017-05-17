@@ -209,6 +209,7 @@ void Update(float dt) {
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
 
     terrain.cam_pos_ = cam_pos;
+    water.cam_pos_ = cam_pos;
 
     heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
     heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
