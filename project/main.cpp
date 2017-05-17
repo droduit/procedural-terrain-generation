@@ -189,23 +189,8 @@ void Update(float dt) {
 
     float cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
 
-
-    for(int i = 0; i < 4; ++i) {
-        if(i != 0) {
-            cam_vel[i] = cam_acc[i];
-        } else { // Only for forward / backward for the moment
-
-            if(cam_acc[i] == 0) { // When the key is released, we slow down the movement
-               //cam_vel[i] = glm::min(cam_vel[i] + 2 * (float)CAMERA_SPEED * dt, glm::max(0.0f, cam_vel[i] - 2 * (float)CAMERA_SPEED * dt));
-               cam_vel[i] = clamp(0.0f, cam_vel[i] - 2 * (float)CAMERA_SPEED * dt, cam_vel[i] + 2 * (float)CAMERA_SPEED * dt);
-            } else {
-               //cam_vel[i] =  glm::min((float)CAMERA_SPEED, glm::max(-1.0f*(float)CAMERA_SPEED, cam_vel[i] + cam_acc[i] * cam_speed * dt));
-               cam_vel[i] = clamp(-1.0f*(float)CAMERA_SPEED, cam_vel[i] + cam_acc[i] * cam_speed * dt, (float)CAMERA_SPEED);
-            }
-
-        }
-    }
-
+    for (int i = 0; i < 4; i++)
+        cam_vel[i] += dt * (30.0 * cam_acc[i] - cam_vel[i] * 15.0);
 
     cam_dir.x -= cam_vel[3] * dt;
 
