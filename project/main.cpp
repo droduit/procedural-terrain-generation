@@ -198,6 +198,7 @@ void Update(float dt) {
 
 
     cam_pos.z += dt * cam_vel[2] * cam_speed;
+    cam_pos.z = glm::max(cam_pos.z, heightmap.GetCenterHeight() + 0.8f);
 
     vec3 cam_target(
         sin(cam_dir.y) * cos(cam_dir.x),

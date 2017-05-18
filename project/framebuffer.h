@@ -21,6 +21,7 @@ class Framebuffer {
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object_id_);
             const GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
             glDrawBuffers(1 /*length of buffers[]*/, buffers);
+            glReadBuffer(GL_COLOR_ATTACHMENT0);
         }
 
         void Unbind() {

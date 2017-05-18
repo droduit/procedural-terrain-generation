@@ -148,4 +148,16 @@ class Heightmap {
 
             framebuffer_.Unbind();
         }
+
+        GLfloat GetCenterHeight() {
+            GLfloat center_height = 0.0f;
+
+            framebuffer_.Bind();
+            glReadPixels(
+                this->screenquad_width_ / 2.0, this->screenquad_height_ / 2.0, 1, 1,
+                GL_RED, GL_FLOAT, &center_height);
+            framebuffer_.Unbind();
+
+            return center_height;
+        }
 };
