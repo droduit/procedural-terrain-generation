@@ -11,8 +11,8 @@ private:
     GLuint vertex_buffer_object_position_;  // memory buffer for positions
     GLuint vertex_buffer_object_index_;     // memory buffer for indices
     GLuint program_id_;                     // GLSL shader program ID
-    GLuint texture_id_, texture_color_id_;                     // texture ID
-    GLuint texture_grass_id_, texture_sand_id_, texture_rock_id_;
+    GLuint texture_id_, texture_color_id_, texture_snow_color_id_;                     // texture ID
+    GLuint texture_grass_id_, texture_sand_id_, texture_rock_id_, texture_snow_id_;
     GLuint num_indices_;                    // number of vertices to render
 
     GLuint projection_id_, view_id_, model_id_;
@@ -45,7 +45,10 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode);
 
-        if(nb_component == 3) {
+        if (nb_component == 1) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0,
+                         GL_RGB, GL_UNSIGNED_BYTE, image);
+        } else if(nb_component == 3) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
                          GL_RGB, GL_UNSIGNED_BYTE, image);
         } else if(nb_component == 4) {
@@ -66,7 +69,7 @@ private:
 
 public:
     float diffuse_ = 0.25f, specular_ = 0.8f, alpha_ = 60.0f;
-    float hsnow_ = 0.8f, fsnow_ = 2.0f;
+    float hsnow_ = 0.8f, fsnow_ = 2.2f;
     float fheight_ = 0.1f, fslope_ = 1.2f, fcolor_ = 0.8333f;
     bool wireframe_mode_ = false;
     vec3 cam_pos_, fog_color_;
@@ -164,9 +167,11 @@ public:
         glBindTexture(GL_TEXTURE_2D, 0);
 
         LoadTexture("terrain_texture.tga", "tex_color", &texture_color_id_, 1, false, GL_CLAMP_TO_EDGE);
-        LoadTexture("Grass1.png",	"grass_tex",	&texture_grass_id_, 2);
-        LoadTexture("Rock9.png",	"sand_tex",		&texture_sand_id_,	3);
-        LoadTexture("Rock5.png",	"rock_tex",		&texture_rock_id_,	4);
+        LoadTexture("terrain_snow_texture.tga", "tex_snow_color", &texture_snow_color_id_, 2, false, GL_CLAMP_TO_EDGE);
+        LoadTexture("Grass1.png",	"grass_tex",	&texture_grass_id_, 3);
+        LoadTexture("Rock9.png",	"sand_tex",		&texture_sand_id_,	4);
+        LoadTexture("Rock5.png",	"rock_tex",		&texture_rock_id_,	5);
+        LoadTexture("water.png",    "snow_tex",		&texture_snow_id_,	6);
 
         // other uniforms
         projection_id_ = glGetUniformLocation(program_id_, "projection");
@@ -200,18 +205,23 @@ public:
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture_id_);
 
-
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture_color_id_);
 
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, texture_grass_id_);
+        glBindTexture(GL_TEXTURE_2D, texture_snow_color_id_);
 
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, texture_sand_id_);
+        glBindTexture(GL_TEXTURE_2D, texture_grass_id_);
 
         glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_2D, texture_sand_id_);
+
+        glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_2D, texture_rock_id_);
+
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_2D, texture_snow_id_);
 
         // setup MVP
         glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));

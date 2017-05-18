@@ -6,6 +6,7 @@ file(GLOB_RECURSE HEADERS "*.h")
 file(GLOB TEXTURES
     terrain/texture/*.png
     terrain/terrain_texture.tga
+    terrain/terrain_snow_texture.tga
     water/*.jpg
     quad/quad_texture.tga
     skybox/*.tga)

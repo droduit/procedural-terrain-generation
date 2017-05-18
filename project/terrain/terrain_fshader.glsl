@@ -9,7 +9,7 @@ in vec3 normal;
 in vec2 uv;
 
 uniform vec3 cam_pos;
-uniform sampler2D tex_color;
+uniform sampler2D tex_color, tex_snow_color;
 uniform float fheight, fslope, fcolor, hsnow, fsnow;
 uniform float diffuse, specular, alpha;
 
@@ -21,6 +21,7 @@ uniform vec2 hoffset;
 uniform sampler2D grass_tex;
 uniform sampler2D sand_tex;
 uniform sampler2D rock_tex;
+uniform sampler2D snow_tex;
 
 out vec4 out_color;
 
@@ -32,21 +33,26 @@ void main() {
     // fetch ground textures
     vec2 uv = uv + hoffset / 6.0; // divide by hcomp
 
-    vec4 sand  = texture(sand_tex,  10 * uv);
+    vec4 sand  = texture(sand_tex,  30 * uv);
     vec4 grass = texture(grass_tex,  100 * uv);
-    vec4 rock  = texture(rock_tex,  10 * uv);
+    vec4 rock  = texture(rock_tex,  30 * uv);
+    vec4 snow  = texture(snow_tex,  10 * uv);
 
     // fetch texture mix
     float slope = 1.0 - normalize(normal).z;
     float height = height * fheight;
 
     vec3 color = texture(tex_color, vec2(height, pow(slope, fslope))).rgb;
+    vec3 snowAmount = texture(tex_snow_color, vec2(height, pow(slope, fsnow))).rgb;
 
     // mix textures
     out_color = vec4(0.0);
     out_color += sand  * color.r;
     out_color += grass * color.g;
     out_color += rock  * color.b;
+
+    if (height >= hsnow)
+        out_color = mix(out_color, snow, snowAmount.r);
 
     out_color = out_color / dot(vec3(1.0), color.rgb);
 
