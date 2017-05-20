@@ -11,7 +11,7 @@ class Water {
         GLuint texture_mirror_id_;      // texture mirror ID
         GLuint heightmap_texture_id_;
         GLuint reflection_texture_id_;
-		GLuint normal_map_id_; // normal map texture id
+        GLuint normal_map_id_; // normal map texture id
 
         GLuint projection_id_, view_id_, model_id_;
         GLuint light_pos_id_;
@@ -22,9 +22,12 @@ class Water {
 
         vec3 light_pos_ = vec3(0.0f);
 
+        float *dx_ = nullptr;
+        float *dy_ = nullptr;
+
         int grid_tesselation_;
         float grid_area_;
-		float fb_ratio_;
+        float fb_ratio_;
 
     public:
         float diffuse_ = 0.5f, specular_ = 0.8f, alpha_ = 60.0f;
@@ -32,10 +35,13 @@ class Water {
         float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.004f, fog_power_ = 6.0f;
         int fog_type_ = 1;
 
-        void Init(GLuint heightmap_texture_id, GLuint reflection_texture_id, int grid_tesselation, float grid_area, float fb_ratio) {
+        void Init(GLuint heightmap_texture_id, GLuint reflection_texture_id, int grid_tesselation, float grid_area, float fb_ratio, float *dx, float *dy) {
             grid_tesselation_ = grid_tesselation;
             grid_area_ = grid_area;
-			fb_ratio_ = fb_ratio;
+            fb_ratio_ = fb_ratio;
+
+            dx_ = dx;
+            dy_ = dy;
 
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
@@ -133,8 +139,8 @@ class Water {
                 glBindTexture(GL_TEXTURE_2D, normal_map_id_);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
                 if(nb_component == 3) {
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
@@ -144,11 +150,11 @@ class Water {
                                  GL_RGBA, GL_UNSIGNED_BYTE, image);
                 }
 
-                GLuint tex_id = glGetUniformLocation(program_id_, "normal");
-                glUniform1i(tex_id, 1 /*GL_TEXTURE0*/);
+                GLuint tex_id = glGetUniformLocation(program_id_, "normal_map");
+                glUniform1i(tex_id, 2);
 
                 // cleanup
-                glBindTexture(GL_TEXTURE_2D, 1);
+                glBindTexture(GL_TEXTURE_2D, 2);
                 stbi_image_free(image);
             }
 
@@ -161,6 +167,8 @@ class Water {
             this->reflection_texture_id_ = reflection_texture_id;
             glBindTexture(GL_TEXTURE_2D, reflection_texture_id_);
             GLuint refl_tex_id = glGetUniformLocation(program_id_, "reflection");
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glUniform1i(refl_tex_id, 1);
             glBindTexture(GL_TEXTURE_2D, 1);
 
@@ -191,14 +199,15 @@ class Water {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
-            // bind textures
+            // heightmap
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, heightmap_texture_id_);
 
-            // bind textures
+            // reflection
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, reflection_texture_id_);
 
+            // normal map
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, normal_map_id_);
 
@@ -221,10 +230,15 @@ class Water {
             glUniform1f(glGetUniformLocation(program_id_, "fog_density"), this->fog_density_);
             glUniform1f(glGetUniformLocation(program_id_, "fog_power"), this->fog_power_);
 
+
             glUniform1f(glGetUniformLocation(program_id_, "water_fb_ratio"), fb_ratio_);
+
+            glUniform1f(glGetUniformLocation(program_id_, "dx"), *this->dx_);
+            glUniform1f(glGetUniformLocation(program_id_, "dy"), *this->dy_);
 
             glUniform1f(glGetUniformLocation(program_id_, "tesselation"), this->grid_tesselation_);
             glUniform1f(glGetUniformLocation(program_id_, "area"), this->grid_area_);
+            glUniform1f(glGetUniformLocation(program_id_, "time"), glfwGetTime());
 
             // draw
             glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);

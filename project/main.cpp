@@ -21,7 +21,7 @@
 #include "screenquad/screenquad.h"
 
 #define CAMERA_SPEED (0.05)
-#define FRAMEBUFFER_RATIO (0.3)
+#define FRAMEBUFFER_RATIO (0.5)
 
 using namespace glm;
 
@@ -80,8 +80,8 @@ void Init(GLFWwindow* window) {
 
     GLuint reflection_texture_id = water_reflection.Init(water_framebuffer_width, water_framebuffer_height);
 
-    sq.Init(window_width, window_height, shadows_tex_id);
-    water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area, FRAMEBUFFER_RATIO);
+    sq.Init(window_width, window_height, reflection_texture_id);
+    water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area, FRAMEBUFFER_RATIO, &heightmap.dx_, &heightmap.dy_);
 
     skybox.Init();
 
@@ -319,8 +319,11 @@ void Display() {
 void ResizeCallback(GLFWwindow* window, int width, int height) {
     window_width = width;
     window_height = height;
+    water_framebuffer_width = (int) window_width*FRAMEBUFFER_RATIO;
+    water_framebuffer_height = (int) window_height*FRAMEBUFFER_RATIO;
 
-    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 500.0f);
+    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+    framebuffer_projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
     glViewport(0, 0, width, height);
 
