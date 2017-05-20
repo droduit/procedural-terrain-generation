@@ -9,12 +9,14 @@ out vec3 light_dir, view_dir;
 out vec3 normal_mv;
 out vec3 cam_pos_mv;
 out vec3 normal;
+out vec4 vpoint_lightspace;
 
 uniform sampler2D heightmap;
 
 uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
+uniform mat4 light_matrix;
 uniform vec3 cam_pos;
 uniform vec3 light_pos;
 uniform float tesselation, area;
@@ -29,6 +31,8 @@ void main() {
     vpoint_mv = MV * point;
     cam_pos_mv = (MV * vec4(cam_pos, 1.0)).xyz;
     gl_Position = projection * vpoint_mv;
+
+    vpoint_lightspace = light_matrix * model * point;
 
     gl_ClipDistance[0] = dot(point, clip_plane);
 

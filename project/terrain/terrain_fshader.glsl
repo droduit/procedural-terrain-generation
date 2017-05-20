@@ -2,6 +2,7 @@
 
 in float height;
 in vec4 vpoint_mv;
+in vec4 vpoint_lightspace;
 in vec3 cam_pos_mv;
 in vec3 light_dir, view_dir;
 in vec3 normal_mv;
@@ -10,6 +11,7 @@ in vec2 uv;
 
 uniform vec3 cam_pos;
 uniform sampler2D tex_color, tex_snow_color;
+uniform sampler2D shadows;
 uniform float fheight, fslope, fcolor, hsnow, fsnow;
 uniform float diffuse, specular, alpha;
 
@@ -56,8 +58,15 @@ void main() {
 
     out_color = out_color / dot(vec3(1.0), color.rgb);
 
+    // compute shadows
+    vec3 lightCoords = (vpoint_lightspace.xyz / vpoint_lightspace.w + 1.0) / 2.0;
+    float closestDepth = texture(shadows, lightCoords.xy).r;
+    float bias = max(0.05 * (1.0 - dot(norm, light_dir)), 0.005);
+    float shadow = (lightCoords.z - bias) < closestDepth ? 1.0 : 0.0;
+
     // compute diffuse
-    out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0);
+    if (shadow > 0.0)
+        out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0);
 
     // force sand color underwater
     if (height < 0.0) {

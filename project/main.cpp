@@ -15,6 +15,7 @@
 #include "terrain/terrain.h"
 
 #include "framebuffer.h"
+#include "shadows.h"
 #include "water/water.h"
 #include "skybox/skybox.h"
 #include "screenquad/screenquad.h"
@@ -30,6 +31,7 @@ Water water;
 Framebuffer water_reflection;
 ScreenQuad sq;
 SkyBox skybox;
+Shadows shadows;
 
 int window_width = 1600;
 int window_height = 1000;
@@ -40,6 +42,7 @@ const vec3 cam_up = vec3(0.0f, 0.0f, 1.0f);
 mat4 projection_matrix;
 mat4 framebuffer_projection_matrix;
 mat4 view_matrix;
+mat4 light_matrix;
 
 // Camera
 vec4 cam_vel;
@@ -48,13 +51,15 @@ vec2 cam_dir;
 vec3 cam_pos;
 vec3 light_pos;
 
+GLuint shadows_tex_id = 0;
+GLuint heightmap_tex_id = 0;
 
 void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
 
     // setup view and projection matrices
-    light_pos = vec3(-1.0f, 0.0f, 20.0f);
+    light_pos = vec3(300.0f, 0.0f, 60.0f);
 
     cam_pos = vec3(0.0f, 0.0f, 3.0f);
     cam_dir = vec2(12.5f, -1.8f);
@@ -62,14 +67,20 @@ void Init(GLFWwindow* window) {
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 1000.0f);
     framebuffer_projection_matrix = perspective(45.0f, (float)water_framebuffer_width/ (float)water_framebuffer_height, 0.1f, 1000.0f);
 
+    mat4 light_projection = ortho(-50.0f, 50.0f, -300.0f, 300.0f, 0.1f, 800.0f); // Don't need to resize it in window resize callback
+    mat4 light_view = lookAt(light_pos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+    light_matrix = light_projection * light_view;
+
     const int grid_tesselation = 512, grid_area = 600;
-    GLuint heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
-    terrain.Init(heightmap_tex_id, grid_tesselation, grid_area);
-    terrain.SetLighting(light_pos);
+    shadows_tex_id = shadows.Init(grid_tesselation, grid_tesselation);
+
+    heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
+    terrain.Init(heightmap_tex_id, shadows_tex_id, grid_tesselation, grid_area);
+    terrain.SetLighting(light_pos, light_matrix);
 
     GLuint reflection_texture_id = water_reflection.Init(water_framebuffer_width, water_framebuffer_height);
 
-    sq.Init(window_width, window_height, reflection_texture_id);
+    sq.Init(window_width, window_height, shadows_tex_id);
     water.Init(heightmap_tex_id, reflection_texture_id, grid_tesselation, grid_area, FRAMEBUFFER_RATIO);
 
     skybox.Init();
@@ -184,6 +195,8 @@ void Update(float dt) {
         ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 2*3.142);
     }
 
+    ImGui::Image((void*)shadows_tex_id, ImVec2(512, 512));
+
     if(first_run)
         ImGui::SetNextTreeNodeOpen(true);
 
@@ -281,6 +294,13 @@ void Display() {
         water_reflection.Unbind();
     }
 
+    {
+        shadows.Bind();
+        glClear(GL_DEPTH_BUFFER_BIT);
+        terrain.Draw(light_matrix);
+        shadows.Unbind();
+    }
+
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -292,6 +312,7 @@ void Display() {
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     glDisable(GL_BLEND);
 
+    //sq.Draw();
 }
 
 // gets called when the windows/framebuffer is resized.
@@ -299,7 +320,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
     window_width = width;
     window_height = height;
 
-    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+    projection_matrix = perspective(45.0f, (float)width / (float)height, 0.1f, 500.0f);
 
     glViewport(0, 0, width, height);
 
@@ -504,6 +525,7 @@ int main(int argc, char *argv[]) {
     water.Cleanup();
     water_reflection.Cleanup();
     skybox.Cleanup();
+    shadows.Cleanup();
     sq.Cleanup();
 
     // close OpenGL window and terminate GLFW

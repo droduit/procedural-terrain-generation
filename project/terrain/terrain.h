@@ -16,9 +16,10 @@ private:
     GLuint num_indices_;                    // number of vertices to render
 
     GLuint projection_id_, view_id_, model_id_;
-    GLuint light_pos_id_;
+    GLuint light_pos_id_, light_matrix_id_, shadows_tex_id_;
 
     vec3 light_pos_ = vec3(0.0f);
+    mat4 light_matrix_ = mat4(1.0f);
     vec4 clip_plane_ = vec4(0.0f);
 
     int grid_tesselation_;
@@ -77,7 +78,7 @@ public:
     int fog_type_ = 1;
     vec2 hoffset_ = vec2(0.0f);
 
-    void Init(GLuint heightmap_texture_id, int grid_tesselation, float grid_area) {
+    void Init(GLuint heightmap_texture_id, GLuint shadows_texture_id, int grid_tesselation, float grid_area) {
         grid_tesselation_ = grid_tesselation;
         grid_area_ = grid_area;
 
@@ -166,6 +167,12 @@ public:
         glUniform1i(tex_id, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
 
+        this->shadows_tex_id_ = shadows_texture_id;
+        glBindTexture(GL_TEXTURE_2D, shadows_texture_id);
+        GLuint shadows_uid = glGetUniformLocation(program_id_, "shadows");
+        glUniform1i(shadows_uid, 7);
+        glBindTexture(GL_TEXTURE_2D, 7);
+
         LoadTexture("terrain_texture.tga", "tex_color", &texture_color_id_, 1, false, GL_CLAMP_TO_EDGE);
         LoadTexture("terrain_snow_texture.tga", "tex_snow_color", &texture_snow_color_id_, 2, false, GL_CLAMP_TO_EDGE);
         LoadTexture("Grass1.png",	"grass_tex",	&texture_grass_id_, 3);
@@ -178,6 +185,7 @@ public:
         view_id_	   = glGetUniformLocation(program_id_, "view");
         model_id_	   = glGetUniformLocation(program_id_, "model");
         light_pos_id_  = glGetUniformLocation(program_id_, "light_pos");
+        light_matrix_id_ = glGetUniformLocation(program_id_, "light_matrix");
 
         // to avoid the current object being polluted
         glBindVertexArray(0);
@@ -223,11 +231,15 @@ public:
         glActiveTexture(GL_TEXTURE6);
         glBindTexture(GL_TEXTURE_2D, texture_snow_id_);
 
+        glActiveTexture(GL_TEXTURE7);
+        glBindTexture(GL_TEXTURE_2D, shadows_tex_id_);
+
         // setup MVP
         glUniformMatrix4fv(projection_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
         glUniformMatrix4fv(view_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
         glUniformMatrix4fv(model_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
         glUniform3fv(light_pos_id_, ONE, glm::value_ptr(light_pos_));
+        glUniformMatrix4fv(light_matrix_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(light_matrix_));
 
         glUniform1f(glGetUniformLocation(program_id_, "tesselation"), this->grid_tesselation_);
         glUniform1f(glGetUniformLocation(program_id_, "area"), this->grid_area_);
@@ -265,8 +277,9 @@ public:
         glUseProgram(0);
     }
 
-    void SetLighting(vec3 light_pos) {
+    void SetLighting(vec3 light_pos, mat4 light_matrix) {
         this->light_pos_ = light_pos;
+        this->light_matrix_ = light_matrix;
     }
 
     void SetClipPlane(vec4 clip_plane) {
