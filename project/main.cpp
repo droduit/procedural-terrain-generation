@@ -67,7 +67,7 @@ void Init(GLFWwindow* window) {
     projection_matrix = perspective(45.0f, (float)window_width / (float)window_height, 0.1f, 1000.0f);
     framebuffer_projection_matrix = perspective(45.0f, (float)water_framebuffer_width/ (float)water_framebuffer_height, 0.1f, 1000.0f);
 
-    mat4 light_projection = ortho(-50.0f, 50.0f, -300.0f, 300.0f, 0.1f, 800.0f); // Don't need to resize it in window resize callback
+    mat4 light_projection = ortho(-80.0f, 80.0f, -300.0f, 300.0f, 0.1f, 800.0f); // Don't need to resize it in window resize callback
     mat4 light_view = lookAt(light_pos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     light_matrix = light_projection * light_view;
 
