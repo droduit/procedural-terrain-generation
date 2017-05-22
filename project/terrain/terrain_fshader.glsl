@@ -61,12 +61,11 @@ void main() {
     // compute shadows
     vec3 lightCoords = (vpoint_lightspace.xyz / vpoint_lightspace.w + 1.0) / 2.0;
     float closestDepth = texture(shadows, lightCoords.xy).r;
-    float bias = max(0.05 * (1.0 - dot(norm, light_dir)), 0.005);
+    float bias = max(0.002 * (1.0 - dot(norm, light_dir)), 0.0002);
     float shadow = (lightCoords.z - bias) < closestDepth ? 1.0 : 0.0;
 
     // compute diffuse
-    if (shadow > 0.0)
-        out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0);
+    out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0) * shadow;
 
     // force sand color underwater
     if (height < 0.0) {
