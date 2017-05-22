@@ -190,6 +190,7 @@ void Update(float dt) {
         ImGui::SetNextTreeNodeOpen(true);
 
     if (ImGui::CollapsingHeader("SkyBox")) {
+        ImGui::SliderFloat("Hour", &skybox.hour_, 0.0, 24.0);
         ImGui::SliderFloat("Rotate X", &skybox.rotX_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Y", &skybox.rotY_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 2*3.142);
