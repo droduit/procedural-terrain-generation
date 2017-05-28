@@ -195,6 +195,7 @@ void Update(float dt) {
 
     if (ImGui::CollapsingHeader("SkyBox")) {
         ImGui::SliderFloat("Hour", &hour, 0.0, 24.0);
+        ImGui::SliderFloat("Sun delta", &skybox.sun_delta_, -1.0, 1.0);
         ImGui::SliderFloat("Rotate X", &skybox.rotX_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Y", &skybox.rotY_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 2*3.142);

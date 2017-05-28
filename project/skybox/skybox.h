@@ -49,7 +49,7 @@ class SkyBox {
 	    GLuint num_indices_;
 
     public:
-        float hour_ = 12.0;
+        float hour_ = 12.0, sun_delta_ = 0.999;
         float rotX_ = -M_PI/2, rotY_ = 0.0f, rotZ_ = 0.0f;
 
         void Init() {
@@ -171,6 +171,7 @@ class SkyBox {
             glUniform3fv(glGetUniformLocation(program_id_, "cam_pos"), ONE, glm::value_ptr(cam_pos));
 
             glUniform1f(glGetUniformLocation(program_id_, "hour"), this->hour_);
+            glUniform1f(glGetUniformLocation(program_id_, "sun_delta"), this->sun_delta_);
             glUniform1f(glGetUniformLocation(program_id_, "rotX"), this->rotX_);
             glUniform1f(glGetUniformLocation(program_id_, "rotY"), this->rotY_);
             glUniform1f(glGetUniformLocation(program_id_, "rotZ"), this->rotZ_);

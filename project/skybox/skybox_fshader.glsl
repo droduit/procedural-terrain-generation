@@ -1,7 +1,7 @@
 #version 330 core
 in vec3 texCoord;
 uniform samplerCube skybox;
-uniform float hour;
+uniform float hour, sun_delta;
 out vec4 color;
 
 #define PI 3.141592
@@ -115,12 +115,14 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 void main() {
     //color = texture(skybox, texCoord);
 
-    float sunAngle = PI * (hour - 7.0) / 12.0;
+    float sun_angle = PI * (hour - 7.0) / 12.0;
+    vec3 sun_pos = vec3(cos(sun_angle), sin(sun_angle), 0.0);
+
     vec3 _color = atmosphere(
         normalize(-texCoord),           // normalized ray direction
         vec3(0,6372e3,0),               // ray origin
-        vec3(cos(sunAngle), sin(sunAngle), 0),                        // position of the sun
-        220.0,                           // intensity of the sun
+        sun_pos,                        // position of the sun
+        220.0,                          // intensity of the sun
         6371e3,                         // radius of the planet in meters
         6471e3,                         // radius of the atmosphere in meters
         vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
@@ -129,6 +131,10 @@ void main() {
         1.8e3,                          // Mie scale height
         0.758                           // Mie preferred scattering direction
     );
+
+    float sun_dst = dot(normalize(sun_pos), normalize(-texCoord));
+    if (sun_dst > sun_delta)
+        _color *= pow(4.0, (sun_dst - sun_delta) / (1.0 - sun_delta));
 
     // Apply exposure.
     _color = 1.0 - exp(-1.0 * _color);
