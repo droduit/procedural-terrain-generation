@@ -25,6 +25,8 @@ uniform sampler2D sand_tex;
 uniform sampler2D rock_tex;
 uniform sampler2D snow_tex;
 
+uniform float light_bias_min, light_bias_max;
+
 out vec4 out_color;
 
 void main() {
@@ -61,7 +63,7 @@ void main() {
     // compute shadows
     vec3 lightCoords = (vpoint_lightspace.xyz / vpoint_lightspace.w + 1.0) / 2.0;
     float closestDepth = texture(shadows, lightCoords.xy).r;
-    float bias = max(0.002 * (1.0 - dot(norm, light_dir)), 0.0002);
+    float bias = max(light_bias_max * (1.0 - dot(norm, light_dir)), light_bias_min);
     float shadow = (lightCoords.z - bias) < closestDepth ? 1.0 : 0.0;
 
     // compute diffuse

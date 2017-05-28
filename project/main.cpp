@@ -169,6 +169,9 @@ void Update(float dt) {
         ImGui::DragFloat("diffuse", &terrain.diffuse_, 0.005);
         ImGui::DragFloat("specular", &terrain.specular_, 0.005);
         ImGui::DragFloat("alpha", &terrain.alpha_, 0.5);
+
+        ImGui::SliderFloat("light bias min", &terrain.light_bias_min_, 0.1, 10);
+        ImGui::SliderFloat("light bias max", &terrain.light_bias_max_, 0.1, 10);
     }
 
     if (first_run)
