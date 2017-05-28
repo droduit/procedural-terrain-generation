@@ -54,6 +54,20 @@ vec3 light_pos;
 GLuint shadows_tex_id = 0;
 GLuint heightmap_tex_id = 0;
 
+vector<vec3> camera_controls{
+    vec3(0.421, -1.211, 6.75),
+    vec3(0.684, -1.750, 6.75),
+    vec3(1.551, -1.728, 6.75),
+    vec3(1.730, -1.202, 0.58),
+};
+
+vector<vec2> orientation_controls{
+    vec2(2.377, -1.753),
+    vec2(3.400, -1.753),
+    vec2(4.622, -1.753),
+    vec2(5.937, -1.593),
+};
+
 void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
@@ -87,6 +101,37 @@ void Init(GLFWwindow* window) {
 
 }
 
+int fact(int n) {
+    int res = 1;
+
+    for (int i = 1; i <= n; i++)
+        res *= i;
+
+    return res;
+}
+
+int binomial(int n, int k) {
+    return fact(n) / (fact(k) * fact(n - k));
+}
+
+vec3 bezier(std::vector<vec3> controls, float t) {
+    vec3 point = vec3(0.0);
+
+    for (int k = 0, n = controls.size(); k < n; k++)
+        point += controls[k] * (float)binomial(n-1, k) * (float)pow(1.0 - t, n - 1 - k) * (float)pow(t, k);
+
+    return point;
+}
+
+vec2 bezier(std::vector<vec2> controls, float t) {
+    vec2 point = vec2(0.0);
+
+    for (int k = 0, n = controls.size(); k < n; k++)
+        point += controls[k] * (float)binomial(n-1, k) * (float)pow(1.0 - t, n - 1 - k) * (float)pow(t, k);
+
+    return point;
+}
+
 void Update(float dt) {
     static bool first_run = true;
     static float speed = 0.0;
@@ -94,7 +139,7 @@ void Update(float dt) {
     static float camera_position[3]  = { 0.0, 0.0, 0.0 };
     static float camera_direction[2] = { 0.0, 0.0 };
     static float fog_color[3] = { 0.73, 0.8, 1.0 };
-    static float hour = 12.0;
+    static float hour = 18.5, timer = 0.0;
 
     camera_position[0] = cam_pos[0]; camera_position[1] = cam_pos[1]; camera_position[2] = cam_pos[2];
     camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1];
@@ -109,6 +154,7 @@ void Update(float dt) {
         ImGui::DragFloat3("position", camera_position, 0.005);
         ImGui::DragFloat2("direction", camera_direction, 0.005);
         ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
+        ImGui::SliderFloat("timer", &timer, 0.0, 1.0);
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
         cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
@@ -211,7 +257,7 @@ void Update(float dt) {
     // Updating lighting
     float sun_angle = M_PI * (skybox.hour_ - 7.0) / 12.0;
     light_pos = vec3(300.0 * cos(sun_angle), 0.0, 300.0 * sin(sun_angle));
-    mat4 light_projection = ortho(-300.0f, 300.0f, -300.0f, 300.0f, 0.1f, 800.0f);
+    mat4 light_projection = ortho(-60.0f, 60.0f, -300.0f, 300.0f, 0.1f, 800.0f);
     mat4 light_view = lookAt(light_pos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     light_matrix = light_projection * light_view;
 
@@ -230,6 +276,14 @@ void Update(float dt) {
 
     cam_pos.z += dt * cam_vel[2] * cam_speed;
     cam_pos.z = glm::max(cam_pos.z, heightmap.GetCenterHeight() + 0.8f);
+
+    cam_dir = bezier(orientation_controls, timer);
+
+    vec3 b_cam_pos = bezier(camera_controls, timer);
+
+    hoffset[0] = b_cam_pos.x;
+    hoffset[1] = b_cam_pos.y;
+    cam_pos.z = b_cam_pos.z;
 
     vec3 cam_target(
         sin(cam_dir.y) * cos(cam_dir.x),
@@ -252,26 +306,6 @@ void Update(float dt) {
 
     first_run = false;
 }
-
-
-// http://stackoverflow.com/questions/785097/how-do-i-implement-a-b%C3%A9zier-curve-in-c
-vec3 getBezierPoint(vec3* points, float t) {
-    int numPoints = 10;
-    vec3* tmp = new vec3[numPoints];
-    memcpy(tmp, points, numPoints * sizeof(vec2));
-
-    int i = numPoints - 1;
-    while (i > 0) {
-        for (int k = 0; k < i; k++)
-            tmp[k] = tmp[k] + t * ( tmp[k+1] - tmp[k] );
-        i--;
-    }
-
-    vec3 answer = tmp[0];
-    delete[] tmp;
-    return answer;
-}
-
 
 void Display() {
     float time = glfwGetTime();

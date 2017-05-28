@@ -72,7 +72,7 @@ public:
     float diffuse_ = 0.25f, specular_ = 0.8f, alpha_ = 60.0f;
     float hsnow_ = 0.8f, fsnow_ = 2.2f;
     float fheight_ = 0.1f, fslope_ = 1.2f, fcolor_ = 0.8333f;
-    float light_bias_min_ = 2.5, light_bias_max_ = 5;
+    float light_bias_min_ = 5, light_bias_max_ = 5.5;
     bool wireframe_mode_ = false;
     vec3 cam_pos_, fog_color_;
     float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.004f, fog_power_ = 6.0f;
