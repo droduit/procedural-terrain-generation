@@ -126,7 +126,7 @@ void main() {
         vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
         21e-6,                          // Mie scattering coefficient
         8e3,                            // Rayleigh scale height
-        1.2e3,                          // Mie scale height
+        1.8e3,                          // Mie scale height
         0.758                           // Mie preferred scattering direction
     );
 

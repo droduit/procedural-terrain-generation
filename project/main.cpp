@@ -94,6 +94,7 @@ void Update(float dt) {
     static float camera_position[3]  = { 0.0, 0.0, 0.0 };
     static float camera_direction[2] = { 0.0, 0.0 };
     static float fog_color[3] = { 0.73, 0.8, 1.0 };
+    static float hour = 12.0;
 
     camera_position[0] = cam_pos[0]; camera_position[1] = cam_pos[1]; camera_position[2] = cam_pos[2];
     camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1];
@@ -193,10 +194,12 @@ void Update(float dt) {
         ImGui::SetNextTreeNodeOpen(true);
 
     if (ImGui::CollapsingHeader("SkyBox")) {
-        ImGui::SliderFloat("Hour", &skybox.hour_, 0.0, 24.0);
+        ImGui::SliderFloat("Hour", &hour, 0.0, 24.0);
         ImGui::SliderFloat("Rotate X", &skybox.rotX_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Y", &skybox.rotY_, 0.0, 2*3.142);
         ImGui::SliderFloat("Rotate Z", &skybox.rotZ_, 0.0, 2*3.142);
+
+        skybox.hour_ = 24.0 - hour + 2.0;
     }
 
     ImGui::Image((void*)shadows_tex_id, ImVec2(512, 512));
