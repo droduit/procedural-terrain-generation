@@ -25,6 +25,7 @@ uniform sampler2D sand_tex;
 uniform sampler2D rock_tex;
 uniform sampler2D snow_tex;
 
+uniform vec3 light_pos;
 uniform float light_bias_min, light_bias_max;
 
 out vec4 out_color;
@@ -60,14 +61,16 @@ void main() {
 
     out_color = out_color / dot(vec3(1.0), color.rgb);
 
-    // compute shadows
-    vec3 lightCoords = (vpoint_lightspace.xyz / vpoint_lightspace.w + 1.0) / 2.0;
-    float closestDepth = texture(shadows, lightCoords.xy).r;
-    float bias = max(light_bias_max * (1.0 - dot(norm, light_dir)), light_bias_min);
-    float shadow = (lightCoords.z - bias) < closestDepth ? 1.0 : 0.0;
+    if (light_pos.z > 0.0) {
+        // compute shadows
+        vec3 lightCoords = (vpoint_lightspace.xyz / vpoint_lightspace.w + 1.0) / 2.0;
+        float closestDepth = texture(shadows, lightCoords.xy).r;
+        float bias = max(light_bias_max * (1.0 - dot(norm, light_dir)), light_bias_min);
+        float shadow = (lightCoords.z - bias) < closestDepth ? 1.0 : 0.0;
 
-    // compute diffuse
-    out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0) * shadow;
+        // compute diffuse
+        out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0) * shadow;
+    }
 
     // force sand color underwater
     if (height < 0.0) {

@@ -204,6 +204,16 @@ void Update(float dt) {
     if(first_run)
         ImGui::SetNextTreeNodeOpen(true);
 
+    // Updating lighting
+    float sun_angle = M_PI * (skybox.hour_ - 7.0) / 12.0;
+    light_pos = vec3(300.0 * cos(sun_angle), 0.0, 300.0 * sin(sun_angle));
+    mat4 light_projection = ortho(-300.0f, 300.0f, -300.0f, 300.0f, 0.1f, 800.0f);
+    mat4 light_view = lookAt(light_pos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+    light_matrix = light_projection * light_view;
+
+    terrain.SetLighting(light_pos, light_matrix);
+
+    // Updating camera
     float cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
 
     for (int i = 0; i < 4; i++)
