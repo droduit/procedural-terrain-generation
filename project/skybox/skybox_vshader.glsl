@@ -16,7 +16,16 @@ mat4 S(float tx, float ty, float tz){
     return T;
 }
 
+mat4 T(float tx, float ty, float tz) {
+    mat4 T = mat4(1);
+    T[3][0] = tx;
+    T[3][1] = ty;
+    T[3][2] = tz;
+    return T;
+}
+
 void main() {
-    gl_Position = MVP * S(300, 300, 300) * vec4(vpoint,1);
-    texCoord = vpoint;
+    vec4 transformed = T(0, -cam_pos.z, 0) * S(300, 300, 300) * vec4(vpoint, 1.0);
+    gl_Position = MVP * transformed;
+    texCoord = transformed.xyz;
 }
