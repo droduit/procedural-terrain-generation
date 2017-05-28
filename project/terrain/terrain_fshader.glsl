@@ -57,7 +57,7 @@ void main() {
     out_color += rock  * color.b;
 
     if (height >= hsnow)
-        out_color = mix(out_color, snow, step(0.00001, snowAmount.r) * snowAmount.r);
+        out_color = mix(out_color, snow, step(0.0001, snowAmount.r) * snowAmount.r);
 
     out_color = out_color / dot(vec3(1.0), color.rgb);
 
