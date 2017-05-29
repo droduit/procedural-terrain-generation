@@ -137,7 +137,7 @@ vec2 bezier(std::vector<vec2> controls, float t) {
 }
 
 void Update(float dt) {
-    static bool first_run = true;
+    static bool first_run = true, lock_height = true;
     static float speed = 0.0;
     static float hoffset[2] = { heightmap.dx_, heightmap.dy_ };
     static float camera_position[3]  = { 0.0, 0.0, 0.0 };
@@ -162,6 +162,7 @@ void Update(float dt) {
         ImGui::RadioButton("free", (int*)&cam_type, CAMERA_FREE); ImGui::SameLine();
         ImGui::RadioButton("FPS", (int*)&cam_type, CAMERA_FPS); ImGui::SameLine();
         ImGui::RadioButton("bezier path", (int*)&cam_type, CAMERA_PATH);
+        ImGui::Checkbox("lock cam height", &lock_height); ImGui::SameLine();
         ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
@@ -271,6 +272,10 @@ void Update(float dt) {
 
     terrain.SetLighting(light_pos, light_matrix);
 
+    cam_dir.x -= cam_vel[3] * dt;
+
+    vec3 cam_target;
+
     // Updating camera
     if (cam_type != CAMERA_PATH) {
         float cam_speed = 1.0f;
@@ -281,37 +286,48 @@ void Update(float dt) {
         for (int i = 0; i < 4; i++)
             cam_vel[i] += dt * (30.0 * cam_acc[i] - cam_vel[i] * 15.0);
 
-        cam_dir.x -= cam_vel[3] * dt;
+        cam_target = vec3(
+            sin(cam_dir.y) * cos(cam_dir.x),
+            sin(cam_dir.y) * sin(cam_dir.x),
+            cos(cam_dir.y)
+        );
 
         vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
 
         cam_pos.z += dt * cam_vel[2] * cam_speed;
 
-        if (cam_type == CAMERA_FPS)
+        if (cam_type == CAMERA_FREE && !lock_height)
+            cam_pos.z += dt * 60.0f * cam_speed * cam_vel[0] * cam_target.z;
+        else if (cam_type == CAMERA_FPS)
             cam_pos.z = heightmap.GetCenterHeight() + 1.0f;
 
-        heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
-        heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
+        if (cam_type == CAMERA_FREE) {
+            heightmap.dx_ = (hoffset[0] += speed * dt * cam_target.x + dt * cam_vel[0] * cam_speed * cam_target.x - dt * cam_vel[1] * cam_speed * cam_target.y);
+            heightmap.dy_ = (hoffset[1] += speed * dt * cam_target.y + dt * cam_vel[0] * cam_speed * cam_target.y + dt * cam_vel[1] * cam_speed * cam_target.x);
+        } else {
+            heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
+            heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
+        }
 
         terrain.hoffset_.x = hoffset[0];
         terrain.hoffset_.y = hoffset[1];
     } else {
+        timer = glm::clamp(timer + cam_acc[0] * dt, 0.0f, 1.0f);
         cam_dir = bezier(orientation_controls, timer);
-
         vec3 b_cam_pos = bezier(camera_controls, timer);
 
         terrain.hoffset_.x = heightmap.dx_ = hoffset[0] = b_cam_pos.x;
         terrain.hoffset_.y = heightmap.dy_ = hoffset[1] = b_cam_pos.y;
         cam_pos.z = b_cam_pos.z;
+
+        cam_target = vec3(
+            sin(cam_dir.y) * cos(cam_dir.x),
+            sin(cam_dir.y) * sin(cam_dir.x),
+            cos(cam_dir.y)
+        );
     }
 
     heightmap.Draw();
-
-    vec3 cam_target(
-        sin(cam_dir.y) * cos(cam_dir.x),
-        sin(cam_dir.y) * sin(cam_dir.x),
-        cos(cam_dir.y)
-    );
 
     vec3 cam_look = cam_pos + cam_target;
     view_matrix = lookAt(cam_pos, cam_look, cam_up);
