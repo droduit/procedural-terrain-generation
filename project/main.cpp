@@ -39,6 +39,10 @@ int water_framebuffer_width = (int) window_width*FRAMEBUFFER_RATIO;
 int water_framebuffer_height = (int) window_height*FRAMEBUFFER_RATIO;
 const vec3 cam_up = vec3(0.0f, 0.0f, 1.0f);
 
+enum camera_type {
+    CAMERA_FREE, CAMERA_FPS, CAMERA_PATH
+};
+
 mat4 projection_matrix;
 mat4 framebuffer_projection_matrix;
 mat4 view_matrix;
@@ -140,6 +144,7 @@ void Update(float dt) {
     static float camera_direction[2] = { 0.0, 0.0 };
     static float fog_color[3] = { 0.73, 0.8, 1.0 };
     static float hour = 18.5, timer = 0.0;
+    static enum camera_type cam_type = CAMERA_FREE;
 
     camera_position[0] = cam_pos[0]; camera_position[1] = cam_pos[1]; camera_position[2] = cam_pos[2];
     camera_direction[0] = cam_dir[0]; camera_direction[1] = cam_dir[1];
@@ -153,8 +158,11 @@ void Update(float dt) {
     if (ImGui::CollapsingHeader("Camera")) {
         ImGui::DragFloat3("position", camera_position, 0.005);
         ImGui::DragFloat2("direction", camera_direction, 0.005);
-        ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
         ImGui::SliderFloat("timer", &timer, 0.0, 1.0);
+        ImGui::RadioButton("free", (int*)&cam_type, CAMERA_FREE); ImGui::SameLine();
+        ImGui::RadioButton("FPS", (int*)&cam_type, CAMERA_FPS); ImGui::SameLine();
+        ImGui::RadioButton("bezier path", (int*)&cam_type, CAMERA_PATH);
+        ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
 
         cam_pos[0] = camera_position[0]; cam_pos[1] = camera_position[1]; cam_pos[2] = camera_position[2];
         cam_dir[0] = camera_direction[0]; cam_dir[1] = camera_direction[1];
@@ -264,26 +272,39 @@ void Update(float dt) {
     terrain.SetLighting(light_pos, light_matrix);
 
     // Updating camera
-    float cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
+    if (cam_type != CAMERA_PATH) {
+        float cam_speed = 1.0f;
+        
+        if (cam_type == CAMERA_FREE)
+            cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
 
-    for (int i = 0; i < 4; i++)
-        cam_vel[i] += dt * (30.0 * cam_acc[i] - cam_vel[i] * 15.0);
+        for (int i = 0; i < 4; i++)
+            cam_vel[i] += dt * (30.0 * cam_acc[i] - cam_vel[i] * 15.0);
 
-    cam_dir.x -= cam_vel[3] * dt;
+        cam_dir.x -= cam_vel[3] * dt;
 
-    vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
+        vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
 
+        cam_pos.z += dt * cam_vel[2] * cam_speed;
 
-    cam_pos.z += dt * cam_vel[2] * cam_speed;
-    cam_pos.z = glm::max(cam_pos.z, heightmap.GetCenterHeight() + 0.8f);
+        if (cam_type == CAMERA_FPS)
+            cam_pos.z = heightmap.GetCenterHeight() + 1.0f;
 
-    cam_dir = bezier(orientation_controls, timer);
+        heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
+        heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
+        heightmap.Draw();
 
-    vec3 b_cam_pos = bezier(camera_controls, timer);
+        terrain.hoffset_.x = hoffset[0];
+        terrain.hoffset_.y = hoffset[1];
+    } else {
+        cam_dir = bezier(orientation_controls, timer);
 
-    hoffset[0] = b_cam_pos.x;
-    hoffset[1] = b_cam_pos.y;
-    cam_pos.z = b_cam_pos.z;
+        vec3 b_cam_pos = bezier(camera_controls, timer);
+
+        hoffset[0] = b_cam_pos.x;
+        hoffset[1] = b_cam_pos.y;
+        cam_pos.z = b_cam_pos.z;
+    }
 
     vec3 cam_target(
         sin(cam_dir.y) * cos(cam_dir.x),
@@ -296,13 +317,6 @@ void Update(float dt) {
 
     terrain.cam_pos_ = cam_pos;
     water.cam_pos_ = cam_pos;
-
-    heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
-    heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
-    heightmap.Draw();
-
-    terrain.hoffset_.x = hoffset[0];
-    terrain.hoffset_.y = hoffset[1];
 
     first_run = false;
 }
