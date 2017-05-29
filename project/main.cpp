@@ -292,7 +292,6 @@ void Update(float dt) {
 
         heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
         heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
-        heightmap.Draw();
 
         terrain.hoffset_.x = hoffset[0];
         terrain.hoffset_.y = hoffset[1];
@@ -301,10 +300,12 @@ void Update(float dt) {
 
         vec3 b_cam_pos = bezier(camera_controls, timer);
 
-        hoffset[0] = b_cam_pos.x;
-        hoffset[1] = b_cam_pos.y;
+        terrain.hoffset_.x = heightmap.dx_ = hoffset[0] = b_cam_pos.x;
+        terrain.hoffset_.y = heightmap.dy_ = hoffset[1] = b_cam_pos.y;
         cam_pos.z = b_cam_pos.z;
     }
+
+    heightmap.Draw();
 
     vec3 cam_target(
         sin(cam_dir.y) * cos(cam_dir.x),
