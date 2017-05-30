@@ -137,7 +137,7 @@ vec2 bezier(std::vector<vec2> controls, float t) {
 }
 
 void Update(float dt) {
-    static bool first_run = true, lock_height = true;
+    static bool first_run = true, lock_height = true, show_lighting = true;
     static float speed = 0.0;
     static float hoffset[2] = { heightmap.dx_, heightmap.dy_ }, sm_edges[2] = { 60.0f, 45.0f };
     static float camera_position[3]  = { 0.0, 0.0, 0.0 };
@@ -221,13 +221,6 @@ void Update(float dt) {
         ImGui::DragFloat("fheight", &terrain.fheight_, 0.005);
         ImGui::DragFloat("hsnow", &terrain.hsnow_, 0.005);
         ImGui::DragFloat("fsnow", &terrain.fsnow_, 0.005);
-
-        ImGui::DragFloat("diffuse", &terrain.diffuse_, 0.005);
-        ImGui::DragFloat("specular", &terrain.specular_, 0.005);
-        ImGui::DragFloat("alpha", &terrain.alpha_, 0.5);
-
-        ImGui::SliderFloat("light bias min", &terrain.light_bias_min_, 0.1, 10);
-        ImGui::SliderFloat("light bias max", &terrain.light_bias_max_, 0.1, 20);
     }
 
     if (first_run)
@@ -248,18 +241,29 @@ void Update(float dt) {
     if (first_run)
         ImGui::SetNextTreeNodeOpen(true);
 
-    if (ImGui::CollapsingHeader("SkyBox")) {
+    if (show_lighting) {
+        ImGui::Begin("Lighting", &show_lighting, 0);
+
         ImGui::SliderFloat("hour", &hour, 6.0, 20.0);
         ImGui::SliderFloat("sun delta", &skybox.sun_delta_, -1.0, 1.0);
+
+        ImGui::DragFloat("diffuse", &terrain.diffuse_, 0.005);
+        //ImGui::DragFloat("specular", &terrain.specular_, 0.005);
+        //ImGui::DragFloat("alpha", &terrain.alpha_, 0.5);
+
+        ImGui::SliderFloat("light bias min", &terrain.light_bias_min_, 0.1, 10);
+        ImGui::SliderFloat("light bias max", &terrain.light_bias_max_, 0.1, 20);
+        ImGui::SliderFloat2("SM edges", sm_edges, 0.0, 300.0);
+
+        ImGui::Image((void*)shadows_tex_id, ImVec2(512, 512));
+
         ImGui::SliderFloat("rotate X", &skybox.rotX_, 0.0, 2*3.142);
         ImGui::SliderFloat("rotate Y", &skybox.rotY_, 0.0, 2*3.142);
         ImGui::SliderFloat("rotate Z", &skybox.rotZ_, 0.0, 2*3.142);
-        ImGui::SliderFloat2("SM edges", sm_edges, 0.0, 300.0);
+        ImGui::End();
 
         skybox.hour_ = 24.0 - hour + 2.0;
     }
-
-    ImGui::Image((void*)shadows_tex_id, ImVec2(512, 512));
 
     if(first_run)
         ImGui::SetNextTreeNodeOpen(true);
