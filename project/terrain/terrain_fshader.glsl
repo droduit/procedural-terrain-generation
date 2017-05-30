@@ -1,4 +1,5 @@
 #version 330
+#define PI 3.141592
 
 in float height;
 in vec4 vpoint_mv;
@@ -16,6 +17,7 @@ uniform float fheight, fslope, fcolor, hsnow, fsnow;
 uniform float diffuse, specular, alpha;
 
 uniform vec3 fog_color;
+uniform vec3 diffuse_color;
 uniform float fog_start, fog_end, fog_density, fog_power;
 uniform int fog_type;
 
@@ -70,9 +72,9 @@ void main() {
 
         // compute diffuse
         if (shadow == 0.0)
-            out_color *= 0.7;
+            out_color *= vec4(0.7, 0.7, 0.7, 1.0);
         else
-            out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0) * shadow;
+            out_color += dot(norm, light_dir) * vec4(2 * diffuse * diffuse_color, 1.0) * shadow;
     }
 
     // force sand color underwater

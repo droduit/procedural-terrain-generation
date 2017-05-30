@@ -73,6 +73,16 @@ vector<vec2> orientation_controls{
     vec2(5.937, -1.593),
 };
 
+vector<vec3> diffuse_controls{
+    vec3(0.1, 0.1, 0.2), // 0h
+    vec3(0.1, 0.1, 0.2), // 4h
+    vec3(0.6, 0.8, 0.3), // 8h
+    vec3(1.0, 1.0, 1.0), // 12h
+    vec3(1.0, 1.0, 0.4), // 16h
+    vec3(1.0, 0.4, 0.2), // 20h
+    vec3(0.1, 0.1, 0.2), // 24h
+};
+
 void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
     glEnable(GL_DEPTH_TEST);
@@ -247,7 +257,14 @@ void Update(float dt) {
         ImGui::SliderFloat("hour", &hour, 6.0, 20.0);
         ImGui::SliderFloat("sun delta", &skybox.sun_delta_, -1.0, 1.0);
 
+        float diffuse_color_arr[3] = {
+            terrain.diffuse_color_[0],
+            terrain.diffuse_color_[1],
+            terrain.diffuse_color_[2],
+        };
+
         ImGui::DragFloat("diffuse", &terrain.diffuse_, 0.005);
+        ImGui::ColorEdit3("diffuse color", diffuse_color_arr);
         //ImGui::DragFloat("specular", &terrain.specular_, 0.005);
         //ImGui::DragFloat("alpha", &terrain.alpha_, 0.5);
 
@@ -261,9 +278,10 @@ void Update(float dt) {
         ImGui::SliderFloat("rotate Y", &skybox.rotY_, 0.0, 2*3.142);
         ImGui::SliderFloat("rotate Z", &skybox.rotZ_, 0.0, 2*3.142);
         ImGui::End();
-
-        skybox.hour_ = 24.0 - hour + 2.0;
     }
+
+    skybox.hour_ = 24.0 - hour + 2.0;
+    terrain.diffuse_color_ = bezier(diffuse_controls, hour / 24.0f);
 
     if(first_run)
         ImGui::SetNextTreeNodeOpen(true);

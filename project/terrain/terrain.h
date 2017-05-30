@@ -78,6 +78,7 @@ public:
     float fog_start_ = 80.0f, fog_end_ = 100.0f, fog_density_ = 0.004f, fog_power_ = 6.0f;
     int fog_type_ = 1;
     vec2 hoffset_ = vec2(0.0f);
+    vec3 diffuse_color_;
 
     void Init(GLuint heightmap_texture_id, GLuint shadows_texture_id, int grid_tesselation, float grid_area) {
         grid_tesselation_ = grid_tesselation;
@@ -264,6 +265,8 @@ public:
 
         glUniform2fv(glGetUniformLocation(program_id_, "hoffset"), ONE, glm::value_ptr(hoffset_));
         glUniform4fv(glGetUniformLocation(program_id_, "clip_plane"), ONE, glm::value_ptr(clip_plane_));
+
+        glUniform3fv(glGetUniformLocation(program_id_, "diffuse_color"), ONE, glm::value_ptr(diffuse_color_));
 
         glUniform1f(glGetUniformLocation(program_id_, "light_bias_min"), this->light_bias_min_ * 1e-3);
         glUniform1f(glGetUniformLocation(program_id_, "light_bias_max"), this->light_bias_max_ * 1e-3);
