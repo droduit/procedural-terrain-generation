@@ -115,7 +115,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 void main() {
     //color = texture(skybox, texCoord);
 
-    float sun_angle = PI * (hour - 7.0) / 12.0;
+    float sun_angle = PI - PI * (hour - 7.0) / 12.0;
     vec3 sun_pos = vec3(cos(sun_angle), sin(sun_angle), 0.0);
 
     vec3 _color = atmosphere(

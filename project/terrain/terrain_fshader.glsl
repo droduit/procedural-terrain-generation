@@ -69,7 +69,10 @@ void main() {
         float shadow = (lightCoords.z - bias) < closestDepth ? 1.0 : 0.0;
 
         // compute diffuse
-        out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0) * shadow;
+        if (shadow == 0.0)
+            out_color *= 0.7;
+        else
+            out_color += dot(norm, light_dir) * vec4(vec3(diffuse), 1.0) * shadow;
     }
 
     // force sand color underwater
