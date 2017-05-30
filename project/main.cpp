@@ -38,6 +38,7 @@ int window_height = 1000;
 int water_framebuffer_width = (int) window_width*FRAMEBUFFER_RATIO;
 int water_framebuffer_height = (int) window_height*FRAMEBUFFER_RATIO;
 const vec3 cam_up = vec3(0.0f, 0.0f, 1.0f);
+const int grid_tesselation = 512, grid_area = 600;
 
 enum camera_type {
     CAMERA_FREE, CAMERA_FPS, CAMERA_PATH
@@ -89,7 +90,6 @@ void Init(GLFWwindow* window) {
     mat4 light_view = lookAt(light_pos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     light_matrix = light_projection * light_view;
 
-    const int grid_tesselation = 512, grid_area = 600;
     shadows_tex_id = shadows.Init(grid_tesselation, grid_tesselation);
 
     heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
@@ -284,7 +284,7 @@ void Update(float dt) {
     // Updating camera
     if (cam_type != CAMERA_PATH) {
         float cam_speed = 1.0f;
-        
+
         if (cam_type == CAMERA_FREE)
             cam_speed = glm::max(0.5f, (float)pow(abs(cam_pos.z), 0.8f));
 
@@ -307,22 +307,18 @@ void Update(float dt) {
             cam_pos.z = heightmap.GetCenterHeight() + 1.0f;
 
         if (cam_type == CAMERA_FREE) {
-            heightmap.dx_ = (hoffset[0] += speed * dt * cam_target.x + dt * cam_vel[0] * cam_speed * cam_target.x - dt * cam_vel[1] * cam_speed * cam_target.y);
-            heightmap.dy_ = (hoffset[1] += speed * dt * cam_target.y + dt * cam_vel[0] * cam_speed * cam_target.y + dt * cam_vel[1] * cam_speed * cam_target.x);
+            hoffset[0] += speed * dt * cam_target.x + dt * cam_vel[0] * cam_speed * cam_target.x - dt * cam_vel[1] * cam_speed * cam_target.y;
+            hoffset[1] += speed * dt * cam_target.y + dt * cam_vel[0] * cam_speed * cam_target.y + dt * cam_vel[1] * cam_speed * cam_target.x;
         } else {
-            heightmap.dx_ = (hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y);
-            heightmap.dy_ = (hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x);
+            hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y;
+            hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x;
         }
-
-        terrain.hoffset_.x = hoffset[0];
-        terrain.hoffset_.y = hoffset[1];
     } else {
         timer = glm::clamp(timer + cam_acc[0] * dt, 0.0f, 1.0f);
         cam_dir = bezier(orientation_controls, timer);
         vec3 b_cam_pos = bezier(camera_controls, timer);
-
-        terrain.hoffset_.x = heightmap.dx_ = hoffset[0] = b_cam_pos.x;
-        terrain.hoffset_.y = heightmap.dy_ = hoffset[1] = b_cam_pos.y;
+        hoffset[0] = b_cam_pos.x;
+        hoffset[1] = b_cam_pos.y;
         cam_pos.z = b_cam_pos.z;
 
         cam_target = vec3(
@@ -331,6 +327,10 @@ void Update(float dt) {
             cos(cam_dir.y)
         );
     }
+    terrain.hoffset_.x = heightmap.dx_ = floor(hoffset[0]*grid_area/grid_tesselation)*grid_tesselation/grid_area;
+    terrain.hoffset_.y = heightmap.dy_ = floor(hoffset[1]*grid_area/grid_tesselation)*grid_tesselation/grid_area;
+    cam_pos.x = (hoffset[0] - heightmap.dx_)*100;
+    cam_pos.y = (hoffset[1] - heightmap.dy_)*100;
 
     heightmap.Draw();
 
