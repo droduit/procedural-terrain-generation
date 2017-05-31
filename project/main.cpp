@@ -317,12 +317,14 @@ void Update(float dt) {
 
         vec2 cam_dir_2d(-cos(cam_dir.x), -sin(cam_dir.x));
 
-        cam_pos.z += dt * cam_vel[2] * cam_speed;
-
         if (cam_type == CAMERA_FREE && !lock_height)
             cam_pos.z += dt * 60.0f * cam_speed * cam_vel[0] * cam_target.z;
-        else if (cam_type == CAMERA_FPS)
-            cam_pos.z = heightmap.GetCenterHeight() + 1.0f;
+        else if (cam_type == CAMERA_FPS) {
+            float dz = heightmap.GetCenterHeight(cam_pos[0], cam_pos[1]) + 1.0f - cam_pos.z;
+            cam_vel.z += dt * (200.0 * dz - cam_vel.z * 10.0);
+        }
+
+        cam_pos.z += dt * cam_vel[2] * cam_speed;
 
         if (cam_type == CAMERA_FREE) {
             hoffset[0] += speed * dt * cam_target.x + dt * cam_vel[0] * cam_speed * cam_target.x - dt * cam_vel[1] * cam_speed * cam_target.y;
