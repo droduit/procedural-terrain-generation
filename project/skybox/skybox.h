@@ -115,21 +115,6 @@ class SkyBox {
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
             }
 
-            // load texture
-            {
-                vector<const GLchar*> faces;
-                faces.push_back("tex_sky_right.tga");
-                faces.push_back("tex_sky_left.tga");
-                faces.push_back("tex_sky_bottom.tga");
-                faces.push_back("tex_sky_top.tga");
-                faces.push_back("tex_sky_back.tga");
-                faces.push_back("tex_sky_front.tga");
-                GLuint cubemapTexture = loadCubemap(faces);
-
-                glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-
             // to avoid the current object being polluted
             glBindVertexArray(0);
             glDepthMask(GL_TRUE);
