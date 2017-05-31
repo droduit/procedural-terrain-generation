@@ -451,11 +451,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     if (action == GLFW_PRESS) {
         switch (key) {
-            case GLFW_KEY_P:
-                cout << "cam_pos : (" << cam_pos[0] << ", " << cam_pos[1] << ", " << cam_pos[2] << ")" << endl;
-                cout << "cam_dir : (" << cam_dir[0] << ", " << cam_dir[1] << ")" << endl;
-                break;
-
 
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
