@@ -29,8 +29,8 @@ void main() {
     normal_vec *= (1 - border_transparency); // soften the waves at the edges
     normal_vec.z += 4.5; // lesser amplitude
     normal_vec = normalize(normal_vec);
-
-    float fresnel = dot(normalize((cam_pos_mv - vpoint_mv).xyz), mix(normal_vec, vec3(0,0,1), 0.8));
+    vec3 camToWater = (cam_pos_mv - vpoint_mv).xyz;
+    float fresnel = dot(normalize(camToWater), mix(normal_vec, vec3(0,0,1), 0.8));
     uv_mirror.y = 1.0 - uv_mirror.y;
 
     vec3 reflected_uv = reflect(vec3(uv_mirror, 0.0), normal_vec);
@@ -40,10 +40,10 @@ void main() {
     vec3 color = reflection_color.rgb;
 
     // add fog
-    //float distance = length(camToWater);
-    //float fog_factor = 1.0 - exp(-pow(fog_density * distance, fog_power));
+    float distance = length(camToWater);
+    float fog_factor = 1.0 - exp(-pow(fog_density * distance, fog_power));
+    color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
 
-    //color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
     float total_transparency = clamp(border_transparency/2 + fresnel, 0.0, 0.8);
     out_color = vec4(color, 1 - total_transparency);
     //color = out_color.xyz;

@@ -100,7 +100,7 @@ void Init(GLFWwindow* window) {
     mat4 light_view = lookAt(light_pos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     light_matrix = light_projection * light_view;
 
-    shadows_tex_id = shadows.Init(grid_tesselation, grid_tesselation);
+    shadows_tex_id = shadows.Init(grid_tesselation*2, grid_tesselation*2);
 
     heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
     terrain.Init(heightmap_tex_id, shadows_tex_id, grid_tesselation, grid_area);
@@ -359,8 +359,8 @@ void Update(float dt) {
         );
     }
 
-    terrain.hoffset_.x = heightmap.dx_ = floor(hoffset[0]*grid_area/grid_tesselation)*grid_tesselation/grid_area;
-    terrain.hoffset_.y = heightmap.dy_ = floor(hoffset[1]*grid_area/grid_tesselation)*grid_tesselation/grid_area;
+    terrain.hoffset_.x = heightmap.dx_ = floor(hoffset[0]*grid_area*2/grid_tesselation)*grid_tesselation/grid_area/2;
+    terrain.hoffset_.y = heightmap.dy_ = floor(hoffset[1]*grid_area*2/grid_tesselation)*grid_tesselation/grid_area/2;
     cam_pos.x = (hoffset[0] - heightmap.dx_)*100;
     cam_pos.y = (hoffset[1] - heightmap.dy_)*100;
 
