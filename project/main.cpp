@@ -41,7 +41,7 @@ const vec3 cam_up = vec3(0.0f, 0.0f, 1.0f);
 const int grid_tesselation = 512, grid_area = 600;
 
 enum camera_type {
-    CAMERA_FREE, CAMERA_FPS, CAMERA_PATH
+    CAMERA_FREE, CAMERA_FPS, CAMERA_PATH, CAMERA_HOUR
 };
 
 mat4 projection_matrix;
@@ -171,7 +171,8 @@ void Update(float dt) {
         ImGui::SliderFloat("timer", &timer, 0.0, 1.0);
         ImGui::RadioButton("free", (int*)&cam_type, CAMERA_FREE); ImGui::SameLine();
         ImGui::RadioButton("FPS", (int*)&cam_type, CAMERA_FPS); ImGui::SameLine();
-        ImGui::RadioButton("bezier path", (int*)&cam_type, CAMERA_PATH);
+        ImGui::RadioButton("bezier path", (int*)&cam_type, CAMERA_PATH); ImGui::SameLine();
+        ImGui::RadioButton("time", (int*)&cam_type, CAMERA_HOUR);
         ImGui::Checkbox("lock cam height", &lock_height); ImGui::SameLine();
         ImGui::Checkbox("wireframe", &terrain.wireframe_mode_);
 
@@ -300,7 +301,7 @@ void Update(float dt) {
     vec3 cam_target;
 
     // Updating camera
-    if (cam_type != CAMERA_PATH) {
+    if (cam_type == CAMERA_FREE || cam_type == CAMERA_FPS) {
         float cam_speed = 1.0f;
 
         if (cam_type == CAMERA_FREE)
@@ -333,7 +334,7 @@ void Update(float dt) {
             hoffset[0] += speed * dt * cam_dir_2d.x + dt * cam_vel[0] * cam_speed * cam_dir_2d.x - dt * cam_vel[1] * cam_speed * cam_dir_2d.y;
             hoffset[1] += speed * dt * cam_dir_2d.y + dt * cam_vel[0] * cam_speed * cam_dir_2d.y + dt * cam_vel[1] * cam_speed * cam_dir_2d.x;
         }
-    } else {
+    } else if (cam_type == CAMERA_PATH) {
         timer = glm::clamp(timer + cam_acc[0] * dt, 0.0f, 1.0f);
         cam_dir = bezier(orientation_controls, timer);
         vec3 b_cam_pos = bezier(camera_controls, timer);
@@ -346,7 +347,18 @@ void Update(float dt) {
             sin(cam_dir.y) * sin(cam_dir.x),
             cos(cam_dir.y)
         );
+    } else {
+        hour = glm::clamp(hour + cam_acc[0] * 2 * dt, 6.0f, 20.0f);
+        skybox.hour_ = 24.0 - hour + 2.0;
+        terrain.diffuse_color_ = bezier(diffuse_controls, hour / 24.0f);
+
+        cam_target = vec3(
+            sin(cam_dir.y) * cos(cam_dir.x),
+            sin(cam_dir.y) * sin(cam_dir.x),
+            cos(cam_dir.y)
+        );
     }
+
     terrain.hoffset_.x = heightmap.dx_ = floor(hoffset[0]*grid_area/grid_tesselation)*grid_tesselation/grid_area;
     terrain.hoffset_.y = heightmap.dy_ = floor(hoffset[1]*grid_area/grid_tesselation)*grid_tesselation/grid_area;
     cam_pos.x = (hoffset[0] - heightmap.dx_)*100;
