@@ -16,6 +16,7 @@
 
 #include "framebuffer.h"
 #include "shadows.h"
+#include "bezier.h"
 #include "water/water.h"
 #include "skybox/skybox.h"
 #include "screenquad/screenquad.h"
@@ -59,21 +60,19 @@ vec3 light_pos;
 GLuint shadows_tex_id = 0;
 GLuint heightmap_tex_id = 0;
 
-vector<vec3> camera_controls{
+vector<vec3> camera_controls = generate_piecewise_bezier(vector<vec3>{
     vec3(0.421, -1.211, 6.75),
     vec3(0.684, -1.750, 6.75),
     vec3(1.551, -1.728, 6.75),
-    vec3(1.730, -1.202, 0.58),
-};
+    vec3(1.730, -1.202, 0.58)}, 2);
 
-vector<vec2> orientation_controls{
+vector<vec2> orientation_controls = generate_piecewise_bezier(vector<vec2>{
     vec2(2.377, -1.753),
     vec2(3.400, -1.753),
     vec2(4.622, -1.753),
-    vec2(5.937, -1.593),
-};
+    vec2(5.937, -1.593)}, 2);
 
-vector<vec3> diffuse_controls{
+vector<vec3> diffuse_controls = generate_piecewise_bezier(vector<vec3>{
     vec3(0.1, 0.1, 0.2), // 0h
     vec3(0.1, 0.1, 0.2), // 4h
     vec3(0.6, 0.8, 0.3), // 8h
@@ -81,7 +80,8 @@ vector<vec3> diffuse_controls{
     vec3(1.0, 1.0, 0.4), // 16h
     vec3(1.0, 0.4, 0.2), // 20h
     vec3(0.1, 0.1, 0.2), // 24h
-};
+        }, 0);
+
 
 void Init(GLFWwindow* window) {
     glClearColor(1.0, 1.0, 1.0 /*white*/, 1.0 /*solid*/);
@@ -100,7 +100,7 @@ void Init(GLFWwindow* window) {
     mat4 light_view = lookAt(light_pos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     light_matrix = light_projection * light_view;
 
-    shadows_tex_id = shadows.Init(grid_tesselation*2, grid_tesselation*2);
+    shadows_tex_id = shadows.Init(grid_tesselation*4, grid_tesselation*4);
 
     heightmap_tex_id = heightmap.Init(grid_tesselation, grid_tesselation);
     terrain.Init(heightmap_tex_id, shadows_tex_id, grid_tesselation, grid_area);
@@ -113,37 +113,6 @@ void Init(GLFWwindow* window) {
 
     skybox.Init();
 
-}
-
-int fact(int n) {
-    int res = 1;
-
-    for (int i = 1; i <= n; i++)
-        res *= i;
-
-    return res;
-}
-
-int binomial(int n, int k) {
-    return fact(n) / (fact(k) * fact(n - k));
-}
-
-vec3 bezier(std::vector<vec3> controls, float t) {
-    vec3 point = vec3(0.0);
-
-    for (int k = 0, n = controls.size(); k < n; k++)
-        point += controls[k] * (float)binomial(n-1, k) * (float)pow(1.0 - t, n - 1 - k) * (float)pow(t, k);
-
-    return point;
-}
-
-vec2 bezier(std::vector<vec2> controls, float t) {
-    vec2 point = vec2(0.0);
-
-    for (int k = 0, n = controls.size(); k < n; k++)
-        point += controls[k] * (float)binomial(n-1, k) * (float)pow(1.0 - t, n - 1 - k) * (float)pow(t, k);
-
-    return point;
 }
 
 void Update(float dt) {
@@ -282,7 +251,7 @@ void Update(float dt) {
     }
 
     skybox.hour_ = 24.0 - hour + 2.0;
-    terrain.diffuse_color_ = bezier(diffuse_controls, hour / 24.0f);
+    terrain.diffuse_color_ = evaluate_piecewise_bezier(diffuse_controls, hour / 24.0f);
 
     if(first_run)
         ImGui::SetNextTreeNodeOpen(true);
@@ -337,7 +306,7 @@ void Update(float dt) {
     } else if (cam_type == CAMERA_PATH) {
         timer = glm::clamp(timer + cam_acc[0] * dt, 0.0f, 1.0f);
         cam_dir = bezier(orientation_controls, timer);
-        vec3 b_cam_pos = bezier(camera_controls, timer);
+        vec3 b_cam_pos = evaluate_piecewise_bezier(camera_controls, timer);
         hoffset[0] = b_cam_pos.x;
         hoffset[1] = b_cam_pos.y;
         cam_pos.z = b_cam_pos.z;
