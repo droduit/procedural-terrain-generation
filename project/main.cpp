@@ -64,13 +64,15 @@ vector<vec3> camera_controls = generate_piecewise_bezier(vector<vec3>{
     vec3(0.421, -1.211, 6.75),
     vec3(0.684, -1.750, 6.75),
     vec3(1.551, -1.728, 6.75),
-    vec3(1.730, -1.202, 0.58)}, 2);
+    vec3(1.730, -1.202, 2.58),
+    }, 2);
 
 vector<vec2> orientation_controls = generate_piecewise_bezier(vector<vec2>{
     vec2(2.377, -1.753),
     vec2(3.400, -1.753),
     vec2(4.622, -1.753),
-    vec2(5.937, -1.593)}, 2);
+    vec2(5.937, -1.593),
+    }, 2);
 
 vector<vec3> diffuse_controls = generate_piecewise_bezier(vector<vec3>{
     vec3(0.1, 0.1, 0.2), // 0h
@@ -305,7 +307,7 @@ void Update(float dt) {
         }
     } else if (cam_type == CAMERA_PATH) {
         timer = glm::clamp(timer + cam_acc[0] * dt, 0.0f, 1.0f);
-        cam_dir = bezier(orientation_controls, timer);
+        cam_dir = evaluate_piecewise_bezier(orientation_controls, timer);
         vec3 b_cam_pos = evaluate_piecewise_bezier(camera_controls, timer);
         hoffset[0] = b_cam_pos.x;
         hoffset[1] = b_cam_pos.y;
