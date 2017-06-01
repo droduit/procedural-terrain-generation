@@ -21,6 +21,7 @@ class Heightmap {
         float hcomp_ = 6.0, vcomp_ = 13.0, voffset_ = -8.5;
         float H_ = 0.5, lacunarity_ = 2.0, warp_ = 0.15;
         int type_ = 3, seed_ = 4, octaves_ = 8;
+        float old_hoffset[2] = {0,0};
 
         GLuint Init(float screenquad_width, float screenquad_height) {
             // set screenquad size
@@ -104,6 +105,13 @@ class Heightmap {
         }
 
         void Draw() {
+
+            if (dx_ == old_hoffset[0] && dy_ == old_hoffset[1])
+                return;
+
+            old_hoffset[0] = dx_;
+            old_hoffset[1] = dy_;
+
             framebuffer_.Bind();
 
             glViewport(0, 0, screenquad_width_, screenquad_height_);
