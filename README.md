@@ -1,10 +1,9 @@
 # Procedural Terrain Generation
 
 ## Screenshots
-<p><img src="http://dominique.leroduit.com/cg_1.jpg" /></p>
-<p><img src="http://dominique.leroduit.com/cg_2.jpg" /></p>
-<p><img src="http://dominique.leroduit.com/cg_3.jpg" /></p>
-<p><img src="http://dominique.leroduit.com/cg_4.jpg" /></p>
+<p><img src="https://ttreyer.github.io/procedural-terrain-generation/images/image3.png" /></p>
+<p><img src="https://ttreyer.github.io/procedural-terrain-generation/images/image1.png" /></p>
+<p><img src="https://ttreyer.github.io/procedural-terrain-generation/images/image2.png" /></p>
 
 ### Contributors
 <ul>
